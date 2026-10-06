@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { DossierVivant } from '@nomarguerrie/shared-types';
-import { ShieldCheck, X, Clock, PhoneCall, FileText, Search, QrCode } from 'lucide-react';
+import { ShieldCheck, X, Clock, PhoneCall, FileText, Search, QrCode, CheckCircle2, Check } from 'lucide-react';
 
 interface FamilleSuiviModalProps {
   dossier: DossierVivant | null;
@@ -25,13 +25,9 @@ export const FamilleSuiviModal: React.FC<FamilleSuiviModalProps> = ({
     onSearch(searchInput.trim());
   };
 
-  const solde = dossier ? dossier.finance.soldeRestant : 0;
-  const total = dossier ? dossier.finance.totalPrestations : 0;
-  const paye = dossier ? dossier.finance.totalPaye : 0;
-
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="relative bg-[#0A1935] border border-blue-900/60 rounded-2xl max-w-lg w-full p-6 text-white shadow-2xl space-y-6">
+      <div className="relative bg-[#0A1A3E] border border-blue-900/80 rounded-2xl max-w-lg w-full p-6 text-white shadow-2xl space-y-6">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center space-x-3">
@@ -45,7 +41,7 @@ export const FamilleSuiviModal: React.FC<FamilleSuiviModalProps> = ({
                 Hospital Nomargueri • Suivi Famille
               </span>
               <h2 className="text-lg font-bold text-white">
-                {dossier ? `Dossier ${dossier.numeroDossier}` : 'Vérifier un Dossier ou Reçu'}
+                {dossier ? `Dossier ${dossier.numeroDossier}` : 'Vérifier un Dossier'}
               </h2>
             </div>
           </div>
@@ -57,10 +53,10 @@ export const FamilleSuiviModal: React.FC<FamilleSuiviModalProps> = ({
           </button>
         </div>
 
-        {/* Barre de recherche intégrée si pas de dossier ou pour changer de recherche */}
+        {/* Barre de recherche intégrée */}
         <form onSubmit={handleSearchSubmit} className="space-y-2">
           <label className="block text-xs font-medium text-slate-300">
-            {dossier ? 'Rechercher un autre dossier' : 'Saisissez votre numéro de dossier ou jeton QR'}
+            {dossier ? 'Vérifier une autre référence' : 'Saisissez votre numéro de dossier ou jeton QR'}
           </label>
           <div className="flex gap-2">
             <div className="relative flex-1">
@@ -70,12 +66,12 @@ export const FamilleSuiviModal: React.FC<FamilleSuiviModalProps> = ({
                 placeholder="Ex: #NMG-2026-002581 ou QR-XXXXX"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 font-mono"
+                className="w-full pl-9 pr-3 py-2 bg-[#061126] border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 font-mono"
               />
             </div>
             <button
               type="submit"
-              className="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-semibold shadow transition-colors"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-semibold shadow transition-colors"
             >
               Vérifier
             </button>
@@ -85,10 +81,10 @@ export const FamilleSuiviModal: React.FC<FamilleSuiviModalProps> = ({
         {dossier ? (
           <>
             {/* Informations Défunt */}
-            <div className="bg-slate-900/90 rounded-xl p-4 border border-blue-900/40 space-y-2 text-xs">
+            <div className="bg-[#061126] rounded-xl p-4 border border-blue-900/60 space-y-2 text-xs">
               <div className="text-sky-300 uppercase font-semibold text-[10px] flex items-center justify-between">
                 <span>Identité du Défunt</span>
-                <span className="font-mono text-slate-400">{dossier.numeroDossier}</span>
+                <span className="font-mono text-sky-400 font-bold">{dossier.numeroDossier}</span>
               </div>
               <p className="text-base font-bold text-white">
                 {dossier.defunt.prenom} {dossier.defunt.nom}
@@ -107,7 +103,7 @@ export const FamilleSuiviModal: React.FC<FamilleSuiviModalProps> = ({
                 État Actuel de la Prise en Charge
               </span>
 
-              <div className="bg-slate-900/60 rounded-xl p-3 border border-slate-800 flex items-center justify-between">
+              <div className="bg-[#061126] rounded-xl p-3 border border-blue-900/60 flex items-center justify-between">
                 <div>
                   <p className="text-sm font-semibold text-white">
                     {dossier.statut === 'DEMANDE' && 'Demande en ligne enregistrée'}
@@ -124,48 +120,45 @@ export const FamilleSuiviModal: React.FC<FamilleSuiviModalProps> = ({
                     Prochaine étape : {dossier.indicateurs.prochaineActionAttendue}
                   </p>
                 </div>
-                <span className="inline-flex px-2.5 py-1 rounded-full text-xs font-medium bg-sky-500/20 text-sky-300 border border-sky-400/30">
+                <span className="inline-flex px-2.5 py-1 rounded-full text-xs font-medium bg-blue-900/60 text-sky-300 border border-sky-400/30">
                   {dossier.statut}
                 </span>
               </div>
             </div>
 
-            {/* Situation Financière Transparente */}
-            <div className="space-y-3">
+            {/* Prestations Funéraires en Cours */}
+            <div className="space-y-2">
               <span className="text-xs font-semibold text-slate-300 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-emerald-400" />
-                Situation Financière Transparente
+                <CheckCircle2 className="w-4 h-4 text-sky-400" />
+                Prestations & Soins Rattachés au Dossier
               </span>
 
-              <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                <div className="bg-slate-900/90 p-2.5 rounded-xl border border-slate-800">
-                  <span className="text-slate-400 block text-[10px]">Total Prestations</span>
-                  <span className="font-bold text-white">{total.toLocaleString()} $</span>
-                </div>
-                <div className="bg-slate-900/90 p-2.5 rounded-xl border border-slate-800">
-                  <span className="text-slate-400 block text-[10px]">Déjà Réglé</span>
-                  <span className="font-bold text-emerald-400">{paye.toLocaleString()} $</span>
-                </div>
-                <div className="bg-slate-900/90 p-2.5 rounded-xl border border-slate-800">
-                  <span className="text-slate-400 block text-[10px]">Solde Dû</span>
-                  <span className={`font-bold ${solde > 0 ? 'text-amber-400' : 'text-emerald-400'}`}>
-                    {solde.toLocaleString()} $
-                  </span>
-                </div>
+              <div className="bg-[#061126] rounded-xl p-3 border border-blue-900/60 space-y-1.5 max-h-40 overflow-y-auto">
+                {dossier.prestations.map((p) => (
+                  <div key={p.id} className="flex justify-between items-center text-xs text-slate-300 py-1 border-b border-blue-950/60 last:border-0">
+                    <span className="flex items-center gap-1.5">
+                      <Check className="w-3.5 h-3.5 text-sky-400" />
+                      {p.titre}
+                    </span>
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-blue-950 text-sky-300 font-mono">
+                      {p.statut}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
           </>
         ) : (
-          <div className="text-center py-6 px-4 bg-slate-900/50 rounded-xl border border-slate-800 text-xs text-slate-400 space-y-2">
+          <div className="text-center py-6 px-4 bg-[#061126] rounded-xl border border-blue-900/60 text-xs text-slate-400 space-y-2">
             <QrCode className="w-8 h-8 mx-auto text-sky-400 opacity-60" />
             <p>
-              Entrez le numéro unique figurant sur votre récépissé d'admission ou scannez votre jeton pour visualiser l'état du dossier et le décompte financier.
+              Entrez le numéro unique figurant sur votre récépissé d'admission ou scannez votre jeton pour visualiser l'état du dossier et le suivi des soins.
             </p>
           </div>
         )}
 
         {/* Assistance Famille 24/7 */}
-        <div className="bg-sky-950/40 border border-sky-800/40 rounded-xl p-3 text-xs flex items-center justify-between text-sky-200">
+        <div className="bg-blue-950/40 border border-blue-800/40 rounded-xl p-3 text-xs flex items-center justify-between text-sky-200">
           <div className="flex items-center gap-2">
             <PhoneCall className="w-4 h-4 text-sky-400" />
             <span>Assistance téléphonique familles :</span>
