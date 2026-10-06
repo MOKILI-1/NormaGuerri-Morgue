@@ -202,35 +202,73 @@ export const App: React.FC = () => {
     }
   };
 
-  // Recherche sécurisée pour le suivi famille sur la Landing Page
-  const handleFamilySearch = async (numOuToken: string) => {
-    const cleaned = numOuToken.trim();
+  // Recherche sécurisée pour trouver un décès sur la Landing Page
+  const handleFamilySearch = async (terme: string) => {
+    const cleaned = terme.trim();
     if (!cleaned) return;
+    const lower = cleaned.toLowerCase();
 
     try {
       if (isBackendConnected) {
-        const dossier = await ApiClient.scanQrCode(cleaned);
-        setFamilyTrackedDossier(dossier);
+        try {
+          const dossier = await ApiClient.scanQrCode(cleaned);
+          if (dossier) {
+            setFamilyTrackedDossier(dossier);
+            setIsFamilyModalOpen(true);
+            return;
+          }
+        } catch {
+          const searchList = await ApiClient.getDossiers(cleaned);
+          if (searchList && searchList.length > 0) {
+            if (searchList.length === 1) {
+              setFamilyTrackedDossier(searchList[0]);
+            } else {
+              setFamilyTrackedDossier(null);
+            }
+            setIsFamilyModalOpen(true);
+            return;
+          }
+        }
+      }
+
+      // Recherche en local-first
+      const foundList = dossiers.filter((d) => {
+        const nom = d.defunt.nom.toLowerCase();
+        const prenom = d.defunt.prenom.toLowerCase();
+        const postnom = (d.defunt.postnom || '').toLowerCase();
+        const fullName1 = `${prenom} ${nom}`;
+        const fullName2 = `${nom} ${prenom}`;
+        const numDossier = d.numeroDossier.toLowerCase();
+        const numClean = d.numeroDossier.toLowerCase().replace('#', '');
+        const qr = d.qrCodeToken.toLowerCase();
+
+        return (
+          nom.includes(lower) ||
+          prenom.includes(lower) ||
+          postnom.includes(lower) ||
+          fullName1.includes(lower) ||
+          fullName2.includes(lower) ||
+          numDossier.includes(lower) ||
+          numClean.includes(lower) ||
+          qr.includes(lower) ||
+          d.id.toLowerCase() === lower
+        );
+      });
+
+      if (foundList.length === 1) {
+        setFamilyTrackedDossier(foundList[0]);
+        setIsFamilyModalOpen(true);
+      } else if (foundList.length > 1) {
+        setFamilyTrackedDossier(null);
         setIsFamilyModalOpen(true);
       } else {
-        const found = dossiers.find(
-          (d) =>
-            d.numeroDossier.toLowerCase() === cleaned.toLowerCase() ||
-            d.qrCodeToken === cleaned ||
-            d.id === cleaned
+        alert(
+          `Aucun décès trouvé pour "${cleaned}". Vérifiez l'orthographe du nom ou contactez notre accueil 24h/24 au +243 997 222 228 / +243 833 330 040.`
         );
-        if (found) {
-          setFamilyTrackedDossier(found);
-          setIsFamilyModalOpen(true);
-        } else {
-          alert(
-            `Aucun dossier trouvé pour la référence "${cleaned}". Veuillez vérifier le numéro de dossier remis lors de l'enregistrement ou contacter l'assistance au +243 81 000 0000.`
-          );
-        }
       }
     } catch {
       alert(
-        `Aucun dossier trouvé pour la référence "${cleaned}". Veuillez vérifier le numéro ou contacter le standard.`
+        `Aucun décès trouvé pour "${cleaned}". Veuillez vérifier le nom ou contacter l'établissement.`
       );
     }
   };
@@ -559,9 +597,14 @@ export const App: React.FC = () => {
         />
         <FamilleSuiviModal
           dossier={familyTrackedDossier}
+          dossiers={dossiers}
           isOpen={isFamilyModalOpen}
-          onClose={() => setIsFamilyModalOpen(false)}
+          onClose={() => {
+            setIsFamilyModalOpen(false);
+            setFamilyTrackedDossier(null);
+          }}
           onSearch={handleFamilySearch}
+          onSelectDossier={(d) => setFamilyTrackedDossier(d)}
         />
       </>
     );

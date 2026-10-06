@@ -27,12 +27,16 @@ export class CaseService {
 
   public static getTousLesDossiers(filtreTexte?: string): DossierVivant[] {
     if (!filtreTexte) return this.dossiers;
-    const search = filtreTexte.toLowerCase();
+    const search = filtreTexte.toLowerCase().trim();
     return this.dossiers.filter(
       (d) =>
         d.numeroDossier.toLowerCase().includes(search) ||
+        d.numeroDossier.toLowerCase().replace('#', '').includes(search) ||
         d.defunt.nom.toLowerCase().includes(search) ||
         d.defunt.prenom.toLowerCase().includes(search) ||
+        (d.defunt.postnom && d.defunt.postnom.toLowerCase().includes(search)) ||
+        `${d.defunt.prenom} ${d.defunt.nom}`.toLowerCase().includes(search) ||
+        `${d.defunt.nom} ${d.defunt.prenom}`.toLowerCase().includes(search) ||
         d.demandeur.nom.toLowerCase().includes(search)
     );
   }
@@ -42,9 +46,17 @@ export class CaseService {
   }
 
   public static getDossierParTokenOuNumero(tokenOuNumero: string): DossierVivant | undefined {
-    const clean = tokenOuNumero.trim();
+    const clean = tokenOuNumero.trim().toLowerCase();
     return this.dossiers.find(
-      (d) => d.qrCodeToken === clean || d.numeroDossier === clean || d.id === clean
+      (d) =>
+        d.qrCodeToken.toLowerCase() === clean ||
+        d.numeroDossier.toLowerCase() === clean ||
+        d.numeroDossier.toLowerCase().replace('#', '') === clean ||
+        d.id.toLowerCase() === clean ||
+        d.defunt.nom.toLowerCase() === clean ||
+        d.defunt.prenom.toLowerCase() === clean ||
+        `${d.defunt.prenom} ${d.defunt.nom}`.toLowerCase() === clean ||
+        `${d.defunt.nom} ${d.defunt.prenom}`.toLowerCase() === clean
     );
   }
 

@@ -325,10 +325,10 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
           <div className="flex items-center space-x-3 text-xs font-semibold">
             <button
               onClick={onOpenSearchModal}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-slate-200 border border-blue-900/80 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-slate-200 border border-blue-900/80 transition-colors shadow-sm"
             >
               <Search className="w-3.5 h-3.5 text-sky-400" />
-              <span>Suivre un dossier</span>
+              <span>Trouver un décès</span>
             </button>
           </div>
         </div>
@@ -371,13 +371,13 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
                     <span>Déclarer un décès</span>
                   </button>
 
-                  {/* CTA 2 : Suivre un dossier existant */}
+                  {/* CTA 2 : Trouver un décès enregistré */}
                   <button
                     onClick={onOpenSearchModal}
                     className="w-full py-3.5 px-5 rounded-xl bg-[#061126] hover:bg-slate-900 text-slate-200 border border-blue-900 font-semibold text-sm transition-all flex items-center justify-center gap-2 shadow-sm"
                   >
                     <Search className="w-4 h-4 text-sky-400" />
-                    <span>Suivre un dossier existant</span>
+                    <span>Trouver un décès</span>
                   </button>
 
                   {/* CTA 3 : Découvrir les 5 pôles de services */}
@@ -486,75 +486,132 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
         </div>
       </section>
 
-      {/* FOOTER OFFICIEL — AVEC COORDONNÉES COMPLÈTES & MENTION OBLIGATOIRE "PROPULSÉ PAR MOKILI" */}
-      <footer className="mt-auto bg-[#040C1D] py-10 border-t border-blue-950/80 text-xs text-slate-400">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-            {/* Logo et Nom (sans Kinshasa collé au titre) */}
-            <div className="flex items-center space-x-3 shrink-0">
-              <img
-                src="/logo-hospital-nomargueri.jpg"
-                alt="Hospital Nomargueri"
-                className="w-10 h-10 rounded-full border border-sky-400/80 shadow object-cover bg-white shrink-0"
-              />
-              <div>
-                <span className="font-bold text-white uppercase text-sm block">
-                  HOSPITAL NOMARGUERI
-                </span>
-                <span className="text-[11px] text-slate-400">
-                  Morgue & Parcours Funéraire
-                </span>
+      {/* FOOTER OFFICIEL STRUCTURÉ — 4 COLONNES HARMONIEUSES & MENTION PROPULSÉ PAR MOKILI */}
+      <footer className="mt-auto bg-[#030914] text-slate-300 border-t border-blue-950/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-14">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
+            {/* Colonne 1 : Établissement & Mission */}
+            <div className="space-y-3.5">
+              <div className="flex items-center space-x-3">
+                <img
+                  src="/logo-hospital-nomargueri.jpg"
+                  alt="Logo Hospital Nomargueri"
+                  className="w-10 h-10 rounded-full border border-sky-400/80 shadow object-cover bg-white shrink-0"
+                />
+                <div>
+                  <h4 className="font-extrabold text-white uppercase text-sm tracking-tight leading-tight">
+                    HOSPITAL NOMARGUERI
+                  </h4>
+                  <p className="text-[11px] text-sky-400 font-medium">
+                    Morgue & Parcours Funéraire
+                  </p>
+                </div>
+              </div>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Prise en charge intégrale et respectueuse du parcours funéraire. Dignité, sérénité et traçabilité inviolable par QR Code.
+              </p>
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-blue-950/70 border border-blue-900/60 text-[11px] text-sky-300 font-medium">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>Service permanent 24h/24 & 7j/7</span>
               </div>
             </div>
 
-            {/* Coordonnées officielles de l'établissement */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 text-xs text-slate-300 w-full lg:w-auto">
-              {/* Adresse physique */}
-              <div className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
-                <div>
-                  <span className="text-[10px] text-slate-400 uppercase font-semibold block">Adresse</span>
-                  <span className="leading-snug block text-slate-200">
-                    N°10 AV/Mondo Q/Domaine-Village Mbezale C/Nsele
-                  </span>
-                </div>
+            {/* Colonne 2 : Adresse & Localisation */}
+            <div className="space-y-3">
+              <h5 className="text-xs font-bold text-sky-400 uppercase tracking-wider flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                <span>Adresse & Localisation</span>
+              </h5>
+              <div className="p-3.5 rounded-xl bg-slate-900/70 border border-blue-950 space-y-1.5 text-xs">
+                <p className="font-semibold text-white">
+                  N°10 AV/Mondo
+                </p>
+                <p className="text-slate-300">
+                  Q/Domaine-Village Mbezale
+                </p>
+                <p className="text-sky-300 font-medium">
+                  Commune de la Nsele • Kinshasa
+                </p>
+                <p className="text-[10px] text-slate-500 pt-1 border-t border-blue-950">
+                  Accueil des familles et admissions sans interruption.
+                </p>
               </div>
+            </div>
 
-              {/* Téléphones de contact 24h/24 */}
-              <div className="flex items-start gap-2.5">
-                <PhoneCall className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
-                <div>
-                  <span className="text-[10px] text-slate-400 uppercase font-semibold block">Contact 24h/24</span>
-                  <div className="font-mono text-white text-[11px] space-y-0.5">
-                    <a href="tel:+243997222228" className="hover:text-sky-300 transition-colors block">
-                      +243 997 222 228
-                    </a>
-                    <a href="tel:+243833330040" className="hover:text-sky-300 transition-colors block">
-                      +243 833 330 040
-                    </a>
-                  </div>
+            {/* Colonne 3 : Permanence Téléphonique 24h/24 */}
+            <div className="space-y-3">
+              <h5 className="text-xs font-bold text-sky-400 uppercase tracking-wider flex items-center gap-1.5">
+                <PhoneCall className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                <span>Permanence Téléphonique</span>
+              </h5>
+              <div className="p-3.5 rounded-xl bg-slate-900/70 border border-blue-950 space-y-2 text-xs">
+                <div className="space-y-1.5">
+                  <a
+                    href="tel:+243997222228"
+                    className="flex items-center justify-between p-2 rounded-lg bg-blue-950/60 hover:bg-blue-900/60 text-white hover:text-sky-300 border border-blue-900/40 transition-colors"
+                  >
+                    <span className="font-mono font-bold">+243 997 222 228</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-900 text-sky-300 font-sans uppercase">Ligne 1</span>
+                  </a>
+                  <a
+                    href="tel:+243833330040"
+                    className="flex items-center justify-between p-2 rounded-lg bg-blue-950/60 hover:bg-blue-900/60 text-white hover:text-sky-300 border border-blue-900/40 transition-colors"
+                  >
+                    <span className="font-mono font-bold">+243 833 330 040</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-900 text-sky-300 font-sans uppercase">Ligne 2</span>
+                  </a>
                 </div>
+                <p className="text-[10px] text-slate-400">
+                  Assistance 24/7 pour admissions d'urgence et transferts.
+                </p>
               </div>
+            </div>
 
-              {/* Email officiel */}
-              <div className="flex items-start gap-2.5">
-                <Mail className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
+            {/* Colonne 4 : Email & Démarches Immédiates */}
+            <div className="space-y-3">
+              <h5 className="text-xs font-bold text-sky-400 uppercase tracking-wider flex items-center gap-1.5">
+                <Mail className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                <span>Contact & Démarches</span>
+              </h5>
+              <div className="p-3.5 rounded-xl bg-slate-900/70 border border-blue-950 space-y-3 text-xs">
                 <div>
-                  <span className="text-[10px] text-slate-400 uppercase font-semibold block">Email Officiel</span>
-                  <a href="mailto:contact@nomargueri.com" className="font-mono text-sky-300 hover:underline text-[11px] block mt-0.5">
+                  <span className="text-[10px] text-slate-400 uppercase font-semibold block">Courriel de l'Établissement</span>
+                  <a
+                    href="mailto:contact@nomargueri.com"
+                    className="font-mono text-sky-300 hover:underline block mt-0.5 text-xs font-medium"
+                  >
                     contact@nomargueri.com
                   </a>
+                </div>
+                <div className="pt-2 border-t border-blue-950 space-y-1.5">
+                  <button
+                    onClick={onOpenSearchModal}
+                    className="w-full py-1.5 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition-colors flex items-center justify-between"
+                  >
+                    <span>Trouver un décès</span>
+                    <Search className="w-3 h-3 text-sky-400" />
+                  </button>
+                  <button
+                    onClick={() => handleOpenWizard()}
+                    className="w-full py-1.5 px-2.5 rounded-lg bg-blue-600/80 hover:bg-blue-600 text-white text-xs font-medium transition-colors flex items-center justify-between"
+                  >
+                    <span>Déclarer un décès</span>
+                    <Plus className="w-3 h-3 text-white" />
+                  </button>
                 </div>
               </div>
             </div>
           </div>
+        </div>
 
-          <div className="border-t border-blue-950/60 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px]">
-            <p className="text-slate-500">
+        {/* Ligne inférieure de Copyright & Mention MOKILI */}
+        <div className="border-t border-blue-950/80 bg-[#020610] py-4">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-400">
+            <p>
               © {new Date().getFullYear()} Hospital Nomargueri. Tous droits réservés. Traçabilité par QR Code certifié.
             </p>
 
-            <div className="flex items-center gap-1.5 bg-slate-900/60 px-3 py-1.5 rounded-full border border-blue-950">
+            <div className="flex items-center gap-1.5 bg-slate-900/80 px-3 py-1.5 rounded-full border border-blue-900/60">
               <span className="text-slate-400">Propulsé par</span>
               <a
                 href="https://mokili.io"
