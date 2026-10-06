@@ -18,6 +18,7 @@ interface NavbarProps {
   onOpenScanner: () => void;
   onOpenNewAdmission: () => void;
   isBackendConnected: boolean;
+  onGoToLanding: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -27,7 +28,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onRoleChange,
   onOpenScanner,
   onOpenNewAdmission,
-  isBackendConnected
+  isBackendConnected,
+  onGoToLanding
 }) => {
   const roles: { value: RoleUtilisateur; label: string; badge: string }[] = [
     { value: 'AGENT_RECEPTION', label: 'Agent Réception', badge: 'Accueil / Entrées' },
@@ -49,11 +51,19 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div>
               <span className="text-xl font-bold tracking-tight text-white flex items-center gap-1.5">
                 NomarGuerrie
-                <span className="text-xs px-2 py-0.5 rounded bg-blue-900/60 text-blue-300 font-mono border border-blue-700/50">V2</span>
+                <span className="text-xs px-2 py-0.5 rounded bg-blue-900/60 text-blue-300 font-mono border border-blue-700/50">BACKOFFICE</span>
               </span>
-              <p className="text-xs text-slate-400 hidden sm:block">Système Souverain du Parcours Funéraire</p>
+              <p className="text-xs text-slate-400 hidden sm:block">Centre Opérationnel de Morgue</p>
             </div>
           </div>
+
+          {/* Bouton de retour Landing Page */}
+          <button
+            onClick={onGoToLanding}
+            className="hidden lg:flex items-center gap-1.5 text-xs text-slate-400 hover:text-white px-2.5 py-1 rounded bg-slate-800/80 border border-slate-700 hover:bg-slate-700 transition-colors"
+          >
+            ← Site Public / Familles
+          </button>
 
           {/* Navigation Principale */}
           <nav className="hidden md:flex items-center space-x-1">

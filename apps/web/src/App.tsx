@@ -16,9 +16,11 @@ import { DossierDetailView } from './components/DossierDetailView';
 import { EmplacementsView } from './components/EmplacementsView';
 import { QrScannerModal } from './components/QrScannerModal';
 import { NouvelleAdmissionModal } from './components/NouvelleAdmissionModal';
+import { LandingPageView } from './components/LandingPageView';
 import { METRIQUES_DASHBOARD_MOCK, DOSSIERS_MOCK, CASES_EMPLACEMENTS_MOCK, CATALOGUE_SERVICES_MOCK, TACHES_FILE_DU_JOUR_MOCK } from '../../api/src/data/mock-db';
 
 export const App: React.FC = () => {
+  const [pageMode, setPageMode] = useState<'landing' | 'backoffice'>('landing');
   const [currentView, setCurrentView] = useState<'dashboard' | 'dossiers' | 'emplacements' | 'detail'>('dashboard');
   const [activeRole, setActiveRole] = useState<RoleUtilisateur>('RESPONSABLE_EXPLOITATION');
 
@@ -231,9 +233,24 @@ export const App: React.FC = () => {
 
   const selectedDossier = dossiers.find((d) => d.id === selectedDossierId);
 
+  // Si on est en mode Landing Page Publique (Portail Familles)
+  if (pageMode === 'landing') {
+    return (
+      <LandingPageView
+        onGoToBackoffice={() => setPageMode('backoffice')}
+        onCreateDemand={handleNouvelleAdmissionSubmit}
+        onSearchDossier={(numOuToken) => {
+          setPageMode('backoffice');
+          handleScanSuccess(numOuToken);
+        }}
+      />
+    );
+  }
+
+  // Sinon, affichage du Backoffice Opérationnel
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans text-slate-800">
-      {/* Barre de navigation */}
+      {/* Barre de navigation Backoffice */}
       <Navbar
         currentView={currentView === 'detail' ? 'dossiers' : currentView}
         onNavigate={(v) => {
@@ -247,6 +264,7 @@ export const App: React.FC = () => {
         onOpenScanner={handleOpenScanner}
         onOpenNewAdmission={() => setIsNewAdmissionOpen(true)}
         isBackendConnected={isBackendConnected}
+        onGoToLanding={() => setPageMode('landing')}
       />
 
       {/* Contenu principal */}
