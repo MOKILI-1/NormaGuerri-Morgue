@@ -7,7 +7,8 @@ import {
   Layers,
   FolderOpen,
   ShieldCheck,
-  UserCheck
+  UserCheck,
+  LogOut
 } from 'lucide-react';
 
 interface NavbarProps {
@@ -19,6 +20,8 @@ interface NavbarProps {
   onOpenNewAdmission: () => void;
   isBackendConnected: boolean;
   onGoToLanding: () => void;
+  onLogout: () => void;
+  currentUserName?: string;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -29,7 +32,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenScanner,
   onOpenNewAdmission,
   isBackendConnected,
-  onGoToLanding
+  onGoToLanding,
+  onLogout,
+  currentUserName
 }) => {
   const roles: { value: RoleUtilisateur; label: string; badge: string }[] = [
     { value: 'AGENT_RECEPTION', label: 'Agent Réception', badge: 'Accueil / Entrées' },
@@ -156,6 +161,23 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }`}
               />
               <span>{isBackendConnected ? 'LAN Morgue Actif' : 'Mode Edge Local'}</span>
+            </div>
+
+            {/* Utilisateur connecté & Déconnexion */}
+            <div className="flex items-center gap-2 pl-3 border-l border-slate-800">
+              {currentUserName && (
+                <span className="text-xs text-slate-300 font-medium hidden md:inline">
+                  {currentUserName}
+                </span>
+              )}
+              <button
+                onClick={onLogout}
+                title="Déconnexion du Backoffice"
+                className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-950/80 hover:text-rose-300 text-slate-400 border border-slate-700 hover:border-rose-700/50 transition-colors flex items-center gap-1.5 text-xs font-medium"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Quitter</span>
+              </button>
             </div>
           </div>
         </div>

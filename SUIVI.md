@@ -33,12 +33,17 @@
 | 06/10/2026 - 16:23 | Développement et build de l'interface React / Vite | Dashboard proactif, cartographie interactive des chambres, vue Dossier Vivant, scanner QR code. |
 | 06/10/2026 - 16:23 | Test compilation du frontend `@nomarguerrie/web` | **Preuve :** Vite v5.4.21 `built in 23.78s`, assets générés avec succès dans `dist/`. |
 | 06/10/2026 - 16:25 | Packaging Docker Compose pour résilience locale | Fichiers `docker-compose.yml`, `apps/api/Dockerfile`, `apps/web/Dockerfile` prêts pour déploiement sur site morgue. |
+| 06/10/2026 - 21:15 | Séparation étanche Landing Page publique et Backoffice | Suppression de tout lien/bouton backoffice sur la vitrine publique. Routage séparé (`/` vs `/backoffice`). |
+| 06/10/2026 - 21:20 | Module d'authentification et suivi public sécurisé | `LoginView` avec comptes professionnels, `FamilleSuiviModal` public sans fuite de données internes. |
+| 06/10/2026 - 21:22 | Test compilation TypeScript & Bundle Vite | **Preuve :** `tsc` et `vite build` 100% verts (code 0, 1509 modules transformés). |
 
 ---
 
 ## 3. DÉCISIONS TECHNIQUES VALIDÉES & APPLIQUÉES
 
 1. **Port API dédié (4050) :** Choisi pour isoler NomarGuerrie des autres micro-services du poste de développement qui occupaient le port 4000.
-2. **Moteur de Règles Strict :** Blocage automatique et explicatif des sorties si le permis d'inhumer fait défaut ou si le solde financier n'est pas intégralement réglé.
-3. **Double Validation Séquentielle :** Préparation Agent ➔ Contrôle Responsable ➔ Visa Comptable ➔ Autorisation Direction.
-4. **Résilience Congolaise (H04 Hybride) :** Client web capable de basculer en mode autonome / local-first en cas de coupure de liaison externe.
+2. **Étanchéité Totale de la Landing Page :** Le portail public famille (`/`) ne contient aucun lien ni référence d'accès au Backoffice.
+3. **Séparation Stricte des Routes :** L'accès backoffice s'effectue exclusivement via `/backoffice`, protégé par un écran d'authentification nominatif.
+4. **Moteur de Règles Strict :** Blocage automatique et explicatif des sorties si le permis d'inhumer fait défaut ou si le solde financier n'est pas intégralement réglé.
+5. **Double Validation Séquentielle :** Préparation Agent ➔ Contrôle Responsable ➔ Visa Comptable ➔ Autorisation Direction.
+6. **Résilience Congolaise (H04 Hybride) :** Client web capable de basculer en mode autonome / local-first en cas de coupure de liaison externe.
