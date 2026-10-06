@@ -34,14 +34,16 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess, onGoToPubl
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 text-slate-100 font-sans">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-3">
-        <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-800 flex items-center justify-center text-white shadow-xl shadow-blue-900/50 border border-blue-500/30">
-          <ShieldCheck className="w-8 h-8" />
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-          NomarGuerrie — Backoffice
+        <img
+          src="/logo-hospital-nomargueri.jpg"
+          alt="H+ Hospital Nomargueri"
+          className="w-16 h-16 mx-auto rounded-full border-2 border-sky-400 shadow-xl object-cover bg-white"
+        />
+        <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight uppercase">
+          HOSPITAL NOMARGUERI
         </h1>
-        <p className="text-xs text-slate-400">
-          Portail réservé aux agents habilités, corps médical et direction
+        <p className="text-xs text-sky-400 font-mono uppercase tracking-wider">
+          Portail Backoffice • Exploitation & Direction
         </p>
       </div>
 

@@ -155,6 +155,29 @@ export const CATALOGUE_SERVICES_MOCK: ArticleCatalogue[] = [
     devise: 'USD',
     estStockable: false,
     uniteFacturation: 'FORFAIT'
+  },
+  {
+    id: 'art-8',
+    code: 'PRD-CER-02',
+    titre: 'Cercueil Standard modèle Chêne verni',
+    description: 'Cercueil sobre en bois traité verni avec capiton blanc et poignées métalliques.',
+    categorie: 'FOURNITURE_FUNERAIRE',
+    prixUnitaire: 280,
+    devise: 'USD',
+    estStockable: true,
+    stockDisponible: 14,
+    uniteFacturation: 'UNITE'
+  },
+  {
+    id: 'art-9',
+    code: 'SRV-FLR-01',
+    titre: 'Couronne florale naturelle & Condoléances',
+    description: 'Composition florale d’honneur avec ruban personnalisé en mémoire du défunt.',
+    categorie: 'CEREMONIE',
+    prixUnitaire: 75,
+    devise: 'USD',
+    estStockable: false,
+    uniteFacturation: 'FORFAIT'
   }
 ];
 

@@ -84,3 +84,10 @@
 - [x] Écran d'authentification professionnel (`LoginView`) avec 5 profils prédéfinis.
 - [x] Suivi public pour les familles (`FamilleSuiviModal`) sans fuite de données internes.
 - [x] Validation TypeScript stricte (`tsc`) et build Vite (`vite build`) réussis.
+
+### 🟢 LOT 10 — Charte Graphique H+ Hospital Nomargueri, Disposition RTNC Pay & Workflow Services
+- [x] Intégration du logo officiel circulaire H+ Hospital Nomargueri et codes graphiques funérarium/morgue.
+- [x] Refonte Landing Page selon la disposition RTNC Pay : 2 sections (Hero 2 colonnes + CTAs ambre + carte engagements + 3 cartes flottantes + Grille tarifaire officielle classée par catégories).
+- [x] Workflow interactif de déclaration en 3 étapes : Saisie Défunt/Famille ➔ Proposition interactive des services funéraires avec devis en direct ➔ Récépissé & QR Code.
+- [x] Footer avec mention officielle "Propulsé par Mokili" menant vers `https://mokili.io`.
+- [x] Tests et compilation 100% verts.

@@ -48,17 +48,19 @@ export const Navbar: React.FC<NavbarProps> = ({
     <header className="bg-slate-900 text-white shadow-md sticky top-0 z-40 border-b border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo et Identité */}
+          {/* Logo et Identité H+ Hospital Nomargueri */}
           <div className="flex items-center space-x-3 cursor-pointer" onClick={() => onNavigate('dashboard')}>
-            <div className="w-10 h-10 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-blue-400 font-bold shadow-inner">
-              <ShieldCheck className="w-6 h-6" />
-            </div>
+            <img
+              src="/logo-hospital-nomargueri.jpg"
+              alt="H+ Hospital Nomargueri"
+              className="w-10 h-10 rounded-full border border-sky-400/80 shadow object-cover bg-white"
+            />
             <div>
-              <span className="text-xl font-bold tracking-tight text-white flex items-center gap-1.5">
-                NomarGuerrie
-                <span className="text-xs px-2 py-0.5 rounded bg-blue-900/60 text-blue-300 font-mono border border-blue-700/50">BACKOFFICE</span>
+              <span className="text-lg font-black tracking-tight text-white flex items-center gap-1.5 uppercase">
+                HOSPITAL NOMARGUERI
+                <span className="text-[10px] px-2 py-0.5 rounded bg-blue-900/60 text-sky-300 font-mono border border-blue-700/50">BACKOFFICE</span>
               </span>
-              <p className="text-xs text-slate-400 hidden sm:block">Centre Opérationnel de Morgue</p>
+              <p className="text-[11px] text-slate-400 hidden sm:block">Centre Opérationnel de Morgue</p>
             </div>
           </div>
 

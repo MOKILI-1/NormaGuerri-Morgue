@@ -429,42 +429,81 @@ export const App: React.FC = () => {
   const handleNouvelleAdmissionSubmit = async (payload: {
     defunt: DossierVivant['defunt'];
     demandeur: DossierVivant['demandeur'];
-  }) => {
+    servicesChoisis?: Array<{ article: ArticleCatalogue; quantite: number }>;
+  }): Promise<DossierVivant> => {
     setIsNewAdmissionOpen(false);
     const agentId = currentUser?.id || 'usr-1';
+    let dossierCree: DossierVivant;
+
     if (isBackendConnected) {
-      const nouveau = await ApiClient.creerDossier({ ...payload, agentId });
-      setSelectedDossierId(nouveau.id);
+      dossierCree = await ApiClient.creerDossier({
+        defunt: payload.defunt,
+        demandeur: payload.demandeur,
+        agentId
+      });
+      if (payload.servicesChoisis && payload.servicesChoisis.length > 0) {
+        for (const item of payload.servicesChoisis) {
+          try {
+            await ApiClient.ajouterPrestation(dossierCree.id, item.article.id, item.quantite, agentId);
+          } catch {
+            // continuer
+          }
+        }
+        dossierCree = await ApiClient.getDossierParId(dossierCree.id);
+      }
+      setSelectedDossierId(dossierCree.id);
     } else {
       const nouveauNum = `#NMG-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
-      const fakeDossier: DossierVivant = {
+      const prestations: PrestationDossier[] = [];
+      let totalPrestations = 0;
+
+      if (payload.servicesChoisis && payload.servicesChoisis.length > 0) {
+        payload.servicesChoisis.forEach((item, idx) => {
+          const prixTotal = item.article.prixUnitaire * item.quantite;
+          prestations.push({
+            id: `pr-${Date.now()}-${idx}`,
+            articleId: item.article.id,
+            titre: item.article.titre,
+            quantite: item.quantite,
+            prixUnitaire: item.article.prixUnitaire,
+            prixTotal,
+            devise: item.article.devise,
+            dateAjout: new Date().toISOString(),
+            statut: 'DEMANDE'
+          });
+          totalPrestations += prixTotal;
+        });
+      } else {
+        prestations.push({
+          id: `pr-${Date.now()}`,
+          articleId: 'art-1',
+          titre: 'Frais d’admission & Enregistrement légal',
+          quantite: 1,
+          prixUnitaire: 50,
+          prixTotal: 50,
+          devise: 'USD',
+          dateAjout: new Date().toISOString(),
+          statut: 'DEMANDE'
+        });
+        totalPrestations = 50;
+      }
+
+      dossierCree = {
         id: `dossier-${Date.now()}`,
         numeroDossier: nouveauNum,
         qrCodeToken: `QR-${Math.random().toString(36).substring(2, 10).toUpperCase()}`,
         dateCreation: new Date().toISOString(),
         dateAdmission: new Date().toISOString(),
-        statut: 'ADMIS',
+        statut: 'DEMANDE',
         responsableDossierId: agentId,
         responsableDossierNom: currentUser ? `${currentUser.prenom} ${currentUser.nom}` : 'Agent Réception',
         defunt: payload.defunt,
         demandeur: payload.demandeur,
-        prestations: [
-          {
-            id: `pr-${Date.now()}`,
-            articleId: 'art-1',
-            titre: 'Frais d’admission & Enregistrement légal',
-            quantite: 1,
-            prixUnitaire: 50,
-            prixTotal: 50,
-            devise: 'USD',
-            dateAjout: new Date().toISOString(),
-            statut: 'TERMINE'
-          }
-        ],
+        prestations,
         finance: {
-          totalPrestations: 50,
+          totalPrestations,
           totalPaye: 0,
-          soldeRestant: 50,
+          soldeRestant: totalPrestations,
           pourcentagePaye: 0,
           devise: 'USD',
           statutPaiement: 'NON_PAYE',
@@ -485,10 +524,10 @@ export const App: React.FC = () => {
           documentsRequisTotal: 3,
           documentsValidesTotal: 1,
           conservationValidee: false,
-          nombreServicesActifs: 1,
+          nombreServicesActifs: prestations.length,
           pourcentagePaiement: 0,
           sortieAutorisee: false,
-          prochaineActionAttendue: 'Affecter une case frigorifique',
+          prochaineActionAttendue: 'Présentation de la famille & Validation des pièces',
           estBloque: false
         },
         estSousScelleJudiciaire: false,
@@ -496,11 +535,13 @@ export const App: React.FC = () => {
         autopsieEffectuee: false,
         historiqueMouvements: []
       };
-      setDossiers((prev) => [fakeDossier, ...prev]);
-      setSelectedDossierId(fakeDossier.id);
+
+      setDossiers((prev) => [dossierCree, ...prev]);
+      setSelectedDossierId(dossierCree.id);
     }
-    setCurrentView('detail');
+
     await refreshData();
+    return dossierCree;
   };
 
   const selectedDossier = dossiers.find((d) => d.id === selectedDossierId);
@@ -511,13 +552,16 @@ export const App: React.FC = () => {
     return (
       <>
         <LandingPageView
+          catalogue={catalogue}
           onCreateDemand={handleNouvelleAdmissionSubmit}
           onSearchDossier={handleFamilySearch}
+          onOpenSearchModal={() => setIsFamilyModalOpen(true)}
         />
         <FamilleSuiviModal
           dossier={familyTrackedDossier}
           isOpen={isFamilyModalOpen}
           onClose={() => setIsFamilyModalOpen(false)}
+          onSearch={handleFamilySearch}
         />
       </>
     );
@@ -623,13 +667,15 @@ export const App: React.FC = () => {
       <NouvelleAdmissionModal
         isOpen={isNewAdmissionOpen}
         onClose={() => setIsNewAdmissionOpen(false)}
-        onSubmit={handleNouvelleAdmissionSubmit}
+        onSubmit={async (p) => {
+          await handleNouvelleAdmissionSubmit(p);
+        }}
       />
 
       {/* Footer sobre MOKILI */}
       <footer className="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
         <p>
-          NomarGuerrie V2 • Conçu selon les standards d'ingénierie du <strong>Framework MOKILI SAS</strong> • Déploiement Souverain
+          Hospital Nomargueri • Conçu selon les standards d'ingénierie du <strong>Framework MOKILI SAS</strong> • Déploiement Souverain
         </p>
       </footer>
     </div>
