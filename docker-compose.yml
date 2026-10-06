@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  nomarguerrie-api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: nomarguerrie-api
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+      - NODE_ENV=production
+    networks:
+      - nomarguerrie-net
+
+  nomarguerrie-web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: nomarguerrie-web
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - nomarguerrie-api
+    networks:
+      - nomarguerrie-net
+
+networks:
+  nomarguerrie-net:
+    driver: bridge
