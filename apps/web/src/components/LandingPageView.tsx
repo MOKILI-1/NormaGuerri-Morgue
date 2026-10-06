@@ -70,8 +70,8 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
     'art-soin-03': 1 // Conservation sécurisée
   });
 
-  // Onglet actif dans l'étape 2 des services
-  const [wizardCategoryTab, setWizardCategoryTab] = useState<number>(1);
+  // Onglet actif dans l'étape 2 des services (filtre par pôle ou Tous)
+  const [wizardCategoryTab, setWizardCategoryTab] = useState<string>('TOUS');
 
   // Étape 3 : Résultat après création
   const [createdDossier, setCreatedDossier] = useState<DossierVivant | null>(null);
@@ -263,85 +263,63 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
         </div>
       </header>
 
-      {/* SECTION 1 — HERO SECTION PROPORTIONNÉE & HARMONIEUSE */}
-      <section className="relative overflow-hidden pt-12 pb-16 lg:pt-14 lg:pb-20 border-b border-blue-950/60 bg-gradient-to-b from-[#061126] via-[#08183B] to-[#0A1E48]">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(2,132,199,0.12),transparent_70%)] pointer-events-none" />
+      {/* SECTION 1 — HERO SECTION (DISPOSITION 2 COLONNES AVEC LES CTAS EN BLOC DÉDIÉ) */}
+      <section className="relative overflow-hidden pt-12 pb-16 lg:pt-16 lg:pb-20 border-b border-blue-950/60 bg-gradient-to-b from-[#061126] via-[#091A3E] to-[#0A1E48]">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(2,132,199,0.15),transparent_60%)] pointer-events-none" />
 
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-5">
-          {/* Badge discret */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-900/40 border border-blue-600/40 text-sky-300 text-xs font-semibold tracking-wide">
-            <Sparkles className="w-3.5 h-3.5 text-sky-400" />
-            <span>PORTAIL OFFICIEL FUNÉRAIRE & MORGUE</span>
-          </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+            {/* Colonne Gauche : Titre percutant & Description */}
+            <div className="lg:col-span-7 space-y-6">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1]">
+                Hospital Nomargueri.<br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-blue-400 to-indigo-300">
+                  Dignité • Sérénité • Traçabilité
+                </span>
+              </h1>
 
-          {/* Titre principal parfaitement équilibré */}
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
-            HOSPITAL NOMARGUERI<br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-blue-400 to-indigo-300">
-              Dignité • Sérénité • Traçabilité
-            </span>
-          </h1>
+              <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl font-normal">
+                Prise en charge intégrale et personnalisée du parcours funéraire : réservation de salons de recueillement, soins de thanatopraxie, logistique de transport sécurisée et assistance aux formalités officielles.
+              </p>
+            </div>
 
-          {/* Description claire et équilibrée */}
-          <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl mx-auto font-normal">
-            Prise en charge intégrale et personnalisée du parcours funéraire : salons de recueillement, soins de thanatopraxie, logistique de transport sécurisée et formalités officielles.
-          </p>
+            {/* Colonne Droite : Les 3 CTAs remplaçant l'ancien bloc textuel */}
+            <div className="lg:col-span-5">
+              <div className="bg-[#0B1E48]/90 border border-blue-900/80 rounded-2xl p-6 sm:p-7 shadow-2xl space-y-4 backdrop-blur-sm">
+                <div className="text-[11px] font-bold text-sky-400 uppercase tracking-wider">
+                  DÉMARCHES EN LIGNE & ACCOMPAGNEMENT
+                </div>
 
-          {/* Les 3 CTAs dans l'ordre exact demandé */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-3">
-            {/* CTA 1 : Déclarer un décès */}
-            <button
-              onClick={() => handleOpenWizard()}
-              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Déclarer un décès</span>
-            </button>
+                <div className="space-y-3">
+                  {/* CTA 1 : Déclarer un décès */}
+                  <button
+                    onClick={() => handleOpenWizard()}
+                    className="w-full py-3.5 px-5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-xl shadow-blue-600/30 transition-all flex items-center justify-center gap-2"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Déclarer un décès</span>
+                  </button>
 
-            {/* CTA 2 : Suivre un dossier existant */}
-            <button
-              onClick={onOpenSearchModal}
-              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-blue-900/90 font-semibold text-sm transition-all flex items-center justify-center gap-2 shadow-sm"
-            >
-              <Search className="w-4 h-4 text-sky-400" />
-              <span>Suivre un dossier existant</span>
-            </button>
+                  {/* CTA 2 : Suivre un dossier existant */}
+                  <button
+                    onClick={onOpenSearchModal}
+                    className="w-full py-3.5 px-5 rounded-xl bg-[#061126] hover:bg-slate-900 text-slate-200 border border-blue-900 font-semibold text-sm transition-all flex items-center justify-center gap-2 shadow-sm"
+                  >
+                    <Search className="w-4 h-4 text-sky-400" />
+                    <span>Suivre un dossier existant</span>
+                  </button>
 
-            {/* CTA 3 : Découvrir les 5 pôles de services */}
-            <a
-              href="#catalogue"
-              className="w-full sm:w-auto px-5 py-3 rounded-xl bg-blue-950/70 hover:bg-blue-900/70 text-sky-300 hover:text-white border border-blue-800/70 font-semibold text-sm transition-all flex items-center justify-center gap-1.5"
-            >
-              <span>Découvrir les 5 pôles de services</span>
-              <ArrowRight className="w-4 h-4 text-sky-400" />
-            </a>
-          </div>
-
-          {/* Accès rapide harmonieux aux 5 Pôles Métier */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 pt-6 text-left">
-            {polesModules.map((pole) => {
-              const IconComp = pole.icon;
-              return (
-                <a
-                  key={pole.id}
-                  href="#catalogue"
-                  onClick={() => setSelectedCategorie(pole.categorieShared)}
-                  className="p-3 bg-[#0B1E48]/60 hover:bg-[#0E275E]/90 border border-blue-900/60 hover:border-sky-500/50 rounded-xl transition-all group flex flex-col justify-between"
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="p-1.5 rounded-lg bg-blue-900/60 text-sky-400 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                      <IconComp className="w-3.5 h-3.5" />
-                    </div>
-                    <span className="text-xs font-bold text-white group-hover:text-sky-300 transition-colors line-clamp-1">
-                      {pole.titre}
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-slate-400 line-clamp-2 leading-snug">
-                    {pole.desc}
-                  </p>
-                </a>
-              );
-            })}
+                  {/* CTA 3 : Découvrir les 5 pôles de services */}
+                  <a
+                    href="#catalogue"
+                    className="w-full py-3 px-5 bg-blue-950/60 hover:bg-blue-900/60 text-sky-300 hover:text-white border border-blue-800/60 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
+                  >
+                    <span>Découvrir les 5 pôles de services</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-sky-400" />
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -492,7 +470,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
       {/* ========================================================================= */}
       {isWizardOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="relative bg-[#0A1A3E] border border-blue-900/80 rounded-2xl max-w-3xl w-full p-6 sm:p-8 text-white shadow-2xl space-y-6">
+          <div className="relative bg-[#0A1A3E] border border-blue-900/80 rounded-2xl max-w-4xl w-full p-6 sm:p-8 text-white shadow-2xl space-y-6">
             {/* Header du Wizard */}
             <div className="flex items-center justify-between border-b border-blue-950 pb-4">
               <div className="flex items-center space-x-3">
@@ -664,382 +642,197 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
               </form>
             )}
 
-            {/* ÉTAPE 2 : PROPOSITION DÉTAILLÉE DES 5 PÔLES DE SERVICES (À LA DEMANDE DE L'UTILISATEUR) */}
+            {/* ÉTAPE 2 : PROPOSITION ET SÉLECTION SIMPLE / MULTIPLE DES SERVICES (5 PÔLES) */}
             {wizardStep === 2 && (
               <div className="space-y-4 text-xs">
-                <div className="p-3 bg-blue-950/60 border border-blue-800/60 rounded-xl text-sky-200">
-                  <p className="font-bold">Services Proposés pour {defuntPrenom} {defuntNom}</p>
-                  <p className="text-[11px] text-sky-300/80 mt-0.5">
-                    Sélectionnez les prestations souhaitées parmi les 5 pôles d'accompagnement. Vous pourrez ajuster ou compléter vos choix à tout moment.
-                  </p>
+                {/* En-tête explicatif clair */}
+                <div className="p-3.5 bg-blue-950/60 border border-blue-800/60 rounded-xl text-sky-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                  <div>
+                    <p className="font-bold text-sm text-white">Services Proposés pour {defuntPrenom} {defuntNom}</p>
+                    <p className="text-[11px] text-sky-300/80 mt-0.5">
+                      Cliquez sur une ou plusieurs prestations pour les ajouter à la prise en charge. Vous pouvez combiner librement les services.
+                    </p>
+                  </div>
+                  <span className="shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-900/80 text-sky-300 border border-sky-400/40">
+                    Sélection multiple libre
+                  </span>
                 </div>
 
-                {/* 5 Onglets des Pôles */}
-                <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 border-b border-blue-950 pb-2">
-                  {polesModules.map((pole) => {
-                    const Icon = pole.icon;
-                    const isActive = wizardCategoryTab === pole.id;
+                {/* Filtres par Pôle (Onglets complets et lisibles, sans texte tronqué) */}
+                <div className="flex flex-wrap gap-1.5 border-b border-blue-950 pb-2.5">
+                  {[
+                    { key: 'TOUS', label: 'Tous les services', count: catalogue.length },
+                    { key: 'CEREMONIE', label: '1. Recueillement & Salons', count: catalogue.filter(c => c.categorie === 'CEREMONIE').length },
+                    { key: 'TOILETTE_ET_SOINS', label: '2. Soins & Thanatopraxie', count: catalogue.filter(c => c.categorie === 'TOILETTE_ET_SOINS' || c.categorie === 'CONSERVATION').length },
+                    { key: 'FOURNITURE_FUNERAIRE', label: '3. Boutique d’Articles & Cercueils', count: catalogue.filter(c => c.categorie === 'FOURNITURE_FUNERAIRE').length },
+                    { key: 'TRANSPORT', label: '4. Suivi Logistique & Transport', count: catalogue.filter(c => c.categorie === 'TRANSPORT').length },
+                    { key: 'ADMINISTRATIF', label: '5. Assistance Administrative', count: catalogue.filter(c => c.categorie === 'ADMINISTRATIF' || c.categorie === 'ADMISSION').length }
+                  ].map((tab) => {
+                    const isActive = wizardCategoryTab === tab.key;
                     return (
                       <button
-                        key={pole.id}
+                        key={tab.key}
                         type="button"
-                        onClick={() => setWizardCategoryTab(pole.id)}
-                        className={`p-2 rounded-xl text-left flex flex-col gap-1 transition-all ${
+                        onClick={() => setWizardCategoryTab(tab.key)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
                           isActive
                             ? 'bg-blue-600 text-white shadow-md font-bold'
-                            : 'bg-[#061126] text-slate-300 hover:bg-[#0D2456] border border-blue-900/60'
+                            : 'bg-[#061126] text-slate-300 hover:text-white hover:bg-[#0E2456] border border-blue-900/60'
                         }`}
                       >
-                        <div className="flex items-center gap-1.5">
-                          <Icon className="w-3.5 h-3.5 shrink-0" />
-                          <span className="text-[11px] truncate">{pole.titre.split('. ')[1]}</span>
-                        </div>
+                        <span>{tab.label}</span>
+                        <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${isActive ? 'bg-blue-800 text-sky-200' : 'bg-slate-900 text-slate-400'}`}>
+                          {tab.count}
+                        </span>
                       </button>
                     );
                   })}
                 </div>
 
-                {/* Contenu spécifique selon le pôle actif */}
-                <div className="max-h-[340px] overflow-y-auto pr-1 space-y-3">
-                  {/* PÔLE 1 : RECUEILLEMENT & FUNÉRARIUM */}
-                  {wizardCategoryTab === 1 && (
-                    <div className="space-y-3">
-                      <div className="p-3 bg-[#061126] rounded-xl border border-blue-900/60 space-y-2">
-                        <span className="font-bold text-sky-300 block text-[11px]">
-                          1.1 Réservation de Salon Funéraire & Plages Horaires
-                        </span>
-                        <p className="text-slate-400 text-[11px]">
-                          Choisissez la taille du salon et planifiez la date de recueillement.
-                        </p>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                          {catalogue
-                            .filter((a) => a.id === 'art-rec-01' || a.id === 'art-rec-02')
-                            .map((art) => (
-                              <div
-                                key={art.id}
-                                onClick={() => toggleService(art.id)}
-                                className={`p-3 rounded-xl border cursor-pointer transition-all ${
-                                  selectedServiceIds[art.id]
-                                    ? 'bg-blue-950 border-sky-400 text-white shadow'
-                                    : 'bg-[#0A1A3E] border-slate-800 text-slate-300 hover:border-slate-700'
-                                }`}
-                              >
-                                <div className="flex items-center justify-between">
-                                  <strong className="text-xs">{art.titre}</strong>
-                                  {selectedServiceIds[art.id] && <Check className="w-4 h-4 text-sky-400" />}
-                                </div>
-                                <p className="text-[10px] text-slate-400 mt-1">{art.description}</p>
-                              </div>
-                            ))}
-                        </div>
-                        <div className="pt-2">
-                          <label className="block text-slate-300 text-[11px] mb-1">Date et heure souhaitée pour la veillée :</label>
-                          <input
-                            type="datetime-local"
-                            value={dateSalon}
-                            onChange={(e) => setDateSalon(e.target.value)}
-                            className="p-2 bg-[#0A1A3E] border border-slate-700 rounded-lg text-white text-xs"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="p-3 bg-[#061126] rounded-xl border border-blue-900/60 space-y-2">
-                        <span className="font-bold text-sky-300 block text-[11px]">
-                          1.2 Conciergerie, Traiteur & Mémorial Numérique
-                        </span>
-                        <div className="space-y-2">
-                          {catalogue
-                            .filter((a) => a.id === 'art-rec-03' || a.id === 'art-rec-04')
-                            .map((art) => (
-                              <div
-                                key={art.id}
-                                onClick={() => toggleService(art.id)}
-                                className={`p-2.5 rounded-xl border cursor-pointer flex items-center justify-between transition-all ${
-                                  selectedServiceIds[art.id]
-                                    ? 'bg-blue-950 border-sky-400 text-white'
-                                    : 'bg-[#0A1A3E] border-slate-800 text-slate-300'
-                                }`}
-                              >
-                                <div>
-                                  <div className="font-semibold text-xs">{art.titre}</div>
-                                  <div className="text-[10px] text-slate-400">{art.description}</div>
-                                </div>
-                                {selectedServiceIds[art.id] ? (
-                                  <span className="text-[10px] px-2 py-0.5 rounded bg-sky-500 text-white font-bold">Sélectionné</span>
-                                ) : (
-                                  <span className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400">Ajouter</span>
-                                )}
-                              </div>
-                            ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* PÔLE 2 : SOINS DU CORPS ET ESTHÉTIQUE */}
-                  {wizardCategoryTab === 2 && (
-                    <div className="space-y-3">
-                      <div className="p-3 bg-[#061126] rounded-xl border border-blue-900/60 space-y-2">
-                        <span className="font-bold text-sky-300 block text-[11px]">
-                          2.1 Forfaits de Préparation & Esthétique
-                        </span>
-                        <p className="text-slate-400 text-[11px]">
-                          Toilette rituelle, habillage (dépôt des vêtements par la famille), coiffure et maquillage digne.
-                        </p>
+                {/* Grille des Services : Grands blocs très lisibles et sélectionnables en 1 clic */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[390px] overflow-y-auto pr-1">
+                  {catalogue
+                    .filter((art) => {
+                      if (wizardCategoryTab === 'TOUS') return true;
+                      if (wizardCategoryTab === 'CEREMONIE') return art.categorie === 'CEREMONIE';
+                      if (wizardCategoryTab === 'TOILETTE_ET_SOINS') return art.categorie === 'TOILETTE_ET_SOINS' || art.categorie === 'CONSERVATION';
+                      if (wizardCategoryTab === 'FOURNITURE_FUNERAIRE') return art.categorie === 'FOURNITURE_FUNERAIRE';
+                      if (wizardCategoryTab === 'TRANSPORT') return art.categorie === 'TRANSPORT';
+                      if (wizardCategoryTab === 'ADMINISTRATIF') return art.categorie === 'ADMINISTRATIF' || art.categorie === 'ADMISSION';
+                      return true;
+                    })
+                    .map((art) => {
+                      const isSelected = !!selectedServiceIds[art.id];
+                      return (
                         <div
-                          onClick={() => toggleService('art-soin-01')}
-                          className={`p-3 rounded-xl border cursor-pointer flex items-center justify-between ${
-                            selectedServiceIds['art-soin-01'] ? 'bg-blue-950 border-sky-400 text-white' : 'bg-[#0A1A3E] border-slate-800'
+                          key={art.id}
+                          onClick={() => toggleService(art.id)}
+                          className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all flex flex-col justify-between select-none ${
+                            isSelected
+                              ? 'bg-[#0B2559] border-sky-400 text-white shadow-lg shadow-blue-900/40 ring-1 ring-sky-400/40'
+                              : 'bg-[#061126] border-blue-900/60 text-slate-300 hover:border-slate-600 hover:bg-[#0A1D45]'
                           }`}
                         >
                           <div>
-                            <div className="font-semibold text-xs">Toilette rituelle, habillage & coiffure de présentation</div>
-                            <div className="text-[10px] text-slate-400">Planification du dépôt des vêtements et maquillage soigné</div>
-                          </div>
-                          {selectedServiceIds['art-soin-01'] && <Check className="w-4 h-4 text-sky-400" />}
-                        </div>
-                      </div>
+                            {/* Entête du service : Catégorie + Bouton état de sélection */}
+                            <div className="flex items-center justify-between gap-2 mb-2">
+                              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-900 text-sky-300 border border-blue-900">
+                                {art.categorie === 'CEREMONIE'
+                                  ? 'Recueillement & Salon'
+                                  : art.categorie === 'TOILETTE_ET_SOINS' || art.categorie === 'CONSERVATION'
+                                  ? 'Soins du Corps'
+                                  : art.categorie === 'FOURNITURE_FUNERAIRE'
+                                  ? 'Boutique Funéraire'
+                                  : art.categorie === 'TRANSPORT'
+                                  ? 'Axe Transport'
+                                  : 'Assistance Administrative'}
+                              </span>
 
-                      <div className="p-3 bg-[#061126] rounded-xl border border-blue-900/60 space-y-2">
-                        <span className="font-bold text-sky-300 block text-[11px]">
-                          2.2 Soins de Conservation (Thanatopraxie & Conservation)
-                        </span>
-                        <div className="p-2.5 bg-sky-950/40 border border-sky-800/40 rounded-lg text-[10px] text-sky-300">
-                          ℹ️ Fortement recommandé pour les corps provenant d'une morgue externe sans infrastructures de pointe et pour une présentation à visage découvert.
-                        </div>
-                        <div className="space-y-2">
-                          {catalogue
-                            .filter((a) => a.id === 'art-soin-02' || a.id === 'art-soin-03')
-                            .map((art) => (
-                              <div
-                                key={art.id}
-                                onClick={() => toggleService(art.id)}
-                                className={`p-2.5 rounded-xl border cursor-pointer flex items-center justify-between transition-all ${
-                                  selectedServiceIds[art.id]
-                                    ? 'bg-blue-950 border-sky-400 text-white'
-                                    : 'bg-[#0A1A3E] border-slate-800 text-slate-300'
-                                }`}
-                              >
-                                <div>
-                                  <div className="font-semibold text-xs">{art.titre}</div>
-                                  <div className="text-[10px] text-slate-400">{art.description}</div>
-                                </div>
-                                {selectedServiceIds[art.id] ? (
-                                  <span className="text-[10px] px-2 py-0.5 rounded bg-sky-500 text-white font-bold">Sélectionné</span>
+                              <div className="flex items-center gap-1.5">
+                                {isSelected ? (
+                                  <span className="flex items-center gap-1 text-[11px] font-bold text-sky-200 bg-sky-500/30 px-2.5 py-1 rounded-lg border border-sky-400/50">
+                                    <Check className="w-3.5 h-3.5 text-sky-300" />
+                                    Sélectionné
+                                  </span>
                                 ) : (
-                                  <span className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400">Ajouter</span>
+                                  <span className="text-[11px] font-medium text-slate-400 bg-slate-900/80 px-2.5 py-1 rounded-lg border border-slate-700/80 hover:text-white">
+                                    + Choisir
+                                  </span>
                                 )}
                               </div>
-                            ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* PÔLE 3 : BOUTIQUE D'ARTICLES FUNÉRAIRES */}
-                  {wizardCategoryTab === 3 && (
-                    <div className="space-y-3">
-                      <div className="p-3 bg-[#061126] rounded-xl border border-blue-900/60 space-y-2">
-                        <span className="font-bold text-sky-300 block text-[11px]">
-                          3.1 Choix du Cercueil ou de l'Urne
-                        </span>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          {catalogue
-                            .filter((a) => a.id === 'art-cer-01' || a.id === 'art-cer-02')
-                            .map((art) => (
-                              <div
-                                key={art.id}
-                                onClick={() => toggleService(art.id)}
-                                className={`p-3 rounded-xl border cursor-pointer transition-all ${
-                                  selectedServiceIds[art.id]
-                                    ? 'bg-blue-950 border-sky-400 text-white'
-                                    : 'bg-[#0A1A3E] border-slate-800 text-slate-300'
-                                }`}
-                              >
-                                <div className="flex items-center justify-between">
-                                  <strong className="text-xs">{art.titre}</strong>
-                                  {selectedServiceIds[art.id] && <Check className="w-4 h-4 text-sky-400" />}
-                                </div>
-                                <p className="text-[10px] text-slate-400 mt-1">{art.description}</p>
-                              </div>
-                            ))}
-                        </div>
-                      </div>
-
-                      <div className="p-3 bg-[#061126] rounded-xl border border-blue-900/60 space-y-2">
-                        <span className="font-bold text-sky-300 block text-[11px]">
-                          3.2 Fleurs d’Honneur & Plaques Commémoratives
-                        </span>
-                        <div className="space-y-2">
-                          {catalogue
-                            .filter((a) => a.id === 'art-flr-01' || a.id === 'art-plq-01')
-                            .map((art) => (
-                              <div
-                                key={art.id}
-                                onClick={() => toggleService(art.id)}
-                                className={`p-2.5 rounded-xl border cursor-pointer flex items-center justify-between transition-all ${
-                                  selectedServiceIds[art.id]
-                                    ? 'bg-blue-950 border-sky-400 text-white'
-                                    : 'bg-[#0A1A3E] border-slate-800 text-slate-300'
-                                }`}
-                              >
-                                <div>
-                                  <div className="font-semibold text-xs">{art.titre}</div>
-                                  <div className="text-[10px] text-slate-400">{art.description}</div>
-                                </div>
-                                {selectedServiceIds[art.id] ? (
-                                  <span className="text-[10px] px-2 py-0.5 rounded bg-sky-500 text-white font-bold">Sélectionné</span>
-                                ) : (
-                                  <span className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400">Ajouter</span>
-                                )}
-                              </div>
-                            ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* PÔLE 4 : SUIVI LOGISTIQUE ET AXE TRANSPORT */}
-                  {wizardCategoryTab === 4 && (
-                    <div className="space-y-3">
-                      <div className="p-3 bg-[#061126] rounded-xl border border-blue-900/60 space-y-2">
-                        <span className="font-bold text-sky-300 block text-[11px]">
-                          4.1 Commande de Corbillard & Transfert du Corps
-                        </span>
-                        <p className="text-slate-400 text-[11px]">
-                          Indispensable pour les corps venant d'une morgue externe ou d'un centre hospitalier.
-                        </p>
-                        <div className="space-y-2">
-                          {catalogue
-                            .filter((a) => a.id === 'art-transp-01' || a.id === 'art-transp-02')
-                            .map((art) => (
-                              <div
-                                key={art.id}
-                                onClick={() => toggleService(art.id)}
-                                className={`p-2.5 rounded-xl border cursor-pointer flex items-center justify-between transition-all ${
-                                  selectedServiceIds[art.id]
-                                    ? 'bg-blue-950 border-sky-400 text-white'
-                                    : 'bg-[#0A1A3E] border-slate-800 text-slate-300'
-                                }`}
-                              >
-                                <div>
-                                  <div className="font-semibold text-xs">{art.titre}</div>
-                                  <div className="text-[10px] text-slate-400">{art.description}</div>
-                                </div>
-                                {selectedServiceIds[art.id] ? (
-                                  <span className="text-[10px] px-2 py-0.5 rounded bg-sky-500 text-white font-bold">Sélectionné</span>
-                                ) : (
-                                  <span className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400">Ajouter</span>
-                                )}
-                              </div>
-                            ))}
-                        </div>
-                        <div className="pt-2">
-                          <label className="block text-slate-300 text-[11px] mb-1 font-medium">
-                            Adresse ou Nom de la morgue de départ (hôpital d'origine) :
-                          </label>
-                          <input
-                            type="text"
-                            placeholder="Ex: Clinique Ngaliema ou Hôpital Provincial de Kinshasa"
-                            value={morgueDepart}
-                            onChange={(e) => setMorgueDepart(e.target.value)}
-                            className="w-full p-2 bg-[#0A1A3E] border border-slate-700 rounded-lg text-white text-xs focus:ring-1 focus:ring-sky-500 focus:outline-none"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="p-3 bg-[#061126] rounded-xl border border-blue-900/60 space-y-2">
-                        <span className="font-bold text-sky-300 block text-[11px]">
-                          4.2 Géolocalisation & Alertes SMS en Temps Réel
-                        </span>
-                        <div
-                          onClick={() => toggleService('art-transp-03')}
-                          className={`p-2.5 rounded-xl border cursor-pointer flex items-center justify-between ${
-                            selectedServiceIds['art-transp-03'] ? 'bg-blue-950 border-sky-400 text-white' : 'bg-[#0A1A3E] border-slate-800'
-                          }`}
-                        >
-                          <div>
-                            <div className="font-semibold text-xs">Notifications de transfert en direct par SMS / Application</div>
-                            <div className="text-[10px] text-slate-400">
-                              Recevez : « Le corps a quitté la morgue X » puis « Le corps est arrivé au funérarium ».
                             </div>
-                          </div>
-                          {selectedServiceIds['art-transp-03'] && <Check className="w-4 h-4 text-sky-400" />}
-                        </div>
-                      </div>
-                    </div>
-                  )}
 
-                  {/* PÔLE 5 : ASSISTANCE ADMINISTRATIVE ET JURIDIQUE */}
-                  {wizardCategoryTab === 5 && (
-                    <div className="space-y-3">
-                      <div className="p-3 bg-[#061126] rounded-xl border border-blue-900/60 space-y-2">
-                        <span className="font-bold text-sky-300 block text-[11px]">
-                          5.1 Générateur de Formalités Légales & Permis
-                        </span>
-                        <div
-                          onClick={() => toggleService('art-adm-01')}
-                          className={`p-2.5 rounded-xl border cursor-pointer flex items-center justify-between ${
-                            selectedServiceIds['art-adm-01'] ? 'bg-blue-950 border-sky-400 text-white' : 'bg-[#0A1A3E] border-slate-800'
-                          }`}
-                        >
-                          <div>
-                            <div className="font-semibold text-xs">Aide administrative à la déclaration de décès et autorisations</div>
-                            <div className="text-[10px] text-slate-400">Permis d'inhumer, certificat de transport auprès des autorités locales</div>
-                          </div>
-                          {selectedServiceIds['art-adm-01'] && <Check className="w-4 h-4 text-sky-400" />}
-                        </div>
-                      </div>
+                            {/* Titre du service */}
+                            <h4 className="text-xs sm:text-sm font-bold text-white leading-snug">
+                              {art.titre}
+                            </h4>
 
-                      <div className="p-3 bg-[#061126] rounded-xl border border-blue-900/60 space-y-2">
-                        <span className="font-bold text-sky-300 block text-[11px]">
-                          5.2 Coffre-fort Numérique Sécurisé
-                        </span>
-                        <div
-                          onClick={() => toggleService('art-adm-02')}
-                          className={`p-2.5 rounded-xl border cursor-pointer flex items-center justify-between ${
-                            selectedServiceIds['art-adm-02'] ? 'bg-blue-950 border-sky-400 text-white' : 'bg-[#0A1A3E] border-slate-800'
-                          }`}
-                        >
-                          <div>
-                            <div className="font-semibold text-xs">Numérisation et téléversement sécurisé des actes d'état civil</div>
-                            <div className="text-[10px] text-slate-400">Téléchargement instantané des actes officiels délivrés par l'établissement</div>
+                            {/* Description claire et complète */}
+                            <p className="text-[11px] text-slate-300 mt-1.5 leading-relaxed">
+                              {art.description}
+                            </p>
                           </div>
-                          {selectedServiceIds['art-adm-02'] && <Check className="w-4 h-4 text-sky-400" />}
+
+                          {/* Options contextuelles si le salon ou le transport est sélectionné */}
+                          {isSelected && (art.id === 'art-rec-01' || art.id === 'art-rec-02') && (
+                            <div className="mt-3 pt-2.5 border-t border-sky-500/30" onClick={(e) => e.stopPropagation()}>
+                              <label className="block text-[10px] font-semibold text-sky-200 mb-1">
+                                Date et heure souhaitée pour la veillée :
+                              </label>
+                              <input
+                                type="datetime-local"
+                                value={dateSalon}
+                                onChange={(e) => setDateSalon(e.target.value)}
+                                className="w-full p-2 bg-[#061126] border border-sky-400/60 rounded-lg text-white text-xs focus:outline-none"
+                              />
+                            </div>
+                          )}
+
+                          {isSelected && art.id === 'art-transp-01' && (
+                            <div className="mt-3 pt-2.5 border-t border-sky-500/30" onClick={(e) => e.stopPropagation()}>
+                              <label className="block text-[10px] font-semibold text-sky-200 mb-1">
+                                Hôpital ou morgue de départ (pour le transfert) :
+                              </label>
+                              <input
+                                type="text"
+                                placeholder="Ex: Clinique Ngaliema ou Hôpital Provincial..."
+                                value={morgueDepart}
+                                onChange={(e) => setMorgueDepart(e.target.value)}
+                                className="w-full p-2 bg-[#061126] border border-sky-400/60 rounded-lg text-white text-xs placeholder-slate-500 focus:outline-none"
+                              />
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    </div>
-                  )}
+                      );
+                    })}
                 </div>
 
-                {/* Synthèse des services retenus */}
-                <div className="p-3.5 bg-[#061126] border border-blue-900/80 rounded-xl flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] text-slate-400 uppercase font-semibold block">Prestations Sélectionnées</span>
+                {/* Synthèse des services retenus & Actions de validation */}
+                <div className="p-3.5 bg-[#061126] border border-blue-900/80 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <div className="w-full sm:w-auto">
+                    <span className="text-[10px] text-slate-400 uppercase font-semibold block">Prestations Retenues</span>
                     <div className="flex items-baseline gap-2">
                       <span className="text-xl font-black text-sky-400">
                         {Object.keys(selectedServiceIds).length} prestation(s)
                       </span>
                       <span className="text-xs text-slate-400">
-                        retenues pour la prise en charge
+                        sélectionnée(s) pour la prise en charge
                       </span>
+                    </div>
+
+                    {/* Mini pastilles des services sélectionnés pour un aperçu instantané */}
+                    <div className="flex flex-wrap gap-1 mt-1.5 max-w-lg">
+                      {Object.keys(selectedServiceIds).map((id) => {
+                        const art = catalogue.find((a) => a.id === id);
+                        return art ? (
+                          <span
+                            key={id}
+                            onClick={() => toggleService(id)}
+                            className="text-[10px] bg-blue-950 text-sky-300 border border-blue-800 px-2 py-0.5 rounded-full flex items-center gap-1 cursor-pointer hover:bg-red-950 hover:text-red-300 hover:border-red-800 transition-colors"
+                            title="Cliquer pour retirer"
+                          >
+                            {art.titre.slice(0, 22)}...
+                            <span className="text-slate-400">✕</span>
+                          </span>
+                        ) : null;
+                      })}
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2.5 w-full sm:w-auto shrink-0">
                     <button
                       type="button"
                       onClick={() => setWizardStep(1)}
-                      className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold transition-colors"
+                      className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 font-semibold text-xs border border-blue-900 transition-colors"
                     >
                       ← Précédent
                     </button>
 
                     <button
                       type="button"
-                      disabled={submitting}
+                      disabled={submitting || Object.keys(selectedServiceIds).length === 0}
                       onClick={handleFinalSubmit}
-                      className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-extrabold rounded-xl text-xs shadow-lg shadow-blue-600/30 transition-all flex items-center gap-2 disabled:opacity-50"
+                      className="flex-1 sm:flex-initial px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-extrabold rounded-xl text-xs shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                     >
                       {submitting ? 'Enregistrement...' : 'Valider & Créer le Dossier ➔'}
                     </button>
