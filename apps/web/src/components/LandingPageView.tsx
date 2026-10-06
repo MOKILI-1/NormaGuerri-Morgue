@@ -230,124 +230,118 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
       {/* Liseré supérieur bleu cobalt & cyan (charte du logo) */}
       <div className="h-1 bg-gradient-to-r from-blue-700 via-sky-400 to-blue-800" />
 
-      {/* HEADER PRINCIPAL */}
-      <header className="sticky top-0 z-40 bg-[#061126]/95 backdrop-blur-md border-b border-blue-950/80 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          {/* Logo et Identité H+ Hospital Nomargueri */}
-          <div className="flex items-center space-x-3.5">
+      {/* HEADER PRINCIPAL PROPORTIONNÉ */}
+      <header className="sticky top-0 z-40 bg-[#061126]/95 backdrop-blur-md border-b border-blue-950/80 shadow-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          {/* Logo et Identité H+ Hospital Nomargueri (format compact sans badge souverain) */}
+          <div className="flex items-center space-x-3">
             <img
               src="/logo-hospital-nomargueri.jpg"
               alt="Logo H+ Hospital Nomargueri"
-              className="w-12 h-12 rounded-full border-2 border-sky-400/80 shadow-md object-cover bg-white shrink-0"
+              className="w-9 h-9 rounded-full border border-sky-400/80 shadow-sm object-cover bg-white shrink-0"
             />
             <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xl sm:text-2xl font-black tracking-tight text-white uppercase font-sans">
-                  HOSPITAL NOMARGUERI
-                </span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-900/60 text-sky-300 font-mono border border-sky-500/40 font-semibold tracking-wide hidden sm:inline-block">
-                  SOUVERAIN
-                </span>
-              </div>
-              <p className="text-[11px] text-sky-300/80 tracking-wide uppercase font-medium">
+              <span className="text-sm sm:text-base font-extrabold tracking-tight text-white uppercase font-sans block leading-none">
+                HOSPITAL NOMARGUERI
+              </span>
+              <p className="text-[10px] text-sky-300/80 tracking-wide uppercase font-medium mt-1">
                 Morgue & Parcours Funéraire • Kinshasa
               </p>
             </div>
           </div>
 
-          {/* Boutons d'Action Header */}
+          {/* Bouton d'Action Header */}
           <div className="flex items-center space-x-3 text-xs font-semibold">
             <button
               onClick={onOpenSearchModal}
-              className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-slate-200 border border-blue-900 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-slate-200 border border-blue-900/80 transition-colors"
             >
               <Search className="w-3.5 h-3.5 text-sky-400" />
-              <span>Vérifier un dossier</span>
+              <span>Suivre un dossier</span>
             </button>
-
-            <a
-              href="#catalogue"
-              className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition-all shadow-md shadow-blue-600/30 flex items-center gap-1.5"
-            >
-              <span>Consulter les prestations</span>
-            </a>
           </div>
         </div>
       </header>
 
-      {/* SECTION 1 — HERO SECTION (DISPOSITION 2 COLONNES AVEC CTAS ET PROTOCOLE) */}
-      <section className="relative overflow-hidden pt-12 pb-20 lg:pt-16 lg:pb-24 border-b border-blue-950/60 bg-gradient-to-b from-[#061126] via-[#091A3E] to-[#0A1E48]">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(2,132,199,0.15),transparent_60%)] pointer-events-none" />
+      {/* SECTION 1 — HERO SECTION PROPORTIONNÉE & HARMONIEUSE */}
+      <section className="relative overflow-hidden pt-12 pb-16 lg:pt-14 lg:pb-20 border-b border-blue-950/60 bg-gradient-to-b from-[#061126] via-[#08183B] to-[#0A1E48]">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(2,132,199,0.12),transparent_70%)] pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-            {/* Colonne Gauche : Titre percutant, Sous-titre & CTAs */}
-            <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-900/40 border border-blue-600/40 text-sky-300 text-xs font-bold tracking-wide">
-                <Sparkles className="w-3.5 h-3.5 text-sky-400" />
-                <span>PORTAIL OFFICIEL FUNÉRAIRE & MORGUE</span>
-              </div>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center space-y-5">
+          {/* Badge discret */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-blue-900/40 border border-blue-600/40 text-sky-300 text-xs font-semibold tracking-wide">
+            <Sparkles className="w-3.5 h-3.5 text-sky-400" />
+            <span>PORTAIL OFFICIEL FUNÉRAIRE & MORGUE</span>
+          </div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1]">
-                Hospital Nomargueri.<br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-blue-400 to-indigo-300">
-                  Dignité • Sérénité • Traçabilité
-                </span>
-              </h1>
+          {/* Titre principal parfaitement équilibré */}
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
+            HOSPITAL NOMARGUERI<br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-blue-400 to-indigo-300">
+              Dignité • Sérénité • Traçabilité
+            </span>
+          </h1>
 
-              <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl font-normal">
-                Prise en charge intégrale et personnalisée du parcours funéraire : réservation de salons de recueillement, soins de thanatopraxie, logistique de transport géolocalisée et assistance aux formalités officielles.
-              </p>
+          {/* Description claire et équilibrée */}
+          <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl mx-auto font-normal">
+            Prise en charge intégrale et personnalisée du parcours funéraire : salons de recueillement, soins de thanatopraxie, logistique de transport sécurisée et formalités officielles.
+          </p>
 
-              <div className="flex flex-col sm:flex-row gap-3.5 pt-2">
-                <button
-                  onClick={() => handleOpenWizard()}
-                  className="px-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-sm shadow-xl shadow-blue-600/30 transition-all flex items-center justify-center gap-2"
-                >
-                  Déclarer un décès & Choisir les prestations ➔
-                </button>
+          {/* Les 3 CTAs dans l'ordre exact demandé */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-3">
+            {/* CTA 1 : Déclarer un décès */}
+            <button
+              onClick={() => handleOpenWizard()}
+              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Déclarer un décès</span>
+            </button>
 
-                <button
-                  onClick={onOpenSearchModal}
-                  className="px-6 py-3.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-blue-900 font-semibold text-sm transition-all flex items-center justify-center gap-2"
-                >
-                  Suivre un dossier existant
-                </button>
-              </div>
-            </div>
+            {/* CTA 2 : Suivre un dossier existant */}
+            <button
+              onClick={onOpenSearchModal}
+              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-blue-900/90 font-semibold text-sm transition-all flex items-center justify-center gap-2 shadow-sm"
+            >
+              <Search className="w-4 h-4 text-sky-400" />
+              <span>Suivre un dossier existant</span>
+            </button>
 
-            {/* Colonne Droite : Carte institutionnelle avec les engagements officiels */}
-            <div className="lg:col-span-5">
-              <div className="bg-[#0B1E48]/90 border border-blue-900/80 rounded-2xl p-6 sm:p-7 shadow-2xl space-y-5 backdrop-blur-sm">
-                <div className="text-[11px] font-bold text-sky-400 uppercase tracking-wider">
-                  SERVICES D’ACCOMPAGNEMENT DÉDIÉS
-                </div>
+            {/* CTA 3 : Découvrir les 5 pôles de services */}
+            <a
+              href="#catalogue"
+              className="w-full sm:w-auto px-5 py-3 rounded-xl bg-blue-950/70 hover:bg-blue-900/70 text-sky-300 hover:text-white border border-blue-800/70 font-semibold text-sm transition-all flex items-center justify-center gap-1.5"
+            >
+              <span>Découvrir les 5 pôles de services</span>
+              <ArrowRight className="w-4 h-4 text-sky-400" />
+            </a>
+          </div>
 
-                <div className="bg-[#06132D] border border-blue-800/60 rounded-xl p-4 space-y-1.5">
-                  <div className="flex items-center gap-2 text-xs font-bold text-sky-300">
-                    <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
-                    <span>Prise en charge coordonnée en 5 Pôles</span>
-                  </div>
-                  <p className="text-xs text-slate-300 leading-relaxed">
-                    Recueillement en salons climatisés, soins esthétiques et thanatopraxie, boutique marbrerie, transfert sécurisé depuis morgue externe et formalités légales.
-                  </p>
-                </div>
-
-                <div className="space-y-1 text-xs">
-                  <h4 className="font-bold text-white">Traçabilité & Notifications en temps réel</h4>
-                  <p className="text-slate-400 leading-relaxed">
-                    Chaque étape (arrivée, soins, levée de corps) est suivie avec précision par QR Code infalsifiable et alertes SMS pour la tranquillité des proches.
-                  </p>
-                </div>
-
+          {/* Accès rapide harmonieux aux 5 Pôles Métier */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 pt-6 text-left">
+            {polesModules.map((pole) => {
+              const IconComp = pole.icon;
+              return (
                 <a
+                  key={pole.id}
                   href="#catalogue"
-                  className="w-full py-3 bg-blue-950/80 hover:bg-blue-900 text-sky-300 border border-blue-700/50 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2"
+                  onClick={() => setSelectedCategorie(pole.categorieShared)}
+                  className="p-3 bg-[#0B1E48]/60 hover:bg-[#0E275E]/90 border border-blue-900/60 hover:border-sky-500/50 rounded-xl transition-all group flex flex-col justify-between"
                 >
-                  Découvrir les 5 pôles de services ➔
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="p-1.5 rounded-lg bg-blue-900/60 text-sky-400 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                      <IconComp className="w-3.5 h-3.5" />
+                    </div>
+                    <span className="text-xs font-bold text-white group-hover:text-sky-300 transition-colors line-clamp-1">
+                      {pole.titre}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 line-clamp-2 leading-snug">
+                    {pole.desc}
+                  </p>
                 </a>
-              </div>
-            </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -458,7 +452,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                   HOSPITAL NOMARGUERI
                 </span>
                 <span className="text-[11px] text-slate-400">
-                  Plateforme Souveraine de Gestion du Parcours Funéraire
+                  Morgue & Parcours Funéraire • Kinshasa
                 </span>
               </div>
             </div>

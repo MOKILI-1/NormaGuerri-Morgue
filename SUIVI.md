@@ -38,6 +38,7 @@
 | 06/10/2026 - 22:20 | Intégration Charte H+ Hospital Nomargueri & Disposition RTNC Pay | Intégration du logo officiel, disposition 2 sections RTNC Pay et Footer "Propulsé par Mokili" vers `mokili.io`. |
 | 06/10/2026 - 22:22 | Workflow Déclaration en 3 étapes avec proposition des services | Étape 1: Défunt & Famille ➔ Étape 2: Proposition des prestations funéraires ➔ Étape 3: Récépissé & QR Code. |
 | 06/10/2026 - 23:20 | Refonte 5 Pôles Funéraires Métier & Retrait Cartes Flottantes | Suppression des 3 cartes flottantes intermédiaires. Implémentation des 5 modules de services personnalisés (Recueillement, Soins thanatopraxie, Boutique cercueils/fleurs, Logistique axe transport & géolocalisation SMS, Assistance administrative & coffre-fort numérique). Masquage strict de tous les prix publics. Charte chromatique Bleu Roi / Bleu Ciel / Deep Navy validée. |
+| 06/10/2026 - 23:28 | Calibrage Proportionné, Header & Alignement des 3 CTAs | Réduction proportionnée du bloc logo (36px), suppression du badge 'SOUVERAIN', suppression de 'Consulter les prestations' au header. Remplacement du bloc protocole par les 3 CTAs ordonnés ('Déclarer un décès', 'Suivre un dossier existant', 'Découvrir les 5 pôles de services') et grille harmonieuse d'accès direct aux 5 pôles. |
 
 ---
 
