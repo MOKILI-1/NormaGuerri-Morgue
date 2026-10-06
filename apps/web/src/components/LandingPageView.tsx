@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import QRCode from 'qrcode';
 import {
   ShieldCheck,
   Building,
@@ -25,7 +26,10 @@ import {
   Flower2,
   Lock,
   BellRing,
-  HelpCircle
+  HelpCircle,
+  Copy,
+  Download,
+  Mail
 } from 'lucide-react';
 import { DossierVivant, Sexe, ArticleCatalogue } from '@nomarguerrie/shared-types';
 
@@ -64,25 +68,91 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
   const [morgueDepart, setMorgueDepart] = useState('');
   const [dateSalon, setDateSalon] = useState('');
 
-  // Étape 2 : Services sélectionnés par la famille
+  // Étape 2 : Services sélectionnés par la famille (Frais d'admission inclus d'office)
   const [selectedServiceIds, setSelectedServiceIds] = useState<Record<string, number>>({
-    'art-adm-01': 1, // Formalités de base d'office
-    'art-soin-03': 1 // Conservation sécurisée
+    'art-adm-00': 1 // Frais d'admission obligatoire pour l'ouverture du dossier
   });
 
   // Onglet actif dans l'étape 2 des services (filtre par pôle ou Tous)
   const [wizardCategoryTab, setWizardCategoryTab] = useState<string>('TOUS');
 
-  // Étape 3 : Résultat après création
+  // Étape 3 : Résultat après création & QR Code automatique
   const [createdDossier, setCreatedDossier] = useState<DossierVivant | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [copiedInfo, setCopiedInfo] = useState(false);
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
+
+  // Génération automatique du QR Code certifié pour le médecin et l'accueil
+  useEffect(() => {
+    if (createdDossier) {
+      QRCode.toDataURL(createdDossier.numeroDossier, {
+        width: 220,
+        margin: 2,
+        color: { dark: '#061126', light: '#ffffff' }
+      })
+        .then((url) => setQrCodeDataUrl(url))
+        .catch((err) => console.error('Erreur génération QR Code:', err));
+    }
+  }, [createdDossier]);
+
+  // Copie complète des informations du dossier dans le presse-papier
+  const handleCopyInfo = () => {
+    if (!createdDossier) return;
+    const infoText = `HOSPITAL NOMARGUERI — DOSSIER FUNÉRAIRE OFFICIEL
+==================================================
+Numéro de Dossier : ${createdDossier.numeroDossier}
+Jeton QR Sécurisé : ${createdDossier.qrCodeToken}
+Statut : ${createdDossier.statut}
+Date d'enregistrement : ${new Date(createdDossier.dateCreation).toLocaleDateString('fr-FR')}
+
+DÉFUNT :
+- Nom : ${createdDossier.defunt.prenom} ${createdDossier.defunt.nom}
+- Sexe : ${createdDossier.defunt.sexe}
+- Date du décès : ${createdDossier.defunt.dateDeces}
+- Lieu du décès : ${createdDossier.defunt.lieuDeces}
+
+REPRÉSENTANT FAMILIAL :
+- Nom : ${createdDossier.demandeur.nom}
+- Lien : ${createdDossier.demandeur.lienParente}
+- Téléphone : ${createdDossier.demandeur.telephone}
+
+PRESTATIONS RETENUES :
+${createdDossier.prestations.map((p) => `- ${p.titre}`).join('\n')}
+
+ÉTABLISSEMENT :
+- Adresse : N°10 AV/Mondo Q/Domaine-Village Mbezale C/Nsele
+- Contact 24h/24 : +243 997 222 228 / +243 833 330 040
+- Email : contact@nomargueri.com
+==================================================
+Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver immédiatement votre dossier.`;
+
+    navigator.clipboard.writeText(infoText).then(() => {
+      setCopiedInfo(true);
+      setTimeout(() => setCopiedInfo(false), 3000);
+    });
+  };
+
+  // Téléchargement direct de l'image QR Code
+  const handleDownloadQrImage = () => {
+    if (!qrCodeDataUrl || !createdDossier) return;
+    const link = document.createElement('a');
+    link.href = qrCodeDataUrl;
+    link.download = `QRCode-${createdDossier.numeroDossier.replace('#', '')}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   // Recherche & Filtres dans le catalogue public
   const [rechercheCatalogue, setRechercheCatalogue] = useState('');
   const [selectedCategorie, setSelectedCategorie] = useState<string>('TOUS');
 
-  // Gestion de la sélection des services
+  // Gestion de la sélection des services (art-adm-00 verrouillé d'office)
   const toggleService = (articleId: string) => {
+    if (articleId === 'art-adm-00') {
+      alert("Les frais d'admission constituent le service de base obligatoire pour l'ouverture du dossier funéraire.");
+      return;
+    }
     setSelectedServiceIds((prev) => {
       const next = { ...prev };
       if (next[articleId]) {
@@ -90,18 +160,19 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
       } else {
         next[articleId] = 1;
       }
+      // Frais d'admission toujours garantis
+      next['art-adm-00'] = 1;
       return next;
     });
   };
 
-  // Démarrage du wizard
+  // Démarrage du wizard (avec admission garantie)
   const handleOpenWizard = (preselectedArticleId?: string) => {
-    if (preselectedArticleId) {
-      setSelectedServiceIds((prev) => ({
-        ...prev,
-        [preselectedArticleId]: 1
-      }));
-    }
+    setSelectedServiceIds((prev) => ({
+      ...prev,
+      'art-adm-00': 1,
+      ...(preselectedArticleId ? { [preselectedArticleId]: 1 } : {})
+    }));
     setWizardStep(1);
     setIsWizardOpen(true);
   };
@@ -245,7 +316,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                 HOSPITAL NOMARGUERI
               </span>
               <p className="text-[10px] text-sky-300/80 tracking-wide uppercase font-medium mt-1">
-                Morgue & Parcours Funéraire • Kinshasa
+                Morgue & Parcours Funéraire
               </p>
             </div>
           </div>
@@ -415,33 +486,66 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
         </div>
       </section>
 
-      {/* FOOTER OFFICIEL — AVEC MENTION OBLIGATOIRE "PROPULSÉ PAR MOKILI" */}
-      <footer className="mt-auto bg-[#040C1D] py-12 border-t border-blue-950/80 text-xs text-slate-400">
+      {/* FOOTER OFFICIEL — AVEC COORDONNÉES COMPLÈTES & MENTION OBLIGATOIRE "PROPULSÉ PAR MOKILI" */}
+      <footer className="mt-auto bg-[#040C1D] py-10 border-t border-blue-950/80 text-xs text-slate-400">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div className="flex items-center space-x-3">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+            {/* Logo et Nom (sans Kinshasa collé au titre) */}
+            <div className="flex items-center space-x-3 shrink-0">
               <img
                 src="/logo-hospital-nomargueri.jpg"
                 alt="Hospital Nomargueri"
-                className="w-9 h-9 rounded-full border border-sky-400/80 shadow object-cover bg-white"
+                className="w-10 h-10 rounded-full border border-sky-400/80 shadow object-cover bg-white shrink-0"
               />
               <div>
                 <span className="font-bold text-white uppercase text-sm block">
                   HOSPITAL NOMARGUERI
                 </span>
                 <span className="text-[11px] text-slate-400">
-                  Morgue & Parcours Funéraire • Kinshasa
+                  Morgue & Parcours Funéraire
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center space-x-6 text-slate-400 text-xs">
-              <span>Kinshasa, RD Congo</span>
-              <span>•</span>
-              <span className="flex items-center gap-1.5 text-slate-300">
-                <PhoneCall className="w-3.5 h-3.5 text-sky-400" />
-                <span>Urgences 24h/24 : <strong>+243 81 000 0000</strong></span>
-              </span>
+            {/* Coordonnées officielles de l'établissement */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 text-xs text-slate-300 w-full lg:w-auto">
+              {/* Adresse physique */}
+              <div className="flex items-start gap-2.5">
+                <MapPin className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
+                <div>
+                  <span className="text-[10px] text-slate-400 uppercase font-semibold block">Adresse</span>
+                  <span className="leading-snug block text-slate-200">
+                    N°10 AV/Mondo Q/Domaine-Village Mbezale C/Nsele
+                  </span>
+                </div>
+              </div>
+
+              {/* Téléphones de contact 24h/24 */}
+              <div className="flex items-start gap-2.5">
+                <PhoneCall className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
+                <div>
+                  <span className="text-[10px] text-slate-400 uppercase font-semibold block">Contact 24h/24</span>
+                  <div className="font-mono text-white text-[11px] space-y-0.5">
+                    <a href="tel:+243997222228" className="hover:text-sky-300 transition-colors block">
+                      +243 997 222 228
+                    </a>
+                    <a href="tel:+243833330040" className="hover:text-sky-300 transition-colors block">
+                      +243 833 330 040
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Email officiel */}
+              <div className="flex items-start gap-2.5">
+                <Mail className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
+                <div>
+                  <span className="text-[10px] text-slate-400 uppercase font-semibold block">Email Officiel</span>
+                  <a href="mailto:contact@nomargueri.com" className="font-mono text-sky-300 hover:underline text-[11px] block mt-0.5">
+                    contact@nomargueri.com
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -483,19 +587,6 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                   <h3 className="text-lg font-bold text-white">
                     Déclaration & Prise en Charge Funéraire
                   </h3>
-                  <div className="flex items-center gap-2 text-xs text-slate-400">
-                    <span className={`font-semibold ${wizardStep === 1 ? 'text-sky-400' : 'text-slate-400'}`}>
-                      1. Identités
-                    </span>
-                    <span>➔</span>
-                    <span className={`font-semibold ${wizardStep === 2 ? 'text-sky-400' : 'text-slate-400'}`}>
-                      2. Choix des Services (5 Pôles)
-                    </span>
-                    <span>➔</span>
-                    <span className={`font-semibold ${wizardStep === 3 ? 'text-sky-300' : 'text-slate-400'}`}>
-                      3. Récépissé & QR Code
-                    </span>
-                  </div>
                 </div>
               </div>
 
@@ -717,7 +808,9 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                             {/* Entête du service : Catégorie + Bouton état de sélection */}
                             <div className="flex items-center justify-between gap-2 mb-2">
                               <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-900 text-sky-300 border border-blue-900">
-                                {art.categorie === 'CEREMONIE'
+                                {art.id === 'art-adm-00' || art.categorie === 'ADMISSION'
+                                  ? 'Ouverture de Dossier (Base)'
+                                  : art.categorie === 'CEREMONIE'
                                   ? 'Recueillement & Salon'
                                   : art.categorie === 'TOILETTE_ET_SOINS' || art.categorie === 'CONSERVATION'
                                   ? 'Soins du Corps'
@@ -729,7 +822,12 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                               </span>
 
                               <div className="flex items-center gap-1.5">
-                                {isSelected ? (
+                                {art.id === 'art-adm-00' ? (
+                                  <span className="flex items-center gap-1 text-[11px] font-bold text-sky-200 bg-blue-900/90 px-2.5 py-1 rounded-lg border border-sky-400">
+                                    <Check className="w-3.5 h-3.5 text-sky-300" />
+                                    Obligatoire d'office
+                                  </span>
+                                ) : isSelected ? (
                                   <span className="flex items-center gap-1 text-[11px] font-bold text-sky-200 bg-sky-500/30 px-2.5 py-1 rounded-lg border border-sky-400/50">
                                     <Check className="w-3.5 h-3.5 text-sky-300" />
                                     Sélectionné
@@ -841,11 +939,11 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
               </div>
             )}
 
-            {/* ÉTAPE 3 : RÉCÉPISSÉ OFFICIEL & ATTRIBUTION DU DOSSIER PAR QR CODE */}
+            {/* ÉTAPE 3 : RÉCÉPISSÉ OFFICIEL, QR CODE AUTOMATIQUE, COPIE & TÉLÉCHARGEMENT PDF */}
             {wizardStep === 3 && createdDossier && (
-              <div className="space-y-5 text-xs text-center py-2">
-                <div className="w-16 h-16 rounded-2xl bg-sky-500/20 text-sky-400 border border-sky-500/40 mx-auto flex items-center justify-center">
-                  <CheckCircle2 className="w-9 h-9" />
+              <div className="space-y-4 text-xs text-center py-1">
+                <div className="w-14 h-14 rounded-2xl bg-sky-500/20 text-sky-400 border border-sky-500/40 mx-auto flex items-center justify-center">
+                  <CheckCircle2 className="w-8 h-8" />
                 </div>
 
                 <div className="space-y-1">
@@ -853,54 +951,83 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                     Dossier Funéraire Enregistré avec Succès
                   </h4>
                   <p className="text-xs text-slate-300">
-                    Votre demande de prise en charge a été enregistrée dans le système de l'Hôpital Nomargueri.
+                    Votre demande de prise en charge a été enregistrée avec attribution immédiate d'un QR Code certifié.
                   </p>
                 </div>
 
-                {/* Carte de Récépissé */}
-                <div className="bg-[#061126] border border-blue-900 rounded-2xl p-5 text-left space-y-4">
-                  <div className="flex items-center justify-between border-b border-blue-950 pb-3">
+                {/* Bloc QR Code Officiel attribué automatiquement pour les médecins et l'accueil */}
+                <div className="bg-[#040D20] border-2 border-sky-400/80 rounded-2xl p-4 flex flex-col sm:flex-row items-center gap-4 text-left shadow-xl">
+                  {qrCodeDataUrl ? (
+                    <div className="bg-white p-2.5 rounded-xl shadow-md shrink-0 text-center">
+                      <img src={qrCodeDataUrl} alt="QR Code Dossier" className="w-32 h-32 object-contain mx-auto" />
+                      <span className="block text-[9px] font-mono font-bold text-slate-900 mt-1">
+                        SCAN OFFICIEL
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="w-32 h-32 bg-slate-900 rounded-xl flex items-center justify-center shrink-0 border border-blue-900">
+                      <QrCode className="w-10 h-10 text-sky-400 animate-pulse" />
+                    </div>
+                  )}
+
+                  <div className="space-y-2 flex-1">
                     <div>
-                      <span className="text-[10px] text-slate-400 uppercase font-semibold block">Numéro Officiel de Dossier</span>
-                      <span className="text-lg font-black text-sky-400 font-mono">
+                      <span className="text-[10px] text-sky-300 font-semibold uppercase tracking-wider block">
+                        Code QR Certifié Attribué au Dossier
+                      </span>
+                      <span className="text-lg sm:text-xl font-black text-white font-mono tracking-tight block">
                         {createdDossier.numeroDossier}
                       </span>
                     </div>
-                    <div className="text-right">
-                      <span className="text-[10px] text-slate-400 uppercase font-semibold block">Jeton QR Sécurisé</span>
-                      <span className="text-xs font-mono text-sky-300">{createdDossier.qrCodeToken}</span>
-                    </div>
+                    <p className="text-[11px] text-slate-300 leading-relaxed">
+                      Ce QR Code est attribué automatiquement à votre dossier. Présentez-le à l'accueil ou au médecin pour qu'ils retrouvent immédiatement l'ensemble de vos informations dans leur base de données.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleDownloadQrImage}
+                      className="px-3 py-1.5 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-400/40 text-[11px] font-semibold flex items-center gap-1.5 transition-colors"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      Télécharger le QR Code (.PNG)
+                    </button>
                   </div>
+                </div>
 
-                  <div className="grid grid-cols-2 gap-4 text-xs">
-                    <div>
-                      <span className="text-slate-400 block text-[10px]">Défunt :</span>
-                      <strong className="text-white text-sm">
+                {/* Carte Récapitulative du Récépissé */}
+                <div className="bg-[#061126] border border-blue-900 rounded-2xl p-4 sm:p-5 text-left space-y-3.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div className="p-3 bg-slate-900/60 rounded-xl border border-blue-950">
+                      <span className="text-slate-400 block text-[10px] font-semibold uppercase">Défunt Pris en Charge :</span>
+                      <strong className="text-white text-sm block mt-0.5">
                         {createdDossier.defunt.prenom} {createdDossier.defunt.nom}
                       </strong>
-                      <p className="text-slate-400 text-[11px]">Décès le {createdDossier.defunt.dateDeces}</p>
+                      <p className="text-slate-400 text-[11px] mt-0.5">Décès déclaré le : {createdDossier.defunt.dateDeces}</p>
                     </div>
 
-                    <div>
-                      <span className="text-slate-400 block text-[10px]">Représentant :</span>
-                      <strong className="text-white text-sm">
+                    <div className="p-3 bg-slate-900/60 rounded-xl border border-blue-950">
+                      <span className="text-slate-400 block text-[10px] font-semibold uppercase">Représentant Familial :</span>
+                      <strong className="text-white text-sm block mt-0.5">
                         {createdDossier.demandeur.nom}
                       </strong>
-                      <p className="text-slate-400 text-[11px] font-mono">{createdDossier.demandeur.telephone}</p>
+                      <p className="text-slate-400 text-[11px] font-mono mt-0.5">{createdDossier.demandeur.telephone}</p>
                     </div>
                   </div>
 
-                  {/* Prestations choisies réparties par pôles */}
+                  {/* Prestations choisies avec Frais d'admission obligatoire */}
                   <div className="pt-2 border-t border-blue-950">
-                    <span className="text-slate-400 block text-[10px] mb-1.5 font-semibold">Prestations Retenues :</span>
-                    <div className="space-y-1.5">
+                    <span className="text-slate-400 block text-[10px] mb-1.5 font-semibold uppercase">
+                      Prestations et Services Enregistrés :
+                    </span>
+                    <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
                       {createdDossier.prestations.map((p) => (
-                        <div key={p.id} className="flex justify-between items-center text-xs text-slate-300 bg-slate-900/60 px-2.5 py-1.5 rounded-lg border border-blue-950">
-                          <span className="flex items-center gap-1.5">
-                            <Check className="w-3.5 h-3.5 text-sky-400" />
+                        <div key={p.id} className="flex justify-between items-center text-xs text-slate-300 bg-slate-900/80 px-2.5 py-1.5 rounded-lg border border-blue-950">
+                          <span className="flex items-center gap-1.5 font-medium">
+                            <Check className="w-3.5 h-3.5 text-sky-400 shrink-0" />
                             {p.titre}
                           </span>
-                          <span className="text-[10px] text-sky-400 font-mono font-semibold">Enregistré</span>
+                          <span className="text-[10px] text-sky-400 font-mono font-semibold px-2 py-0.5 rounded bg-blue-950 border border-blue-900">
+                            Validé
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -911,30 +1038,58 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                 <div className="p-3 bg-blue-950/60 border border-blue-800/60 rounded-xl text-left text-[11px] text-sky-200 space-y-1">
                   <p className="font-semibold text-white">Instructions pour la Famille :</p>
                   <p>
-                    1. Présentez-vous à l'accueil du funérarium muni du numéro <strong>{createdDossier.numeroDossier}</strong> et du certificat de décès.
+                    1. Présentez-vous à l'accueil du funérarium (N°10 AV/Mondo Q/Domaine-Village Mbezale C/Nsele) muni du numéro <strong>{createdDossier.numeroDossier}</strong> ou de votre QR Code.
                   </p>
                   <p>
-                    2. Nos conseillers valideront les créneaux de salon, la planification du transport et la préparation personnalisée du défunt.
+                    2. Le médecin et nos conseillers accèdent instantanément à votre dossier dès le scan pour valider les actes d'admission et lancer les prestations demandées.
                   </p>
                 </div>
 
-                <div className="flex gap-3 pt-2">
+                {/* Barre d'Actions : Copier, Télécharger PDF, Suivre */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2">
+                  {/* Bouton 1 : Copier mes informations */}
                   <button
-                    onClick={() => window.print()}
-                    className="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold transition-colors flex items-center justify-center gap-1.5"
+                    type="button"
+                    onClick={handleCopyInfo}
+                    className={`py-3 px-3 rounded-xl font-semibold text-xs transition-all flex items-center justify-center gap-2 border ${
+                      copiedInfo
+                        ? 'bg-emerald-600 border-emerald-400 text-white shadow-lg shadow-emerald-600/30'
+                        : 'bg-slate-900 hover:bg-slate-800 text-slate-200 border-blue-900'
+                    }`}
                   >
-                    <Printer className="w-4 h-4" />
-                    Imprimer le Récépissé
+                    {copiedInfo ? (
+                      <>
+                        <Check className="w-4 h-4 text-emerald-200" />
+                        <span>Informations Copiées !</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4 text-sky-400" />
+                        <span>Copier mes informations</span>
+                      </>
+                    )}
                   </button>
 
+                  {/* Bouton 2 : Télécharger en PDF */}
                   <button
+                    type="button"
+                    onClick={() => window.print()}
+                    className="py-3 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs border border-slate-700 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Printer className="w-4 h-4 text-sky-300" />
+                    <span>Télécharger en PDF</span>
+                  </button>
+
+                  {/* Bouton 3 : Suivre le dossier en ligne */}
+                  <button
+                    type="button"
                     onClick={() => {
                       setIsWizardOpen(false);
                       onSearchDossier(createdDossier.numeroDossier);
                     }}
-                    className="flex-1 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold transition-all shadow-md shadow-blue-600/30"
+                    className="py-3 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs transition-all shadow-md shadow-blue-600/30 flex items-center justify-center gap-2"
                   >
-                    Suivre le Dossier en Ligne ➔
+                    <span>Suivre en Ligne ➔</span>
                   </button>
                 </div>
               </div>

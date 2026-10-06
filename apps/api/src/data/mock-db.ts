@@ -78,6 +78,19 @@ export const UTILISATEURS_MOCK: Utilisateur[] = [
 ];
 
 export const CATALOGUE_SERVICES_MOCK: ArticleCatalogue[] = [
+  // 0. SERVICE DE BASE OBLIGATOIRE : OUVERTURE DE DOSSIER & ADMISSION
+  {
+    id: 'art-adm-00',
+    code: 'SRV-ADM-00',
+    titre: 'Frais d’admission & Ouverture de dossier funéraire',
+    description: 'Enregistrement légal initial, constitution du dossier administratif, bracelet biométrique et attribution du QR Code sécurisé.',
+    categorie: 'ADMISSION',
+    prixUnitaire: 50,
+    devise: 'USD',
+    estStockable: false,
+    uniteFacturation: 'FORFAIT'
+  },
+
   // 1. GESTION ET PERSONNALISATION DU RECUEILLEMENT (FUNÉRARIUM)
   {
     id: 'art-rec-01',
