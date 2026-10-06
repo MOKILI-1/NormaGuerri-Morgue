@@ -19,6 +19,12 @@ import {
   User,
   Plus,
   Check,
+  Truck,
+  Coffee,
+  BookOpen,
+  Flower2,
+  Lock,
+  BellRing,
   HelpCircle
 } from 'lucide-react';
 import { DossierVivant, Sexe, ArticleCatalogue } from '@nomarguerrie/shared-types';
@@ -40,7 +46,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
   onSearchDossier,
   onOpenSearchModal
 }) => {
-  // Modal de Déclaration Multi-étapes (Étape 1: Défunt & Famille -> Étape 2: Choix des Prestations -> Étape 3: Récépissé & QR Code)
+  // Modal de Déclaration Multi-étapes (Étape 1: Défunt & Famille -> Étape 2: Choix des 5 Pôles de Services -> Étape 3: Récépissé & QR Code)
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [wizardStep, setWizardStep] = useState<1 | 2 | 3>(1);
 
@@ -54,24 +60,29 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
   const [contactTel, setContactTel] = useState('');
   const [contactLien, setContactLien] = useState('Enfant / Descendant');
 
-  // Étape 2 : Services sélectionnés par la famille (Admission obligatoire 'art-1' pré-cochée)
+  // Champs logistiques spécifiques (Axe Transport & Salons)
+  const [morgueDepart, setMorgueDepart] = useState('');
+  const [dateSalon, setDateSalon] = useState('');
+
+  // Étape 2 : Services sélectionnés par la famille
   const [selectedServiceIds, setSelectedServiceIds] = useState<Record<string, number>>({
-    'art-1': 1
+    'art-adm-01': 1, // Formalités de base d'office
+    'art-soin-03': 1 // Conservation sécurisée
   });
+
+  // Onglet actif dans l'étape 2 des services
+  const [wizardCategoryTab, setWizardCategoryTab] = useState<number>(1);
 
   // Étape 3 : Résultat après création
   const [createdDossier, setCreatedDossier] = useState<DossierVivant | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  // Recherche & Filtres dans le catalogue
+  // Recherche & Filtres dans le catalogue public
   const [rechercheCatalogue, setRechercheCatalogue] = useState('');
   const [selectedCategorie, setSelectedCategorie] = useState<string>('TOUS');
 
-  // Gestion de la sélection des services dans le wizard
+  // Gestion de la sélection des services
   const toggleService = (articleId: string) => {
-    // L'admission de base ne peut pas être décochée
-    if (articleId === 'art-1') return;
-
     setSelectedServiceIds((prev) => {
       const next = { ...prev };
       if (next[articleId]) {
@@ -83,9 +94,9 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
     });
   };
 
-  // Démarrage du wizard (avec éventuel service pré-sélectionné depuis le catalogue)
+  // Démarrage du wizard
   const handleOpenWizard = (preselectedArticleId?: string) => {
-    if (preselectedArticleId && preselectedArticleId !== 'art-1') {
+    if (preselectedArticleId) {
       setSelectedServiceIds((prev) => ({
         ...prev,
         [preselectedArticleId]: 1
@@ -95,7 +106,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
     setIsWizardOpen(true);
   };
 
-  // Validation Étape 1 -> Passage à l'étape 2 (Proposition des services)
+  // Validation Étape 1 -> Passage à l'étape 2 (Proposition des 5 pôles de services)
   const handleGoToStep2 = (e: React.FormEvent) => {
     e.preventDefault();
     if (!defuntNom.trim() || !defuntPrenom.trim() || !contactNom.trim() || !contactTel.trim()) {
@@ -124,7 +135,8 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
           sexe: defuntSexe,
           dateDeces,
           lieuDeces: lieuDeces || 'Kinshasa',
-          causeDecesPresumee: 'Mort naturelle'
+          causeDecesPresumee: 'Mort naturelle',
+          observationsMedicales: morgueDepart ? `Transfert commandé depuis : ${morgueDepart}` : undefined
         },
         demandeur: {
           id: `dem-${Date.now()}`,
@@ -148,19 +160,64 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
     }
   };
 
-  // Filtrage du catalogue
+  // Les 5 grands pôles de services demandés
+  const polesModules = [
+    {
+      id: 1,
+      titre: '1. Recueillement & Funérarium',
+      desc: 'Salons intimistes & grands salons, conciergerie traiteur et mémorial numérique.',
+      categorieShared: 'CEREMONIE',
+      icon: Building
+    },
+    {
+      id: 2,
+      titre: '2. Soins du Corps & Esthétique',
+      desc: 'Toilette rituelle, habillage, maquillage et soins de thanatopraxie pour présentation digne.',
+      categorieShared: 'TOILETTE_ET_SOINS',
+      icon: HeartHandshake
+    },
+    {
+      id: 3,
+      titre: '3. Boutique d’Articles Funéraires',
+      desc: 'Cercueils nobles en bois ou écologiques, couronnes florales et plaques commémoratives.',
+      categorieShared: 'FOURNITURE_FUNERAIRE',
+      icon: Flower2
+    },
+    {
+      id: 4,
+      titre: '4. Suivi Logistique & Axe Transport',
+      desc: 'Commande de corbillard, transfert depuis morgue externe et géolocalisation en direct.',
+      categorieShared: 'TRANSPORT',
+      icon: Truck
+    },
+    {
+      id: 5,
+      titre: '5. Assistance Administrative & Juridique',
+      desc: 'Déclaration de décès, autorisations officielles et coffre-fort numérique sécurisé.',
+      categorieShared: 'ADMINISTRATIF',
+      icon: Lock
+    }
+  ];
+
+  // Filtres catalogue public
   const categoriesList = [
     { key: 'TOUS', label: 'Toutes les prestations', count: catalogue.length },
-    { key: 'ADMISSION', label: 'Admission & Enregistrement', count: catalogue.filter((c) => c.categorie === 'ADMISSION').length },
-    { key: 'CONSERVATION', label: 'Conservation Frigorifique', count: catalogue.filter((c) => c.categorie === 'CONSERVATION').length },
-    { key: 'TOILETTE_ET_SOINS', label: 'Soins & Thanatopraxie', count: catalogue.filter((c) => c.categorie === 'TOILETTE_ET_SOINS').length },
-    { key: 'FOURNITURE_FUNERAIRE', label: 'Cercueils & Fournitures', count: catalogue.filter((c) => c.categorie === 'FOURNITURE_FUNERAIRE').length },
-    { key: 'CEREMONIE', label: 'Cérémonie & Chapelle', count: catalogue.filter((c) => c.categorie === 'CEREMONIE').length },
-    { key: 'TRANSPORT', label: 'Transport & Convoi', count: catalogue.filter((c) => c.categorie === 'TRANSPORT').length }
+    { key: 'CEREMONIE', label: 'Recueillement & Salons', count: catalogue.filter((c) => c.categorie === 'CEREMONIE').length },
+    { key: 'TOILETTE_ET_SOINS', label: 'Soins & Thanatopraxie', count: catalogue.filter((c) => c.categorie === 'TOILETTE_ET_SOINS' || c.categorie === 'CONSERVATION').length },
+    { key: 'FOURNITURE_FUNERAIRE', label: 'Boutique & Articles', count: catalogue.filter((c) => c.categorie === 'FOURNITURE_FUNERAIRE').length },
+    { key: 'TRANSPORT', label: 'Axe Transport & Convoi', count: catalogue.filter((c) => c.categorie === 'TRANSPORT').length },
+    { key: 'ADMINISTRATIF', label: 'Assistance Administrative', count: catalogue.filter((c) => c.categorie === 'ADMINISTRATIF' || c.categorie === 'ADMISSION').length }
   ];
 
   const filteredCatalogue = catalogue.filter((art) => {
-    const matchCat = selectedCategorie === 'TOUS' || art.categorie === selectedCategorie;
+    let matchCat = false;
+    if (selectedCategorie === 'TOUS') matchCat = true;
+    else if (selectedCategorie === 'CEREMONIE') matchCat = art.categorie === 'CEREMONIE';
+    else if (selectedCategorie === 'TOILETTE_ET_SOINS') matchCat = art.categorie === 'TOILETTE_ET_SOINS' || art.categorie === 'CONSERVATION';
+    else if (selectedCategorie === 'FOURNITURE_FUNERAIRE') matchCat = art.categorie === 'FOURNITURE_FUNERAIRE';
+    else if (selectedCategorie === 'TRANSPORT') matchCat = art.categorie === 'TRANSPORT';
+    else if (selectedCategorie === 'ADMINISTRATIF') matchCat = art.categorie === 'ADMINISTRATIF' || art.categorie === 'ADMISSION';
+
     const matchTxt =
       art.titre.toLowerCase().includes(rechercheCatalogue.toLowerCase()) ||
       art.description.toLowerCase().includes(rechercheCatalogue.toLowerCase()) ||
@@ -170,10 +227,10 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
 
   return (
     <div className="min-h-screen bg-[#061126] text-slate-100 flex flex-col font-sans selection:bg-sky-600 selection:text-white">
-      {/* Liseré supérieur bleu cobalt & cyan (charte logo) */}
+      {/* Liseré supérieur bleu cobalt & cyan (charte du logo) */}
       <div className="h-1 bg-gradient-to-r from-blue-700 via-sky-400 to-blue-800" />
 
-      {/* HEADER PRINCIPAL — DISPOSITION OFFICIELLE */}
+      {/* HEADER PRINCIPAL */}
       <header className="sticky top-0 z-40 bg-[#061126]/95 backdrop-blur-md border-b border-blue-950/80 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           {/* Logo et Identité H+ Hospital Nomargueri */}
@@ -218,21 +275,19 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
         </div>
       </header>
 
-      {/* SECTION 1 — HERO SECTION (DISPOSITION DE LA RTNC PAY, COULEURS DU LOGO) */}
-      <section className="relative overflow-hidden pt-12 pb-24 lg:pt-16 lg:pb-28 border-b border-blue-950/60 bg-gradient-to-b from-[#061126] via-[#091A3E] to-[#0A1E48]">
+      {/* SECTION 1 — HERO SECTION (DISPOSITION 2 COLONNES AVEC CTAS ET PROTOCOLE) */}
+      <section className="relative overflow-hidden pt-12 pb-20 lg:pt-16 lg:pb-24 border-b border-blue-950/60 bg-gradient-to-b from-[#061126] via-[#091A3E] to-[#0A1E48]">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(2,132,199,0.15),transparent_60%)] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
             {/* Colonne Gauche : Titre percutant, Sous-titre & CTAs */}
             <div className="lg:col-span-7 space-y-6">
-              {/* Badge pilule aux couleurs du logo */}
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-900/40 border border-blue-600/40 text-sky-300 text-xs font-bold tracking-wide">
                 <Sparkles className="w-3.5 h-3.5 text-sky-400" />
                 <span>PORTAIL OFFICIEL FUNÉRAIRE & MORGUE</span>
               </div>
 
-              {/* Titre géant solennel */}
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1]">
                 Hospital Nomargueri.<br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-blue-400 to-indigo-300">
@@ -240,12 +295,10 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                 </span>
               </h1>
 
-              {/* Description sobre */}
               <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl font-normal">
-                Plateforme moderne de gestion du parcours funéraire de l'Hôpital Nomargueri. Déclarez une admission, composez votre prise en charge selon les volontés de la famille et suivez l'avancement du dossier avec traçabilité intégrale par QR Code sécurisé.
+                Prise en charge intégrale et personnalisée du parcours funéraire : réservation de salons de recueillement, soins de thanatopraxie, logistique de transport géolocalisée et assistance aux formalités officielles.
               </p>
 
-              {/* Deux CTAs majeurs côte-à-côte */}
               <div className="flex flex-col sm:flex-row gap-3.5 pt-2">
                 <button
                   onClick={() => handleOpenWizard()}
@@ -263,38 +316,35 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
               </div>
             </div>
 
-            {/* Colonne Droite : Carte institutionnelle encadrée */}
+            {/* Colonne Droite : Carte institutionnelle avec les engagements officiels */}
             <div className="lg:col-span-5">
               <div className="bg-[#0B1E48]/90 border border-blue-900/80 rounded-2xl p-6 sm:p-7 shadow-2xl space-y-5 backdrop-blur-sm">
                 <div className="text-[11px] font-bold text-sky-400 uppercase tracking-wider">
-                  PROTOCOLE & ENGAGEMENTS EN VIGUEUR
+                  SERVICES D’ACCOMPAGNEMENT DÉDIÉS
                 </div>
 
-                {/* Encadré 1 interne mis en valeur */}
                 <div className="bg-[#06132D] border border-blue-800/60 rounded-xl p-4 space-y-1.5">
                   <div className="flex items-center gap-2 text-xs font-bold text-sky-300">
                     <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
-                    <span>Conservation Frigorifique Contrôlée 24/7</span>
+                    <span>Prise en charge coordonnée en 5 Pôles</span>
                   </div>
                   <p className="text-xs text-slate-300 leading-relaxed">
-                    Surveillance thermique permanente (+2°C à +4°C). Identification biométrique et bracelet QR Code infalsifiable dès l'admission.
+                    Recueillement en salons climatisés, soins esthétiques et thanatopraxie, boutique marbrerie, transfert sécurisé depuis morgue externe et formalités légales.
                   </p>
                 </div>
 
-                {/* Encadré 2 interne */}
                 <div className="space-y-1 text-xs">
-                  <h4 className="font-bold text-white">Traçabilité & Démarches Transparentes</h4>
+                  <h4 className="font-bold text-white">Traçabilité & Notifications en temps réel</h4>
                   <p className="text-slate-400 leading-relaxed">
-                    Chaque dossier fait l'objet d'un suivi chronologique inviolable, d'un enregistrement conforme aux règles d'état civil et d'une sécurité totale pour les proches.
+                    Chaque étape (arrivée, soins, levée de corps) est suivie avec précision par QR Code infalsifiable et alertes SMS pour la tranquillité des proches.
                   </p>
                 </div>
 
-                {/* Bouton bas de carte */}
                 <a
                   href="#catalogue"
                   className="w-full py-3 bg-blue-950/80 hover:bg-blue-900 text-sky-300 border border-blue-700/50 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2"
                 >
-                  Consulter les prestations par catégorie ➔
+                  Découvrir les 5 pôles de services ➔
                 </a>
               </div>
             </div>
@@ -302,64 +352,19 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
         </div>
       </section>
 
-      {/* 3 CARTES FLOTTANTES DE TRANSITION (DISPOSITION RTNC PAY) */}
-      <section className="relative z-20 -mt-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-          {/* Carte 1 */}
-          <div className="bg-white text-slate-800 p-6 rounded-2xl shadow-xl border border-slate-100 flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0">
-              <Building className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-slate-900">Chambres Froides & Conservation</h3>
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                Conservation en froid standard positif et négatif avec surveillance thermique continue et cases sécurisées.
-              </p>
-            </div>
-          </div>
-
-          {/* Carte 2 */}
-          <div className="bg-white text-slate-800 p-6 rounded-2xl shadow-xl border border-slate-100 flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-sky-50 text-sky-700 flex items-center justify-center shrink-0">
-              <HeartHandshake className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-slate-900">Soins & Thanatopraxie</h3>
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                Toilette rituelle, thanatopraxie, habillage et présentation digne dans le respect des convictions familiales.
-              </p>
-            </div>
-          </div>
-
-          {/* Carte 3 */}
-          <div className="bg-white text-slate-800 p-6 rounded-2xl shadow-xl border border-slate-100 flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-6 h-6" />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-slate-900">Suivi & Quittances Officielles</h3>
-              <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                Récépissé instantané avec QR code infalsifiable, conformité administrative et sécurité de remise du corps.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION 2 — CATALOGUE DES PRESTATIONS (SANS AUCUN PRIX VISIBLE) */}
-      <section id="catalogue" className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        {/* Grand conteneur bleu nuit arrondi comme dans RTNC Pay */}
+      {/* SECTION 2 — CATALOGUE DES PRESTATIONS ARTICULÉ AUTOUR DES 5 PÔLES */}
+      <section id="catalogue" className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="bg-[#091A3E] border border-blue-900/60 rounded-3xl p-6 sm:p-10 shadow-2xl space-y-8">
           {/* Header du catalogue */}
           <div className="space-y-2">
             <span className="text-xs font-bold text-sky-400 uppercase tracking-widest block">
-              CATALOGUE DES PRESTATIONS • HOSPITAL NOMARGUERI
+              OFFRE DE SERVICES COMPLÈTE • HOSPITAL NOMARGUERI
             </span>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
-              Prestations et services d'accompagnement
+              Catalogue des prestations et soins funéraires
             </h2>
             <p className="text-xs sm:text-sm text-slate-400">
-              Sélectionnez une catégorie ci-dessous pour découvrir nos prestations de conservation, soins de thanatopraxie, cercueils, cérémonies et transport.
+              Choisissez parmi nos services de recueillement, soins du corps, articles funéraires, transport sécurisé et assistance administrative.
             </p>
           </div>
 
@@ -368,14 +373,14 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
             <Search className="w-4 h-4 absolute left-4 top-3.5 text-slate-400" />
             <input
               type="text"
-              placeholder="Rechercher une prestation, une case frigorifique, un cercueil, une chapelle..."
+              placeholder="Rechercher un salon, un soin de thanatopraxie, un corbillard, un cercueil, des démarches..."
               value={rechercheCatalogue}
               onChange={(e) => setRechercheCatalogue(e.target.value)}
               className="w-full pl-11 pr-4 py-3 bg-[#061126] border border-blue-900/80 rounded-2xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500"
             />
           </div>
 
-          {/* Onglets / Filtres par catégorie avec compteurs */}
+          {/* Onglets des 5 catégories */}
           <div className="flex flex-wrap gap-2 pt-1">
             {categoriesList.map((cat) => (
               <button
@@ -392,7 +397,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
             ))}
           </div>
 
-          {/* Grille des prestations (SANS AUCUN PRIX AFFICHÉ) */}
+          {/* Grille des prestations sans aucun prix public */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
             {filteredCatalogue.map((art) => (
               <div
@@ -421,7 +426,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                 <div className="pt-4 mt-4 border-t border-blue-950 flex items-center justify-between">
                   <div className="flex items-center gap-1.5 text-xs text-sky-400 font-medium">
                     <CheckCircle2 className="w-4 h-4 text-sky-400" />
-                    <span>Prestation disponible</span>
+                    <span>Service disponible</span>
                   </div>
 
                   <button
@@ -442,7 +447,6 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
       <footer className="mt-auto bg-[#040C1D] py-12 border-t border-blue-950/80 text-xs text-slate-400">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
-            {/* Logo et Nom */}
             <div className="flex items-center space-x-3">
               <img
                 src="/logo-hospital-nomargueri.jpg"
@@ -459,7 +463,6 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
               </div>
             </div>
 
-            {/* Assistance 24/7 & Localisation */}
             <div className="flex items-center space-x-6 text-slate-400 text-xs">
               <span>Kinshasa, RD Congo</span>
               <span>•</span>
@@ -475,7 +478,6 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
               © {new Date().getFullYear()} Hospital Nomargueri. Tous droits réservés. Traçabilité par QR Code certifié.
             </p>
 
-            {/* Mention expresse demandée : "Propulsé par Mokili" avec lien vers mokili.io */}
             <div className="flex items-center gap-1.5 bg-slate-900/60 px-3 py-1.5 rounded-full border border-blue-950">
               <span className="text-slate-400">Propulsé par</span>
               <a
@@ -492,12 +494,11 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
       </footer>
 
       {/* ========================================================================= */}
-      {/* MODAL DU WORKFLOW DE DÉCLARATION EN 3 ÉTAPES (DÉFUNT -> SERVICES -> REÇU) */}
-      {/* SANS AUCUN PRIX AFFICHÉ */}
+      {/* MODAL DU WORKFLOW EN 3 ÉTAPES : PROPOSITION DÉTAILLÉE DES 5 SERVICES      */}
       {/* ========================================================================= */}
       {isWizardOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="relative bg-[#0A1A3E] border border-blue-900/80 rounded-2xl max-w-2xl w-full p-6 sm:p-8 text-white shadow-2xl space-y-6">
+          <div className="relative bg-[#0A1A3E] border border-blue-900/80 rounded-2xl max-w-3xl w-full p-6 sm:p-8 text-white shadow-2xl space-y-6">
             {/* Header du Wizard */}
             <div className="flex items-center justify-between border-b border-blue-950 pb-4">
               <div className="flex items-center space-x-3">
@@ -516,7 +517,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                     </span>
                     <span>➔</span>
                     <span className={`font-semibold ${wizardStep === 2 ? 'text-sky-400' : 'text-slate-400'}`}>
-                      2. Choix des Prestations
+                      2. Choix des Services (5 Pôles)
                     </span>
                     <span>➔</span>
                     <span className={`font-semibold ${wizardStep === 3 ? 'text-sky-300' : 'text-slate-400'}`}>
@@ -540,7 +541,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                 <div className="p-3 bg-blue-950/60 border border-blue-800/60 rounded-xl text-sky-200">
                   <p className="font-semibold">Étape 1 sur 2 : Informations Légales</p>
                   <p className="text-[11px] text-sky-300/80 mt-0.5">
-                    Renseignez l'identité du défunt et du représentant. À l'étape suivante, l'application vous proposera la sélection des prestations funéraires.
+                    Renseignez l'identité du défunt et du représentant. À l'étape suivante, l'application vous proposera la personnalisation des services (recueillement, soins, boutique, transport et démarches).
                   </p>
                 </div>
 
@@ -619,7 +620,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                     Représentant Familial (Contact Principal)
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div className="sm:col-span-1">
+                    <div>
                       <label className="block text-slate-300 mb-1 font-medium">Nom complet du proche *</label>
                       <input
                         type="text"
@@ -662,81 +663,371 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                     type="submit"
                     className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs shadow-lg shadow-blue-600/30 transition-all flex items-center gap-2"
                   >
-                    Continuer vers le Choix des Prestations
+                    Continuer vers la Sélection des Services
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
               </form>
             )}
 
-            {/* ÉTAPE 2 : L'APPLICATION PROPOSE LES SERVICES FUNÉRAIRES (SANS PRIX) */}
+            {/* ÉTAPE 2 : PROPOSITION DÉTAILLÉE DES 5 PÔLES DE SERVICES (À LA DEMANDE DE L'UTILISATEUR) */}
             {wizardStep === 2 && (
-              <div className="space-y-5 text-xs">
+              <div className="space-y-4 text-xs">
                 <div className="p-3 bg-blue-950/60 border border-blue-800/60 rounded-xl text-sky-200">
-                  <p className="font-bold">Étape 2 sur 2 : Sélection des Prestations pour {defuntPrenom} {defuntNom}</p>
+                  <p className="font-bold">Services Proposés pour {defuntPrenom} {defuntNom}</p>
                   <p className="text-[11px] text-sky-300/80 mt-0.5">
-                    Sélectionnez les prestations funéraires souhaitées pour accompagner le défunt. L'enregistrement au registre mortuaire est inclus d'office.
+                    Sélectionnez les prestations souhaitées parmi les 5 pôles d'accompagnement. Vous pourrez ajuster ou compléter vos choix à tout moment.
                   </p>
                 </div>
 
-                {/* Liste des prestations disponibles */}
-                <div className="space-y-2.5 max-h-[380px] overflow-y-auto pr-1">
-                  {catalogue.map((art) => {
-                    const isSelected = !!selectedServiceIds[art.id];
-                    const isMandatory = art.id === 'art-1';
-
+                {/* 5 Onglets des Pôles */}
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 border-b border-blue-950 pb-2">
+                  {polesModules.map((pole) => {
+                    const Icon = pole.icon;
+                    const isActive = wizardCategoryTab === pole.id;
                     return (
-                      <div
-                        key={art.id}
-                        onClick={() => toggleService(art.id)}
-                        className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
-                          isSelected
-                            ? 'bg-blue-950 border-sky-400 text-white shadow-md'
-                            : 'bg-[#061126] border-slate-800 text-slate-300 hover:border-slate-700'
+                      <button
+                        key={pole.id}
+                        type="button"
+                        onClick={() => setWizardCategoryTab(pole.id)}
+                        className={`p-2 rounded-xl text-left flex flex-col gap-1 transition-all ${
+                          isActive
+                            ? 'bg-blue-600 text-white shadow-md font-bold'
+                            : 'bg-[#061126] text-slate-300 hover:bg-[#0D2456] border border-blue-900/60'
                         }`}
                       >
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`w-5 h-5 rounded-md flex items-center justify-center text-xs font-bold ${
-                              isSelected ? 'bg-sky-500 text-white' : 'border border-slate-600'
-                            }`}
-                          >
-                            {isSelected && <Check className="w-3.5 h-3.5" />}
-                          </div>
-
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="font-bold text-white">{art.titre}</span>
-                              {isMandatory && (
-                                <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-900/60 text-sky-300 border border-sky-400/40 font-semibold">
-                                  Inclus d'office
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-[11px] text-slate-400 mt-0.5">{art.description}</p>
-                          </div>
+                        <div className="flex items-center gap-1.5">
+                          <Icon className="w-3.5 h-3.5 shrink-0" />
+                          <span className="text-[11px] truncate">{pole.titre.split('. ')[1]}</span>
                         </div>
-
-                        <div className="text-right pl-3 shrink-0">
-                          <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-slate-900 text-sky-300 border border-blue-900">
-                            {art.categorie.replace('_', ' ')}
-                          </span>
-                        </div>
-                      </div>
+                      </button>
                     );
                   })}
                 </div>
 
-                {/* Résumé des prestations sélectionnées */}
-                <div className="p-4 bg-[#061126] border border-blue-900/80 rounded-xl flex items-center justify-between">
+                {/* Contenu spécifique selon le pôle actif */}
+                <div className="max-h-[340px] overflow-y-auto pr-1 space-y-3">
+                  {/* PÔLE 1 : RECUEILLEMENT & FUNÉRARIUM */}
+                  {wizardCategoryTab === 1 && (
+                    <div className="space-y-3">
+                      <div className="p-3 bg-[#061126] rounded-xl border border-blue-900/60 space-y-2">
+                        <span className="font-bold text-sky-300 block text-[11px]">
+                          1.1 Réservation de Salon Funéraire & Plages Horaires
+                        </span>
+                        <p className="text-slate-400 text-[11px]">
+                          Choisissez la taille du salon et planifiez la date de recueillement.
+                        </p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                          {catalogue
+                            .filter((a) => a.id === 'art-rec-01' || a.id === 'art-rec-02')
+                            .map((art) => (
+                              <div
+                                key={art.id}
+                                onClick={() => toggleService(art.id)}
+                                className={`p-3 rounded-xl border cursor-pointer transition-all ${
+                                  selectedServiceIds[art.id]
+                                    ? 'bg-blue-950 border-sky-400 text-white shadow'
+                                    : 'bg-[#0A1A3E] border-slate-800 text-slate-300 hover:border-slate-700'
+                                }`}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <strong className="text-xs">{art.titre}</strong>
+                                  {selectedServiceIds[art.id] && <Check className="w-4 h-4 text-sky-400" />}
+                                </div>
+                                <p className="text-[10px] text-slate-400 mt-1">{art.description}</p>
+                              </div>
+                            ))}
+                        </div>
+                        <div className="pt-2">
+                          <label className="block text-slate-300 text-[11px] mb-1">Date et heure souhaitée pour la veillée :</label>
+                          <input
+                            type="datetime-local"
+                            value={dateSalon}
+                            onChange={(e) => setDateSalon(e.target.value)}
+                            className="p-2 bg-[#0A1A3E] border border-slate-700 rounded-lg text-white text-xs"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="p-3 bg-[#061126] rounded-xl border border-blue-900/60 space-y-2">
+                        <span className="font-bold text-sky-300 block text-[11px]">
+                          1.2 Conciergerie, Traiteur & Mémorial Numérique
+                        </span>
+                        <div className="space-y-2">
+                          {catalogue
+                            .filter((a) => a.id === 'art-rec-03' || a.id === 'art-rec-04')
+                            .map((art) => (
+                              <div
+                                key={art.id}
+                                onClick={() => toggleService(art.id)}
+                                className={`p-2.5 rounded-xl border cursor-pointer flex items-center justify-between transition-all ${
+                                  selectedServiceIds[art.id]
+                                    ? 'bg-blue-950 border-sky-400 text-white'
+                                    : 'bg-[#0A1A3E] border-slate-800 text-slate-300'
+                                }`}
+                              >
+                                <div>
+                                  <div className="font-semibold text-xs">{art.titre}</div>
+                                  <div className="text-[10px] text-slate-400">{art.description}</div>
+                                </div>
+                                {selectedServiceIds[art.id] ? (
+                                  <span className="text-[10px] px-2 py-0.5 rounded bg-sky-500 text-white font-bold">Sélectionné</span>
+                                ) : (
+                                  <span className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400">Ajouter</span>
+                                )}
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* PÔLE 2 : SOINS DU CORPS ET ESTHÉTIQUE */}
+                  {wizardCategoryTab === 2 && (
+                    <div className="space-y-3">
+                      <div className="p-3 bg-[#061126] rounded-xl border border-blue-900/60 space-y-2">
+                        <span className="font-bold text-sky-300 block text-[11px]">
+                          2.1 Forfaits de Préparation & Esthétique
+                        </span>
+                        <p className="text-slate-400 text-[11px]">
+                          Toilette rituelle, habillage (dépôt des vêtements par la famille), coiffure et maquillage digne.
+                        </p>
+                        <div
+                          onClick={() => toggleService('art-soin-01')}
+                          className={`p-3 rounded-xl border cursor-pointer flex items-center justify-between ${
+                            selectedServiceIds['art-soin-01'] ? 'bg-blue-950 border-sky-400 text-white' : 'bg-[#0A1A3E] border-slate-800'
+                          }`}
+                        >
+                          <div>
+                            <div className="font-semibold text-xs">Toilette rituelle, habillage & coiffure de présentation</div>
+                            <div className="text-[10px] text-slate-400">Planification du dépôt des vêtements et maquillage soigné</div>
+                          </div>
+                          {selectedServiceIds['art-soin-01'] && <Check className="w-4 h-4 text-sky-400" />}
+                        </div>
+                      </div>
+
+                      <div className="p-3 bg-[#061126] rounded-xl border border-blue-900/60 space-y-2">
+                        <span className="font-bold text-sky-300 block text-[11px]">
+                          2.2 Soins de Conservation (Thanatopraxie & Conservation)
+                        </span>
+                        <div className="p-2.5 bg-sky-950/40 border border-sky-800/40 rounded-lg text-[10px] text-sky-300">
+                          ℹ️ Fortement recommandé pour les corps provenant d'une morgue externe sans infrastructures de pointe et pour une présentation à visage découvert.
+                        </div>
+                        <div className="space-y-2">
+                          {catalogue
+                            .filter((a) => a.id === 'art-soin-02' || a.id === 'art-soin-03')
+                            .map((art) => (
+                              <div
+                                key={art.id}
+                                onClick={() => toggleService(art.id)}
+                                className={`p-2.5 rounded-xl border cursor-pointer flex items-center justify-between transition-all ${
+                                  selectedServiceIds[art.id]
+                                    ? 'bg-blue-950 border-sky-400 text-white'
+                                    : 'bg-[#0A1A3E] border-slate-800 text-slate-300'
+                                }`}
+                              >
+                                <div>
+                                  <div className="font-semibold text-xs">{art.titre}</div>
+                                  <div className="text-[10px] text-slate-400">{art.description}</div>
+                                </div>
+                                {selectedServiceIds[art.id] ? (
+                                  <span className="text-[10px] px-2 py-0.5 rounded bg-sky-500 text-white font-bold">Sélectionné</span>
+                                ) : (
+                                  <span className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400">Ajouter</span>
+                                )}
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* PÔLE 3 : BOUTIQUE D'ARTICLES FUNÉRAIRES */}
+                  {wizardCategoryTab === 3 && (
+                    <div className="space-y-3">
+                      <div className="p-3 bg-[#061126] rounded-xl border border-blue-900/60 space-y-2">
+                        <span className="font-bold text-sky-300 block text-[11px]">
+                          3.1 Choix du Cercueil ou de l'Urne
+                        </span>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {catalogue
+                            .filter((a) => a.id === 'art-cer-01' || a.id === 'art-cer-02')
+                            .map((art) => (
+                              <div
+                                key={art.id}
+                                onClick={() => toggleService(art.id)}
+                                className={`p-3 rounded-xl border cursor-pointer transition-all ${
+                                  selectedServiceIds[art.id]
+                                    ? 'bg-blue-950 border-sky-400 text-white'
+                                    : 'bg-[#0A1A3E] border-slate-800 text-slate-300'
+                                }`}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <strong className="text-xs">{art.titre}</strong>
+                                  {selectedServiceIds[art.id] && <Check className="w-4 h-4 text-sky-400" />}
+                                </div>
+                                <p className="text-[10px] text-slate-400 mt-1">{art.description}</p>
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+
+                      <div className="p-3 bg-[#061126] rounded-xl border border-blue-900/60 space-y-2">
+                        <span className="font-bold text-sky-300 block text-[11px]">
+                          3.2 Fleurs d’Honneur & Plaques Commémoratives
+                        </span>
+                        <div className="space-y-2">
+                          {catalogue
+                            .filter((a) => a.id === 'art-flr-01' || a.id === 'art-plq-01')
+                            .map((art) => (
+                              <div
+                                key={art.id}
+                                onClick={() => toggleService(art.id)}
+                                className={`p-2.5 rounded-xl border cursor-pointer flex items-center justify-between transition-all ${
+                                  selectedServiceIds[art.id]
+                                    ? 'bg-blue-950 border-sky-400 text-white'
+                                    : 'bg-[#0A1A3E] border-slate-800 text-slate-300'
+                                }`}
+                              >
+                                <div>
+                                  <div className="font-semibold text-xs">{art.titre}</div>
+                                  <div className="text-[10px] text-slate-400">{art.description}</div>
+                                </div>
+                                {selectedServiceIds[art.id] ? (
+                                  <span className="text-[10px] px-2 py-0.5 rounded bg-sky-500 text-white font-bold">Sélectionné</span>
+                                ) : (
+                                  <span className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400">Ajouter</span>
+                                )}
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* PÔLE 4 : SUIVI LOGISTIQUE ET AXE TRANSPORT */}
+                  {wizardCategoryTab === 4 && (
+                    <div className="space-y-3">
+                      <div className="p-3 bg-[#061126] rounded-xl border border-blue-900/60 space-y-2">
+                        <span className="font-bold text-sky-300 block text-[11px]">
+                          4.1 Commande de Corbillard & Transfert du Corps
+                        </span>
+                        <p className="text-slate-400 text-[11px]">
+                          Indispensable pour les corps venant d'une morgue externe ou d'un centre hospitalier.
+                        </p>
+                        <div className="space-y-2">
+                          {catalogue
+                            .filter((a) => a.id === 'art-transp-01' || a.id === 'art-transp-02')
+                            .map((art) => (
+                              <div
+                                key={art.id}
+                                onClick={() => toggleService(art.id)}
+                                className={`p-2.5 rounded-xl border cursor-pointer flex items-center justify-between transition-all ${
+                                  selectedServiceIds[art.id]
+                                    ? 'bg-blue-950 border-sky-400 text-white'
+                                    : 'bg-[#0A1A3E] border-slate-800 text-slate-300'
+                                }`}
+                              >
+                                <div>
+                                  <div className="font-semibold text-xs">{art.titre}</div>
+                                  <div className="text-[10px] text-slate-400">{art.description}</div>
+                                </div>
+                                {selectedServiceIds[art.id] ? (
+                                  <span className="text-[10px] px-2 py-0.5 rounded bg-sky-500 text-white font-bold">Sélectionné</span>
+                                ) : (
+                                  <span className="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-400">Ajouter</span>
+                                )}
+                              </div>
+                            ))}
+                        </div>
+                        <div className="pt-2">
+                          <label className="block text-slate-300 text-[11px] mb-1 font-medium">
+                            Adresse ou Nom de la morgue de départ (hôpital d'origine) :
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="Ex: Clinique Ngaliema ou Hôpital Provincial de Kinshasa"
+                            value={morgueDepart}
+                            onChange={(e) => setMorgueDepart(e.target.value)}
+                            className="w-full p-2 bg-[#0A1A3E] border border-slate-700 rounded-lg text-white text-xs focus:ring-1 focus:ring-sky-500 focus:outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="p-3 bg-[#061126] rounded-xl border border-blue-900/60 space-y-2">
+                        <span className="font-bold text-sky-300 block text-[11px]">
+                          4.2 Géolocalisation & Alertes SMS en Temps Réel
+                        </span>
+                        <div
+                          onClick={() => toggleService('art-transp-03')}
+                          className={`p-2.5 rounded-xl border cursor-pointer flex items-center justify-between ${
+                            selectedServiceIds['art-transp-03'] ? 'bg-blue-950 border-sky-400 text-white' : 'bg-[#0A1A3E] border-slate-800'
+                          }`}
+                        >
+                          <div>
+                            <div className="font-semibold text-xs">Notifications de transfert en direct par SMS / Application</div>
+                            <div className="text-[10px] text-slate-400">
+                              Recevez : « Le corps a quitté la morgue X » puis « Le corps est arrivé au funérarium ».
+                            </div>
+                          </div>
+                          {selectedServiceIds['art-transp-03'] && <Check className="w-4 h-4 text-sky-400" />}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* PÔLE 5 : ASSISTANCE ADMINISTRATIVE ET JURIDIQUE */}
+                  {wizardCategoryTab === 5 && (
+                    <div className="space-y-3">
+                      <div className="p-3 bg-[#061126] rounded-xl border border-blue-900/60 space-y-2">
+                        <span className="font-bold text-sky-300 block text-[11px]">
+                          5.1 Générateur de Formalités Légales & Permis
+                        </span>
+                        <div
+                          onClick={() => toggleService('art-adm-01')}
+                          className={`p-2.5 rounded-xl border cursor-pointer flex items-center justify-between ${
+                            selectedServiceIds['art-adm-01'] ? 'bg-blue-950 border-sky-400 text-white' : 'bg-[#0A1A3E] border-slate-800'
+                          }`}
+                        >
+                          <div>
+                            <div className="font-semibold text-xs">Aide administrative à la déclaration de décès et autorisations</div>
+                            <div className="text-[10px] text-slate-400">Permis d'inhumer, certificat de transport auprès des autorités locales</div>
+                          </div>
+                          {selectedServiceIds['art-adm-01'] && <Check className="w-4 h-4 text-sky-400" />}
+                        </div>
+                      </div>
+
+                      <div className="p-3 bg-[#061126] rounded-xl border border-blue-900/60 space-y-2">
+                        <span className="font-bold text-sky-300 block text-[11px]">
+                          5.2 Coffre-fort Numérique Sécurisé
+                        </span>
+                        <div
+                          onClick={() => toggleService('art-adm-02')}
+                          className={`p-2.5 rounded-xl border cursor-pointer flex items-center justify-between ${
+                            selectedServiceIds['art-adm-02'] ? 'bg-blue-950 border-sky-400 text-white' : 'bg-[#0A1A3E] border-slate-800'
+                          }`}
+                        >
+                          <div>
+                            <div className="font-semibold text-xs">Numérisation et téléversement sécurisé des actes d'état civil</div>
+                            <div className="text-[10px] text-slate-400">Téléchargement instantané des actes officiels délivrés par l'établissement</div>
+                          </div>
+                          {selectedServiceIds['art-adm-02'] && <Check className="w-4 h-4 text-sky-400" />}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Synthèse des services retenus */}
+                <div className="p-3.5 bg-[#061126] border border-blue-900/80 rounded-xl flex items-center justify-between">
                   <div>
-                    <span className="text-[10px] text-slate-400 uppercase font-semibold block">Prestations Retenues</span>
+                    <span className="text-[10px] text-slate-400 uppercase font-semibold block">Prestations Sélectionnées</span>
                     <div className="flex items-baseline gap-2">
                       <span className="text-xl font-black text-sky-400">
                         {Object.keys(selectedServiceIds).length} prestation(s)
                       </span>
                       <span className="text-xs text-slate-400">
-                        sélectionnée(s) pour la prise en charge
+                        retenues pour la prise en charge
                       </span>
                     </div>
                   </div>
@@ -763,7 +1054,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
               </div>
             )}
 
-            {/* ÉTAPE 3 : RÉCÉPISSÉ OFFICIEL & ATTRIBUTION DU DOSSIER PAR QR CODE (SANS PRIX) */}
+            {/* ÉTAPE 3 : RÉCÉPISSÉ OFFICIEL & ATTRIBUTION DU DOSSIER PAR QR CODE */}
             {wizardStep === 3 && createdDossier && (
               <div className="space-y-5 text-xs text-center py-2">
                 <div className="w-16 h-16 rounded-2xl bg-sky-500/20 text-sky-400 border border-sky-500/40 mx-auto flex items-center justify-center">
@@ -812,9 +1103,9 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                     </div>
                   </div>
 
-                  {/* Prestations choisies */}
+                  {/* Prestations choisies réparties par pôles */}
                   <div className="pt-2 border-t border-blue-950">
-                    <span className="text-slate-400 block text-[10px] mb-1.5 font-semibold">Prestations Demandées :</span>
+                    <span className="text-slate-400 block text-[10px] mb-1.5 font-semibold">Prestations Retenues :</span>
                     <div className="space-y-1.5">
                       {createdDossier.prestations.map((p) => (
                         <div key={p.id} className="flex justify-between items-center text-xs text-slate-300 bg-slate-900/60 px-2.5 py-1.5 rounded-lg border border-blue-950">
@@ -833,10 +1124,10 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
                 <div className="p-3 bg-blue-950/60 border border-blue-800/60 rounded-xl text-left text-[11px] text-sky-200 space-y-1">
                   <p className="font-semibold text-white">Instructions pour la Famille :</p>
                   <p>
-                    1. Présentez-vous à l'accueil de la morgue avec le numéro de dossier <strong>{createdDossier.numeroDossier}</strong> et le certificat de décès.
+                    1. Présentez-vous à l'accueil du funérarium muni du numéro <strong>{createdDossier.numeroDossier}</strong> et du certificat de décès.
                   </p>
                   <p>
-                    2. Un agent habilité vérifiera les pièces administratives pour autoriser l'admission et planifier les soins demandés.
+                    2. Nos conseillers valideront les créneaux de salon, la planification du transport et la préparation personnalisée du défunt.
                   </p>
                 </div>
 

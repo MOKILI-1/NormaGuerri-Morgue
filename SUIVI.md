@@ -35,8 +35,9 @@
 | 06/10/2026 - 16:25 | Packaging Docker Compose pour résilience locale | Fichiers `docker-compose.yml`, `apps/api/Dockerfile`, `apps/web/Dockerfile` prêts pour déploiement sur site morgue. |
 | 06/10/2026 - 21:20 | Module d'authentification et suivi public sécurisé | `LoginView` avec comptes professionnels, `FamilleSuiviModal` public sans fuite de données internes. |
 | 06/10/2026 - 21:22 | Test compilation TypeScript & Bundle Vite | **Preuve :** `tsc` et `vite build` 100% verts (code 0, 1509 modules transformés). |
-| 06/10/2026 - 22:20 | Intégration Charte H+ Hospital Nomargueri & Disposition RTNC Pay | Intégration du logo officiel, 2 sections RTNC Pay (Hero 2 colonnes + CTAs ambre/or + 3 cartes flottantes + Grille tarifaire classée par catégories + Footer "Propulsé par Mokili" vers `mokili.io`). |
-| 06/10/2026 - 22:22 | Workflow Déclaration en 3 étapes avec proposition des services | Étape 1: Défunt & Famille ➔ Étape 2: Proposition interactive des prestations funéraires avec devis direct ➔ Étape 3: Récépissé & QR Code. |
+| 06/10/2026 - 22:20 | Intégration Charte H+ Hospital Nomargueri & Disposition RTNC Pay | Intégration du logo officiel, disposition 2 sections RTNC Pay et Footer "Propulsé par Mokili" vers `mokili.io`. |
+| 06/10/2026 - 22:22 | Workflow Déclaration en 3 étapes avec proposition des services | Étape 1: Défunt & Famille ➔ Étape 2: Proposition des prestations funéraires ➔ Étape 3: Récépissé & QR Code. |
+| 06/10/2026 - 23:20 | Refonte 5 Pôles Funéraires Métier & Retrait Cartes Flottantes | Suppression des 3 cartes flottantes intermédiaires. Implémentation des 5 modules de services personnalisés (Recueillement, Soins thanatopraxie, Boutique cercueils/fleurs, Logistique axe transport & géolocalisation SMS, Assistance administrative & coffre-fort numérique). Masquage strict de tous les prix publics. Charte chromatique Bleu Roi / Bleu Ciel / Deep Navy validée. |
 
 ---
 

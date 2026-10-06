@@ -78,78 +78,153 @@ export const UTILISATEURS_MOCK: Utilisateur[] = [
 ];
 
 export const CATALOGUE_SERVICES_MOCK: ArticleCatalogue[] = [
+  // 1. GESTION ET PERSONNALISATION DU RECUEILLEMENT (FUNÉRARIUM)
   {
-    id: 'art-1',
-    code: 'SRV-ADM-01',
-    titre: 'Frais d’admission & Enregistrement légal',
-    description: 'Ouverture du dossier, attribution QR code, enregistrement registre mortuaire et bracelet.',
-    categorie: 'ADMISSION',
-    prixUnitaire: 50,
-    devise: 'USD',
-    estStockable: false,
-    uniteFacturation: 'FORFAIT'
-  },
-  {
-    id: 'art-2',
-    code: 'SRV-CNS-01',
-    titre: 'Conservation en chambre froide (Froid standard)',
-    description: 'Séjour en case frigorifique régulée (+2°C à +4°C). Facturé par jour.',
-    categorie: 'CONSERVATION',
-    prixUnitaire: 25,
-    devise: 'USD',
-    estStockable: false,
-    uniteFacturation: 'JOUR'
-  },
-  {
-    id: 'art-3',
-    code: 'SRV-SOIN-01',
-    titre: 'Toilette mortuaire & Soins de présentation',
-    description: 'Lavage, habillage, coiffage et mise en présentation du défunt pour la famille.',
-    categorie: 'TOILETTE_ET_SOINS',
+    id: 'art-rec-01',
+    code: 'SRV-REC-01',
+    titre: 'Réservation de salon funéraire (Petit salon intimiste)',
+    description: 'Espace chaleureux climatisé pour l’intimité familiale, équipé pour 15 à 20 personnes avec calendrier de réservation.',
+    categorie: 'CEREMONIE',
     prixUnitaire: 120,
     devise: 'USD',
     estStockable: false,
     uniteFacturation: 'FORFAIT'
   },
   {
-    id: 'art-4',
-    code: 'SRV-EMB-01',
-    titre: 'Thanatopraxie & Embaumement conservatoire',
-    description: 'Traitement conservatoire avancé pour rapatriement ou veillée prolongée.',
-    categorie: 'TOILETTE_ET_SOINS',
-    prixUnitaire: 350,
+    id: 'art-rec-02',
+    code: 'SRV-REC-02',
+    titre: 'Grand salon de veillée & Hommage solennel',
+    description: 'Grand espace climatisé pour les veillées importantes et délégations (jusqu’à 80 personnes), sonorisation et projection.',
+    categorie: 'CEREMONIE',
+    prixUnitaire: 250,
     devise: 'USD',
     estStockable: false,
     uniteFacturation: 'FORFAIT'
   },
   {
-    id: 'art-5',
+    id: 'art-rec-03',
+    code: 'SRV-TRAIT-01',
+    titre: 'Conciergerie & Collation traiteur veillée',
+    description: 'Service continu de boissons chaudes (café, thé), eau minérale et collations pour les proches assistant à la veillée.',
+    categorie: 'CEREMONIE',
+    prixUnitaire: 90,
+    devise: 'USD',
+    estStockable: false,
+    uniteFacturation: 'FORFAIT'
+  },
+  {
+    id: 'art-rec-04',
+    code: 'SRV-MEM-01',
+    titre: 'Mémorial numérique & Livre d’or en ligne',
+    description: 'Espace privé en ligne lié au défunt pour charger photos/musiques projetées au salon et recueillir les condoléances des proches éloignés.',
+    categorie: 'CEREMONIE',
+    prixUnitaire: 50,
+    devise: 'USD',
+    estStockable: false,
+    uniteFacturation: 'FORFAIT'
+  },
+
+  // 2. SOINS DU CORPS ET ESTHÉTIQUE (À LA CARTE)
+  {
+    id: 'art-soin-01',
+    code: 'SRV-SOIN-01',
+    titre: 'Toilette rituelle, habillage & coiffure de présentation',
+    description: 'Lavage rituel/religieux, habillage sur mesure avec planification du dépôt des vêtements par la famille, maquillage et coiffure digne.',
+    categorie: 'TOILETTE_ET_SOINS',
+    prixUnitaire: 110,
+    devise: 'USD',
+    estStockable: false,
+    uniteFacturation: 'FORFAIT'
+  },
+  {
+    id: 'art-soin-02',
+    code: 'SRV-EMB-01',
+    titre: 'Soins de conservation avancés (Thanatopraxie)',
+    description: 'Traitement conservatoire de pointe fortement recommandé pour corps venant de morgue externe et présentation à visage découvert.',
+    categorie: 'TOILETTE_ET_SOINS',
+    prixUnitaire: 320,
+    devise: 'USD',
+    estStockable: false,
+    uniteFacturation: 'FORFAIT'
+  },
+  {
+    id: 'art-soin-03',
+    code: 'SRV-CNS-01',
+    titre: 'Conservation en case frigorifique régulée',
+    description: 'Séjour en froid positif standard contrôlé (+2°C à +4°C) avec monitoring continu et traçabilité inviolable.',
+    categorie: 'CONSERVATION',
+    prixUnitaire: 25,
+    devise: 'USD',
+    estStockable: false,
+    uniteFacturation: 'JOUR'
+  },
+
+  // 3. BOUTIQUE D'ARTICLES FUNÉRAIRES (E-COMMERCE INTÉGRÉ)
+  {
+    id: 'art-cer-01',
     code: 'PRD-CER-01',
-    titre: 'Cercueil Prestige modèle Acajou',
-    description: 'Cercueil en bois massif capitonné avec poignées dorées et croix.',
+    titre: 'Cercueil Prestige modèle Acajou sculpté',
+    description: 'Modèle bois noble massif capitonné velours avec poignées dorées, croix chrétienne ou symbole personnalisé.',
     categorie: 'FOURNITURE_FUNERAIRE',
     prixUnitaire: 650,
     devise: 'USD',
     estStockable: true,
-    stockDisponible: 8,
+    stockDisponible: 6,
     uniteFacturation: 'UNITE'
   },
   {
-    id: 'art-6',
-    code: 'SRV-SAL-01',
-    titre: 'Mise à disposition salle de recueillement (Chapelle)',
-    description: 'Espace climatisé pour culte d’adieu et recueillement des proches (2 heures).',
-    categorie: 'CEREMONIE',
-    prixUnitaire: 200,
+    id: 'art-cer-02',
+    code: 'PRD-CER-02',
+    titre: 'Cercueil Tradition modèle Chêne verni',
+    description: 'Cercueil sobre et digne en bois traité verni avec capiton blanc soyeux et garnitures renforcées.',
+    categorie: 'FOURNITURE_FUNERAIRE',
+    prixUnitaire: 320,
+    devise: 'USD',
+    estStockable: true,
+    stockDisponible: 12,
+    uniteFacturation: 'UNITE'
+  },
+  {
+    id: 'art-flr-01',
+    code: 'PRD-FLR-01',
+    titre: 'Couronne florale naturelle & Gerbe d’honneur',
+    description: 'Composition florale d’honneur avec fleurs fraîches et ruban personnalisé au nom de la famille.',
+    categorie: 'FOURNITURE_FUNERAIRE',
+    prixUnitaire: 80,
     devise: 'USD',
     estStockable: false,
     uniteFacturation: 'FORFAIT'
   },
   {
-    id: 'art-7',
-    code: 'SRV-COR-01',
-    titre: 'Transport corbillard grand confort',
-    description: 'Déplacement de la morgue vers l’église / lieu de culte et cimetière.',
+    id: 'art-plq-01',
+    code: 'PRD-PLQ-01',
+    titre: 'Plaque commémorative gravée personnalisée',
+    description: 'Gravure marbrée ou métallique avec texte d’hommage personnalisé, portrait et dates de mémoire.',
+    categorie: 'FOURNITURE_FUNERAIRE',
+    prixUnitaire: 60,
+    devise: 'USD',
+    estStockable: true,
+    stockDisponible: 20,
+    uniteFacturation: 'UNITE'
+  },
+
+  // 4. SUIVI LOGISTIQUE ET AXE TRANSPORT
+  {
+    id: 'art-transp-01',
+    code: 'SRV-TRP-01',
+    titre: 'Transfert sécurisé depuis morgue externe / hôpital',
+    description: 'Prise en charge du corps au lieu de départ spécifié par le représentant avec acheminement sécurisé vers notre funérarium.',
+    categorie: 'TRANSPORT',
+    prixUnitaire: 120,
+    devise: 'USD',
+    estStockable: false,
+    uniteFacturation: 'FORFAIT'
+  },
+  {
+    id: 'art-transp-02',
+    code: 'SRV-TRP-02',
+    titre: 'Convoi funéraire d’honneur & Corbillard grand confort',
+    description: 'Véhicule d’honneur climatisé pour convoi du funérarium vers le lieu de culte et cimetière.',
     categorie: 'TRANSPORT',
     prixUnitaire: 180,
     devise: 'USD',
@@ -157,24 +232,36 @@ export const CATALOGUE_SERVICES_MOCK: ArticleCatalogue[] = [
     uniteFacturation: 'FORFAIT'
   },
   {
-    id: 'art-8',
-    code: 'PRD-CER-02',
-    titre: 'Cercueil Standard modèle Chêne verni',
-    description: 'Cercueil sobre en bois traité verni avec capiton blanc et poignées métalliques.',
-    categorie: 'FOURNITURE_FUNERAIRE',
-    prixUnitaire: 280,
+    id: 'art-transp-03',
+    code: 'SRV-GEO-01',
+    titre: 'Géolocalisation & Notifications SMS en temps réel',
+    description: 'Alertes en direct envoyées au représentant : "Le corps a quitté la morgue X" puis "Le corps est arrivé au funérarium".',
+    categorie: 'TRANSPORT',
+    prixUnitaire: 30,
     devise: 'USD',
-    estStockable: true,
-    stockDisponible: 14,
-    uniteFacturation: 'UNITE'
+    estStockable: false,
+    uniteFacturation: 'FORFAIT'
+  },
+
+  // 5. ASSISTANCE ADMINISTRATIVE ET JURIDIQUE
+  {
+    id: 'art-adm-01',
+    code: 'SRV-ADM-01',
+    titre: 'Générateur de formalités & Démarches légales',
+    description: 'Aide à la déclaration de décès, demandes d’autorisations de transport, permis d’inhumer ou crémation auprès des autorités.',
+    categorie: 'ADMINISTRATIF',
+    prixUnitaire: 50,
+    devise: 'USD',
+    estStockable: false,
+    uniteFacturation: 'FORFAIT'
   },
   {
-    id: 'art-9',
-    code: 'SRV-FLR-01',
-    titre: 'Couronne florale naturelle & Condoléances',
-    description: 'Composition florale d’honneur avec ruban personnalisé en mémoire du défunt.',
-    categorie: 'CEREMONIE',
-    prixUnitaire: 75,
+    id: 'art-adm-02',
+    code: 'SRV-COF-01',
+    titre: 'Coffre-fort numérique & Numérisation des actes',
+    description: 'Espace sécurisé pour télécharger les documents officiels délivrés par l’établissement et téléverser les pièces d’identité nécessaires.',
+    categorie: 'ADMINISTRATIF',
+    prixUnitaire: 40,
     devise: 'USD',
     estStockable: false,
     uniteFacturation: 'FORFAIT'
