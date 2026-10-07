@@ -140,7 +140,7 @@ export const OpsPage: React.FC = () => {
 
   // Filtrage
   const facturesFiltrees = factures.filter((f) => {
-    const matchPole = f.pole === currentPole;
+    const matchPole = currentPole === 'SUPER_ADMIN' ? true : f.pole === currentPole;
     const matchStatut = filtreStatut === 'TOUS' || f.statut === filtreStatut;
     const matchSearch =
       f.numeroFacture.toLowerCase().includes(recherche.toLowerCase()) ||
@@ -167,7 +167,7 @@ export const OpsPage: React.FC = () => {
       clientTel,
       defuntNom,
       dossierRef: selectedDossierRef,
-      pole: currentPole,
+      pole: currentPole === 'FUNERARIUM' ? 'FUNERARIUM' : 'MORGUE',
       articles: selectedArticles.map((a) => ({
         ...a,
         prixCDF: a.prixUSD * tauxCDF

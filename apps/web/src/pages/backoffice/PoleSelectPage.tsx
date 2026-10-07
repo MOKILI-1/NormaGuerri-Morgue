@@ -78,7 +78,7 @@ export const PoleSelectPage: React.FC = () => {
     }
   ];
 
-  // ÉTAPE 1 : Clic sur une des 2 cases -> Déclenche l'affichage de l'overlay de login pour ce pôle
+  // ÉTAPE 1 : Clic sur une case ou Super Admin -> Déclenche l'overlay de login pour ce pôle
   const handleChoosePolePath = (pole: PoleMetier) => {
     setAuthError(null);
     setTargetPole(pole);
@@ -86,8 +86,10 @@ export const PoleSelectPage: React.FC = () => {
     // Pré-sélectionner un compte pertinent pour fluidifier le test
     if (pole === 'MORGUE') {
       setEmail('eric.mutombo@nomargueri.cd');
-    } else {
+    } else if (pole === 'FUNERARIUM') {
       setEmail('clarisse.lumumba@nomargueri.cd');
+    } else {
+      setEmail('direction@nomargueri.cd');
     }
   };
 
@@ -110,34 +112,19 @@ export const PoleSelectPage: React.FC = () => {
 
       setLoading(false);
       if (result.success) {
-        navigate('/backoffice/dashboard');
+        if (targetPole === 'SUPER_ADMIN') {
+          navigate('/backoffice/super-admin');
+        } else {
+          navigate('/backoffice/dashboard');
+        }
       } else {
         setAuthError(result.error || "Accréditation insuffisante pour ce pôle.");
       }
     }, 350);
   };
 
-  const handleSelectDemo = (account: UserSession) => {
-    if (!targetPole) return;
-    setEmail(account.email);
-    setAuthError(null);
-    setLoading(true);
-
-    setTimeout(() => {
-      const result = loginWithPole(account, targetPole);
-      setLoading(false);
-      if (result.success) {
-        navigate('/backoffice/dashboard');
-      } else {
-        setAuthError(result.error || "Accréditation insuffisante pour ce pôle.");
-      }
-    }, 250);
-  };
-
   const handleAccessSuperAdmin = () => {
-    const superAdmin = demoAccounts.find((a) => a.directionRattachee === 'DIRECTION_GENERALE') || demoAccounts[2];
-    loginWithPole(superAdmin, 'MORGUE');
-    navigate('/backoffice/admin');
+    handleChoosePolePath('SUPER_ADMIN');
   };
 
   const isDark = theme === 'dark';
@@ -401,15 +388,25 @@ export const PoleSelectPage: React.FC = () => {
               />
               <div>
                 <span className={`text-[10px] font-mono font-bold uppercase tracking-wider block ${
-                  targetPole === 'MORGUE' ? 'text-blue-500' : 'text-emerald-500'
+                  targetPole === 'SUPER_ADMIN'
+                    ? 'text-amber-400'
+                    : targetPole === 'MORGUE'
+                    ? 'text-blue-500'
+                    : 'text-emerald-500'
                 }`}>
-                  {targetPole === 'MORGUE' ? 'Pôle Morgue & Conservation' : 'Pôle Funérarium & Cérémonies'}
+                  {targetPole === 'SUPER_ADMIN'
+                    ? 'Espace Super Admin • Direction Générale'
+                    : targetPole === 'MORGUE'
+                    ? 'Pôle Morgue & Conservation'
+                    : 'Pôle Funérarium & Cérémonies'}
                 </span>
                 <h2 className="text-lg font-bold tracking-tight uppercase">
-                  Connexion Session Sécurisée
+                  {targetPole === 'SUPER_ADMIN' ? 'Connexion Super Admin' : 'Connexion Session Sécurisée'}
                 </h2>
                 <p className={`text-xs mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                  Seul le personnel accrédité de ce pôle ou le Super Admin est autorisé.
+                  {targetPole === 'SUPER_ADMIN'
+                    ? 'Accès réservé exclusivement aux membres accrédités de la Direction Générale.'
+                    : 'Seul le personnel accrédité de ce pôle ou le Super Admin est autorisé.'}
                 </p>
               </div>
             </div>
@@ -419,7 +416,7 @@ export const PoleSelectPage: React.FC = () => {
               <div className="p-3.5 rounded-xl bg-red-950/50 border border-red-800 text-xs text-red-200 space-y-1">
                 <div className="flex items-center gap-2 font-bold text-red-300">
                   <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />
-                  <span>Accès refusé pour ce pôle</span>
+                  <span>Accès refusé</span>
                 </div>
                 <p className="text-[11px] leading-relaxed text-red-200/90 pl-6">
                   {authError}
@@ -467,15 +464,19 @@ export const PoleSelectPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full py-2.5 text-white rounded-xl font-semibold text-xs tracking-wide transition-colors shadow-sm disabled:opacity-50 ${
-                  targetPole === 'MORGUE'
-                    ? 'bg-blue-600 hover:bg-blue-500'
-                    : 'bg-emerald-700 hover:bg-emerald-600'
+                className={`w-full py-2.5 rounded-xl font-semibold text-xs tracking-wide transition-colors shadow-sm disabled:opacity-50 ${
+                  targetPole === 'SUPER_ADMIN'
+                    ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold'
+                    : targetPole === 'MORGUE'
+                    ? 'bg-blue-600 hover:bg-blue-500 text-white'
+                    : 'bg-emerald-700 hover:bg-emerald-600 text-white'
                 }`}
               >
                 {loading
                   ? 'Vérification des accréditations...'
-                  : `Se connecter au Pôle ${targetPole === 'MORGUE' ? 'Morgue' : 'Funérarium'}`}
+                  : targetPole === 'SUPER_ADMIN'
+                  ? 'Accéder au Dashboard Super Admin'
+                  : 'Accéder à l\'espace sécurisé'}
               </button>
             </form>
 

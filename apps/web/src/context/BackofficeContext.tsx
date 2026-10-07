@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { RoleUtilisateur, Utilisateur } from '@nomarguerrie/shared-types';
 
-export type PoleMetier = 'MORGUE' | 'FUNERARIUM';
+export type PoleMetier = 'MORGUE' | 'FUNERARIUM' | 'SUPER_ADMIN';
 export type AppTheme = 'dark' | 'light';
 
 export interface CaisseSession {
@@ -98,7 +98,7 @@ export const BackofficeProvider: React.FC<{ children: ReactNode }> = ({ children
   const [currentPole, setCurrentPoleState] = useState<PoleMetier>(() => {
     try {
       const saved = sessionStorage.getItem('nomarguerrie_bo_pole');
-      return (saved === 'FUNERARIUM' ? 'FUNERARIUM' : 'MORGUE') as PoleMetier;
+      return (saved === 'FUNERARIUM' ? 'FUNERARIUM' : saved === 'SUPER_ADMIN' ? 'SUPER_ADMIN' : 'MORGUE') as PoleMetier;
     } catch {
       return 'MORGUE';
     }
@@ -129,11 +129,19 @@ export const BackofficeProvider: React.FC<{ children: ReactNode }> = ({ children
   // Authentification avec vérification stricte de l'affectation au pôle sélectionné
   const loginWithPole = (user: UserSession, pole: PoleMetier): { success: boolean; error?: string } => {
     // 1. Super Admin (Direction Générale) : accès universel absolu
-    if (user.directionRattachee === 'DIRECTION_GENERALE') {
+    if (user.directionRattachee === 'DIRECTION_GENERALE' || user.niveauAccreditation === 5) {
       setCurrentUser(user);
       setCurrentPole(pole);
       sessionStorage.setItem('nomarguerrie_bo_user', JSON.stringify(user));
       return { success: true };
+    }
+
+    // Contrôle Pôle Super Admin si demandé explicitement
+    if (pole === 'SUPER_ADMIN') {
+      return {
+        success: false,
+        error: `Accès refusé : Le compte de ${user.prenom} ${user.nom} (${user.directionRattachee.replace(/_/g, ' ')}) ne dispose pas des droits Super Admin. Cet espace est strictement réservé à la Direction Générale.`
+      };
     }
 
     // 2. Caisse Centrale : accès transverse aux deux pôles pour facturation/paiement

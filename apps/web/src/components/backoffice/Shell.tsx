@@ -304,31 +304,6 @@ export const Shell: React.FC = () => {
                   </NavLink>
                 );
               })}
-
-              {/* Accès Espace Super Admin */}
-              <div className="pt-2">
-                <NavLink
-                  to="/backoffice/super-admin"
-                  onClick={() => setSidebarOpen(false)}
-                  className={({ isActive }) =>
-                    `flex items-center space-x-3 px-3 py-2 rounded-xl text-xs font-semibold transition-colors border ${
-                      isActive
-                        ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-sm'
-                        : isDark
-                        ? 'text-amber-300 hover:text-amber-200 bg-amber-950/20 hover:bg-amber-950/40 border-amber-800/40'
-                        : 'text-amber-800 hover:text-amber-900 bg-amber-50/80 hover:bg-amber-100 border-amber-200'
-                    }`
-                  }
-                >
-                  <ShieldCheck className="w-4 h-4 shrink-0 text-amber-400" />
-                  <div className="flex-1 min-w-0">
-                    <span className="block truncate">Espace Super Admin</span>
-                    <span className="text-[10px] block truncate font-normal opacity-80">
-                      RBAC, Flux & Supervision
-                    </span>
-                  </div>
-                </NavLink>
-              </div>
             </div>
           </div>
 
