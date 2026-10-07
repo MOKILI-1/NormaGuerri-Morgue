@@ -7,20 +7,8 @@ import {
   Layers,
   BarChart3,
   ShieldCheck,
-  LogOut,
-  Building2,
-  ChevronRight,
   Menu,
-  X,
-  ExternalLink,
-  Coins,
-  ArrowLeftRight,
-  RefreshCw,
-  Bell,
-  User,
-  Shield,
-  HelpCircle,
-  Home
+  X
 } from 'lucide-react';
 import { useBackoffice, PoleMetier } from '../../context/BackofficeContext';
 
@@ -35,19 +23,19 @@ export const Shell: React.FC = () => {
       name: "Vue d'ensemble",
       path: '/backoffice/dashboard',
       icon: LayoutDashboard,
-      description: 'KPIs, alertes & activité'
+      description: 'Indicateurs & registres'
     },
     {
-      name: 'Gestion Métier (Ops)',
+      name: 'Opérations & Dossiers',
       path: '/backoffice/ops',
       icon: FileText,
       description: 'Facturation & parcours'
     },
     {
-      name: 'Paiements & Caisse',
+      name: 'Caisse & Règlements',
       path: '/backoffice/payments',
       icon: CreditCard,
-      description: 'Transactions & sessions caisse'
+      description: 'Transactions & sessions'
     },
     {
       name: 'Catalogue Prestations',
@@ -59,33 +47,27 @@ export const Shell: React.FC = () => {
       name: 'Rapports Financiers',
       path: '/backoffice/reports',
       icon: BarChart3,
-      description: 'Comptabilité & multi-devises'
+      description: 'Comptabilité & trésorerie'
     },
     {
-      name: 'Gestion des Rôles (RBAC)',
+      name: 'Rôles & Accréditations',
       path: '/backoffice/access',
       icon: ShieldCheck,
-      description: 'Utilisateurs & directions'
+      description: 'Utilisateurs & RBAC'
     }
   ];
-
-  const handleSwitchPole = (nouveauPole: PoleMetier) => {
-    setCurrentPole(nouveauPole);
-  };
 
   const handleLogout = () => {
     logout();
     navigate('/backoffice/login');
   };
 
-  const currentItem = navigationItems.find((item) => location.pathname.startsWith(item.path)) || navigationItems[0];
-
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#0B132B] text-slate-100 flex flex-col font-sans">
       {/* ========================================================================= */}
-      {/* 1. TOP HEADER APP BAR                                                     */}
+      {/* 1. TOP HEADER APP BAR CORPORATE & ÉPURÉ                                   */}
       {/* ========================================================================= */}
-      <header className="h-16 bg-[#061126] border-b border-blue-950 flex items-center justify-between px-4 sm:px-6 z-30 sticky top-0">
+      <header className="h-16 bg-[#0F172A] border-b border-slate-800 flex items-center justify-between px-4 sm:px-6 z-30 sticky top-0">
         <div className="flex items-center space-x-3">
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -98,78 +80,66 @@ export const Shell: React.FC = () => {
             <img
               src="/logo-hospital-nomargueri.jpg"
               alt="Hospital Nomargueri"
-              className="w-9 h-9 rounded-full border border-sky-400 object-cover bg-white shrink-0"
+              className="w-8 h-8 rounded-full border border-slate-700 object-cover bg-white shrink-0"
             />
             <div>
-              <span className="font-extrabold text-sm text-white tracking-wide uppercase">
+              <span className="font-bold text-xs uppercase tracking-wide text-white block">
                 HOSPITAL NOMARGUERI
               </span>
-              <span className="text-[10px] text-sky-400 font-mono block leading-none mt-0.5">
-                Back-Office Opérationnel Souverain
+              <span className="text-[10px] text-slate-400 block leading-tight">
+                Plateforme Clinique & Espace Métier
               </span>
             </div>
           </div>
         </div>
 
-        {/* SWITCHER DE PÔLE EN HEADER & STATUTS CAISSE */}
-        <div className="flex items-center space-x-3 sm:space-x-4">
-          {/* Switcher Pôle Actuel (Morgue vs Funérarium) */}
-          <div className="flex items-center bg-[#030914] p-1 rounded-xl border border-blue-900/80 shadow-inner">
-            <button
-              onClick={() => handleSwitchPole('MORGUE')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+        {/* PÔLE ACTIF, STATUTS & ACTIONS */}
+        <div className="flex items-center space-x-3">
+          {/* Badge Pôle Actif & Sélecteur */}
+          <div className="flex items-center bg-[#0B132B] px-2.5 py-1 rounded-xl border border-slate-800 gap-2">
+            <span className="text-[11px] text-slate-400 hidden sm:inline">Pôle :</span>
+            <span
+              className={`text-xs font-semibold px-2 py-0.5 rounded ${
                 currentPole === 'MORGUE'
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-600/40'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-blue-950/80 text-blue-300 border border-blue-900/60'
+                  : 'bg-emerald-950/80 text-emerald-300 border border-emerald-900/60'
               }`}
             >
-              <span className="w-2 h-2 rounded-full bg-sky-300" />
-              <span>Morgue</span>
-            </button>
-            <button
-              onClick={() => handleSwitchPole('FUNERARIUM')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-                currentPole === 'FUNERARIUM'
-                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/40'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              <span className="w-2 h-2 rounded-full bg-emerald-200" />
-              <span>Funérarium</span>
-            </button>
+              {currentPole === 'MORGUE' ? 'Morgue' : 'Funérarium'}
+            </span>
             <button
               onClick={() => navigate('/backoffice/select-pole')}
+              className="text-[11px] text-slate-400 hover:text-white underline hover:no-underline ml-1"
               title="Changer de pôle"
-              className="p-1.5 text-slate-400 hover:text-sky-300 rounded-lg hover:bg-slate-800 transition-colors ml-1"
             >
-              <ArrowLeftRight className="w-3.5 h-3.5" />
+              Changer
             </button>
           </div>
 
           {/* Statut Caisse */}
-          <div className="hidden md:flex items-center gap-2 bg-slate-900/90 px-3 py-1.5 rounded-xl border border-blue-950 text-xs">
-            <Coins className="w-3.5 h-3.5 text-amber-400" />
-            <span className="text-slate-400 text-[11px]">Caisse :</span>
+          <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-900/60 border border-slate-800 text-xs text-slate-400">
+            <span className="text-[11px]">Caisse :</span>
             {caisseSession.estOuverte ? (
-              <span className="text-emerald-400 font-semibold text-[11px] flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Ouverte
-              </span>
+              <span className="text-emerald-400 font-medium text-[11px]">Ouverte</span>
             ) : (
-              <span className="text-amber-400 font-semibold text-[11px]">Clôturée</span>
+              <span className="text-slate-400 font-medium text-[11px]">Clôturée</span>
             )}
           </div>
 
-          {/* Lien vers Landing Page Public */}
-          <button
-            onClick={() => {
-              window.location.href = '/';
-            }}
-            className="hidden sm:flex items-center gap-1.5 text-xs text-sky-400 hover:text-sky-300 bg-slate-800/80 px-2.5 py-1.5 rounded-lg border border-slate-700 transition-colors"
-            title="Consulter la Landing Page Publique"
+          {/* Lien Landing Public */}
+          <a
+            href="/"
+            className="hidden sm:inline-block text-xs text-slate-400 hover:text-slate-200 px-2 py-1 rounded-lg border border-slate-800 hover:border-slate-700 transition-colors"
           >
-            <Home className="w-3.5 h-3.5" />
-            <span className="text-[11px]">Landing</span>
+            Portail public
+          </a>
+
+          {/* Déconnexion */}
+          <button
+            onClick={handleLogout}
+            className="text-xs text-slate-400 hover:text-red-300 px-2.5 py-1 rounded-lg border border-slate-800 hover:border-slate-700 transition-colors"
+          >
+            Déconnexion
           </button>
         </div>
       </header>
@@ -180,41 +150,35 @@ export const Shell: React.FC = () => {
       <div className="flex-1 flex overflow-hidden">
         {/* SIDEBAR NAVIGATION LATÉRALE */}
         <aside
-          className={`fixed lg:static inset-y-16 left-0 z-20 w-64 bg-[#050E22] border-r border-blue-950/80 flex flex-col justify-between transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+          className={`fixed lg:static inset-y-16 left-0 z-20 w-60 bg-[#0B132B] border-r border-slate-800 flex flex-col justify-between transition-transform duration-300 ease-in-out lg:translate-x-0 ${
             sidebarOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
         >
           {/* Menu Haut */}
-          <div className="p-4 space-y-6 overflow-y-auto">
-            {/* Badge Pôle Actif avec rappel de mission */}
+          <div className="p-3.5 space-y-5 overflow-y-auto">
+            {/* Rappel du Pôle actif */}
             <div
-              className={`p-3 rounded-xl border transition-all ${
+              className={`p-3 rounded-xl border text-xs ${
                 currentPole === 'MORGUE'
-                  ? 'bg-blue-950/50 border-blue-800/60 text-sky-200'
-                  : 'bg-emerald-950/40 border-emerald-800/60 text-emerald-200'
+                  ? 'bg-blue-950/30 border-blue-900/50 text-blue-200'
+                  : 'bg-emerald-950/30 border-emerald-900/50 text-emerald-200'
               }`}
             >
-              <div className="flex items-center justify-between text-[11px] uppercase font-bold tracking-wider">
-                <span>Espace Actif :</span>
-                <span
-                  className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
-                    currentPole === 'MORGUE' ? 'bg-blue-600 text-white' : 'bg-emerald-600 text-white'
-                  }`}
-                >
-                  {currentPole}
-                </span>
+              <div className="flex items-center justify-between text-[10px] uppercase font-semibold tracking-wider">
+                <span>Espace en cours</span>
+                <span className="font-mono">{currentPole}</span>
               </div>
-              <p className="text-[11px] text-slate-300 mt-1 leading-snug">
+              <p className="text-[11px] text-slate-300 mt-1">
                 {currentPole === 'MORGUE'
-                  ? 'Gestion des corps, admissions & chambres froides'
-                  : 'Prestations, salons de veillée & organisation funéraire'}
+                  ? 'Corps, chambres froides & soins'
+                  : 'Salons de veillée & prestations'}
               </p>
             </div>
 
-            {/* Liste des Liens du Shell */}
+            {/* Liens de navigation */}
             <div className="space-y-1">
-              <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider px-3 block">
-                Modules Métiers
+              <span className="text-[10px] uppercase font-semibold text-slate-500 tracking-wider px-3 block">
+                Menu de gestion
               </span>
 
               {navigationItems.map((item) => {
@@ -226,28 +190,20 @@ export const Shell: React.FC = () => {
                     key={item.path}
                     to={item.path}
                     onClick={() => setSidebarOpen(false)}
-                    className={`flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all group ${
+                    className={`flex items-center space-x-3 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
                       isActive
                         ? currentPole === 'MORGUE'
-                          ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
-                          : 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-emerald-700 text-white'
                         : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
                     }`}
                   >
-                    <Icon
-                      className={`w-4 h-4 shrink-0 transition-transform group-hover:scale-110 ${
-                        isActive
-                          ? 'text-white'
-                          : currentPole === 'MORGUE'
-                          ? 'text-sky-400'
-                          : 'text-emerald-400'
-                      }`}
-                    />
+                    <Icon className="w-4 h-4 shrink-0 opacity-80" />
                     <div className="flex-1 min-w-0">
                       <span className="block truncate">{item.name}</span>
                       <span
                         className={`text-[10px] block truncate font-normal ${
-                          isActive ? 'text-blue-100 opacity-90' : 'text-slate-500'
+                          isActive ? 'text-slate-100 opacity-80' : 'text-slate-500'
                         }`}
                       >
                         {item.description}
@@ -259,37 +215,26 @@ export const Shell: React.FC = () => {
             </div>
           </div>
 
-          {/* Bas de Sidebar : Profil Agent & Actions */}
-          <div className="p-4 border-t border-blue-950/80 bg-[#040A1A] space-y-3">
+          {/* Bas de Sidebar : Profil Agent */}
+          <div className="p-3.5 border-t border-slate-800 bg-[#0A1024]">
             {currentUser && (
-              <div className="flex items-center space-x-2.5 bg-slate-900/80 p-2.5 rounded-xl border border-blue-950">
-                <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xs shrink-0">
-                  {currentUser.prenom[0]}
-                  {currentUser.nom[0]}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <span className="font-bold text-white text-xs block truncate">
-                    {currentUser.prenom} {currentUser.nom}
-                  </span>
-                  <span className="text-[10px] text-sky-400 font-mono block truncate">
-                    {currentUser.role}
-                  </span>
-                </div>
+              <div className="space-y-1 text-xs">
+                <span className="font-medium text-slate-200 block truncate">
+                  {currentUser.prenom} {currentUser.nom}
+                </span>
+                <span className="text-[10px] text-slate-400 block truncate">
+                  {currentUser.role.replace(/_/g, ' ')}
+                </span>
+                <span className="text-[10px] text-slate-500 font-mono block truncate">
+                  {currentUser.directionRattachee}
+                </span>
               </div>
             )}
-
-            <button
-              onClick={handleLogout}
-              className="w-full flex items-center justify-center space-x-2 py-2 px-3 rounded-xl bg-slate-800/80 hover:bg-red-900/50 hover:text-red-200 text-slate-300 text-xs font-semibold border border-slate-700/80 transition-colors"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>Déconnexion</span>
-            </button>
           </div>
         </aside>
 
         {/* CONTENU PRINCIPAL DE LA PAGE */}
-        <main className="flex-1 overflow-y-auto bg-[#071329] p-4 sm:p-6 lg:p-8">
+        <main className="flex-1 overflow-y-auto bg-[#070F22] p-4 sm:p-6 lg:p-8">
           <Outlet />
         </main>
       </div>

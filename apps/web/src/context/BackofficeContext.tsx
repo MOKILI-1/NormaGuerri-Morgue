@@ -23,11 +23,13 @@ export interface UserSession extends Utilisateur {
 interface BackofficeContextType {
   currentUser: UserSession | null;
   currentPole: PoleMetier;
+  hasSelectedPole: boolean;
   caisseSession: CaisseSession;
   isLoggedIn: boolean;
   login: (user: UserSession) => void;
   logout: () => void;
   setCurrentPole: (pole: PoleMetier) => void;
+  resetPoleSelection: () => void;
   ouvrirCaisse: (fondUSD: number, fondCDF: number) => void;
   fermerCaisse: (comptageUSD: number, comptageCDF: number) => { ecartUSD: number; ecartCDF: number };
   ajouterEncaissementLiquide: (montantUSD: number, montantCDF: number) => void;
@@ -62,19 +64,27 @@ const DEFAULT_CAISSE: CaisseSession = {
 const BackofficeContext = createContext<BackofficeContextType | undefined>(undefined);
 
 export const BackofficeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Récupération de la session sauvegardée
+  // Par défaut, pas d'utilisateur connecté pour forcer l'affichage de la page de login en overlay
   const [currentUser, setCurrentUser] = useState<UserSession | null>(() => {
     try {
-      const saved = localStorage.getItem('nomarguerrie_bo_user');
-      return saved ? JSON.parse(saved) : DEFAULT_USER;
+      const saved = sessionStorage.getItem('nomarguerrie_bo_user');
+      return saved ? JSON.parse(saved) : null;
     } catch {
-      return DEFAULT_USER;
+      return null;
+    }
+  });
+
+  const [hasSelectedPole, setHasSelectedPole] = useState<boolean>(() => {
+    try {
+      return sessionStorage.getItem('nomarguerrie_bo_pole_selected') === 'true';
+    } catch {
+      return false;
     }
   });
 
   const [currentPole, setCurrentPoleState] = useState<PoleMetier>(() => {
     try {
-      const saved = localStorage.getItem('nomarguerrie_bo_pole');
+      const saved = sessionStorage.getItem('nomarguerrie_bo_pole');
       return (saved === 'FUNERARIUM' ? 'FUNERARIUM' : 'MORGUE') as PoleMetier;
     } catch {
       return 'MORGUE';
@@ -92,17 +102,30 @@ export const BackofficeProvider: React.FC<{ children: ReactNode }> = ({ children
 
   const setCurrentPole = (pole: PoleMetier) => {
     setCurrentPoleState(pole);
-    localStorage.setItem('nomarguerrie_bo_pole', pole);
+    setHasSelectedPole(true);
+    sessionStorage.setItem('nomarguerrie_bo_pole', pole);
+    sessionStorage.setItem('nomarguerrie_bo_pole_selected', 'true');
+  };
+
+  const resetPoleSelection = () => {
+    setHasSelectedPole(false);
+    sessionStorage.removeItem('nomarguerrie_bo_pole_selected');
   };
 
   const login = (user: UserSession) => {
     setCurrentUser(user);
-    localStorage.setItem('nomarguerrie_bo_user', JSON.stringify(user));
+    setHasSelectedPole(false); // Oblige à passer par la page de sélection des 2 cases
+    sessionStorage.setItem('nomarguerrie_bo_user', JSON.stringify(user));
+    sessionStorage.removeItem('nomarguerrie_bo_pole_selected');
   };
 
   const logout = () => {
     setCurrentUser(null);
+    setHasSelectedPole(false);
+    sessionStorage.removeItem('nomarguerrie_bo_user');
+    sessionStorage.removeItem('nomarguerrie_bo_pole_selected');
     localStorage.removeItem('nomarguerrie_bo_user');
+    localStorage.removeItem('nomarguerrie_bo_pole');
   };
 
   const ouvrirCaisse = (fondUSD: number, fondCDF: number) => {
@@ -155,11 +178,13 @@ export const BackofficeProvider: React.FC<{ children: ReactNode }> = ({ children
       value={{
         currentUser,
         currentPole,
+        hasSelectedPole,
         caisseSession,
         isLoggedIn: currentUser !== null,
         login,
         logout,
         setCurrentPole,
+        resetPoleSelection,
         ouvrirCaisse,
         fermerCaisse,
         ajouterEncaissementLiquide

@@ -1,24 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  DollarSign,
-  TrendingUp,
-  Receipt,
-  Clock,
-  Coins,
-  Building2,
-  Flower2,
-  AlertCircle,
-  Plus,
-  ArrowRight,
-  CheckCircle2,
-  Users,
-  Search,
-  Filter,
-  RefreshCw,
-  ThermometerSnowflake,
-  CalendarCheck
-} from 'lucide-react';
 import { useBackoffice } from '../../context/BackofficeContext';
 import { ApiClient } from '../../services/api';
 import { DossierVivant } from '@nomarguerrie/shared-types';
@@ -30,12 +11,10 @@ export const DashboardPage: React.FC = () => {
 
   const [loading, setLoading] = useState(true);
   const [dossiers, setDossiers] = useState<DossierVivant[]>([]);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      setError(null);
       try {
         const isOnline = await ApiClient.checkHealth();
         if (isOnline) {
@@ -44,282 +23,420 @@ export const DashboardPage: React.FC = () => {
         } else {
           setDossiers(DOSSIERS_MOCK);
         }
-      } catch (err) {
+      } catch {
         setDossiers(DOSSIERS_MOCK);
       } finally {
-        setTimeout(() => setLoading(false), 300);
+        setTimeout(() => setLoading(false), 200);
       }
     };
 
     fetchData();
   }, [currentPole]);
 
-  // Calcul des statistiques selon le pôle sélectionné
-  const totalDossiers = dossiers.length;
-  const caTotalUSD = 18450;
-  const caTotalCDF = caTotalUSD * 2800;
-  const facturesEnAttente = 4;
-  const transactionsDuJour = 9;
+  // Données représentatives de la Morgue
+  const registreMorgue = [
+    {
+      id: 'NMG-2026-002581',
+      defunt: 'KASANDA TSHIYOYO Jean-Luc',
+      dateAdmission: '06/10/2026 - 08:30',
+      casier: 'Chambre F1 • Casier #04',
+      temperature: '+2.8°C',
+      soins: 'Thanatopraxie & Habillage',
+      statut: 'En conservation'
+    },
+    {
+      id: 'NMG-2026-002580',
+      defunt: 'MUTOMBO KABEYA Patient',
+      dateAdmission: '05/10/2026 - 14:15',
+      casier: 'Chambre F1 • Casier #12',
+      temperature: '+3.1°C',
+      soins: 'Toilette rituelle effectuée',
+      statut: 'Levée autorisée'
+    },
+    {
+      id: 'NMG-2026-002579',
+      defunt: 'TSHILOMBA MBIYA Thérèse',
+      dateAdmission: '04/10/2026 - 19:40',
+      casier: 'Chambre F2 • Casier #08',
+      temperature: '+2.9°C',
+      soins: 'Toilette & Maquillage',
+      statut: 'En conservation'
+    },
+    {
+      id: 'NMG-2026-002578',
+      defunt: 'LUMUMBA DIUMI André',
+      dateAdmission: '02/10/2026 - 11:00',
+      casier: 'Chambre F2 • Casier #15',
+      temperature: '+3.0°C',
+      soins: 'Soins de thanatopraxie',
+      statut: 'Prêt pour cérémonie'
+    }
+  ];
 
-  // Spécificités Pôle Morgue vs Funérarium
-  const statsMorgue = {
-    placesOccupees: 18,
-    placesDisponibles: 14,
-    tauxOccupation: 56,
-    sortiesAutorisees: 3,
-    alertesConservation: 1
-  };
-
-  const statsFunerarium = {
-    salonsReserves: 6,
-    convoisCorbillard: 4,
-    fleursEtPlaques: 11,
-    devisEnCours: 5,
-    ceremoniesAujourdhui: 2
-  };
+  // Données représentatives du Funérarium
+  const registreFunerarium = [
+    {
+      id: 'NMG-2026-002581',
+      famille: 'Famille KASANDA (Grâce)',
+      defunt: 'KASANDA TSHIYOYO Jean-Luc',
+      salon: 'Grand Salon Cérémonial A',
+      creneau: '08/10/2026 • 18h00 - 23h00',
+      prestations: 'Traiteur 50 pers. + Mémorial',
+      statut: 'Confirmé'
+    },
+    {
+      id: 'NMG-2026-002580',
+      famille: 'Famille MUTOMBO (Patrick)',
+      defunt: 'MUTOMBO KABEYA Patient',
+      salon: 'Salon Intimiste B',
+      creneau: '07/10/2026 • 14h00 - 18h00',
+      prestations: 'Corbillard VIP + Gerbe florale',
+      statut: 'En cours'
+    },
+    {
+      id: 'NMG-2026-002579',
+      famille: 'Famille TSHILOMBA (Alain)',
+      defunt: 'TSHILOMBA MBIYA Thérèse',
+      salon: 'Grand Salon Cérémonial B',
+      creneau: '09/10/2026 • 19h00 - 06h00',
+      prestations: 'Conciergerie + Livre d’or',
+      statut: 'Planifié'
+    },
+    {
+      id: 'NMG-2026-002578',
+      famille: 'Famille LUMUMBA (Marc)',
+      defunt: 'LUMUMBA DIUMI André',
+      salon: 'Salon Intimiste A',
+      creneau: '10/10/2026 • 10h00 - 14h00',
+      prestations: 'Plaque marbre + Transport morgue ext.',
+      statut: 'En préparation'
+    }
+  ];
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-3">
-        <RefreshCw className="w-8 h-8 text-sky-400 animate-spin" />
-        <span className="text-sm text-slate-300 font-medium">Chargement des indicateurs du pôle {currentPole}...</span>
+      <div className="flex flex-col items-center justify-center min-h-[50vh] space-y-2">
+        <span className="text-xs text-slate-400">Chargement des données du pôle {currentPole}...</span>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* En-tête de bienvenue & Actions rapides */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-2 border-b border-blue-950">
+      {/* ========================================================================= */}
+      {/* 1. EN-TÊTE ÉPURÉ DE LA VUE D'ENSEMBLE                                      */}
+      {/* ========================================================================= */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
         <div>
           <div className="flex items-center gap-2">
             <span
-              className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase ${
+              className={`text-[11px] font-mono font-medium px-2 py-0.5 rounded ${
                 currentPole === 'MORGUE'
-                  ? 'bg-blue-600/30 text-sky-300 border border-blue-500/50'
-                  : 'bg-emerald-600/30 text-emerald-300 border border-emerald-500/50'
+                  ? 'bg-blue-950/80 text-blue-300 border border-blue-900/60'
+                  : 'bg-emerald-950/80 text-emerald-300 border border-emerald-900/60'
               }`}
             >
-              {currentPole === 'MORGUE' ? 'Pôle Morgue & Défunts' : 'Pôle Funérarium & Cérémonies'}
+              {currentPole === 'MORGUE' ? 'PÔLE MORGUE' : 'PÔLE FUNÉRARIUM'}
             </span>
-            <span className="text-xs text-slate-400">• Session : {currentUser?.directionRattachee}</span>
+            <span className="text-xs text-slate-400">
+              • Unité opérationnelle active
+            </span>
           </div>
 
-          <h1 className="text-xl sm:text-2xl font-black text-white mt-1">
-            Tableau de Bord de Pilotage
+          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight mt-1">
+            Tableau de Bord — {currentPole === 'MORGUE' ? 'Morgue & Conservation' : 'Funérarium & Familles'}
           </h1>
+          <p className="text-xs text-slate-400 mt-0.5">
+            {currentPole === 'MORGUE'
+              ? 'Surveillance des admissions, chambres froides, mouvements et levées de corps'
+              : 'Gestion des salons de recueillement, veillées, prestations et logistique funéraire'}
+          </p>
         </div>
 
         <div className="flex items-center gap-2.5">
           <button
             onClick={() => navigate('/backoffice/ops')}
-            className={`py-2 px-4 rounded-xl text-xs font-bold text-white transition-all shadow-md flex items-center gap-1.5 ${
+            className={`py-2 px-3.5 rounded-xl text-xs font-semibold text-white transition-colors ${
               currentPole === 'MORGUE'
-                ? 'bg-blue-600 hover:bg-blue-500 shadow-blue-600/30'
-                : 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/30'
+                ? 'bg-blue-600 hover:bg-blue-500'
+                : 'bg-emerald-700 hover:bg-emerald-600'
             }`}
           >
-            <Plus className="w-4 h-4" />
-            <span>{currentPole === 'MORGUE' ? 'Nouvelle Admission Morgue' : 'Nouveau Dossier Funéraire'}</span>
+            {currentPole === 'MORGUE' ? '+ Nouvelle admission' : '+ Nouveau dossier'}
           </button>
         </div>
       </div>
 
       {/* ========================================================================= */}
-      {/* 1. KPIS MAJEURS : FINANCIERS & OPÉRATIONNELS                                */}
+      {/* 2. CARTES KPIS MÉTIERS SPÉCIFIQUES AU PÔLE CHOISI (ÉPURÉES SANS ICÔNES)  */}
       {/* ========================================================================= */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* KPI 1 : Chiffre d'Affaires Global */}
-        <div className="bg-[#091838] border border-blue-900/80 rounded-2xl p-5 space-y-2 shadow-sm">
-          <div className="flex items-center justify-between text-xs text-slate-400">
-            <span>Chiffre d'Affaires Encaissé</span>
-            <div className="p-2 rounded-xl bg-blue-600/20 text-sky-400">
-              <DollarSign className="w-4 h-4" />
-            </div>
-          </div>
-          <div>
-            <span className="text-2xl font-black text-white font-mono">
-              ${caTotalUSD.toLocaleString('fr-FR')} USD
+      {currentPole === 'MORGUE' ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-[#0F172A] border border-slate-800 rounded-xl p-5 space-y-1">
+            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+              Admissions Actives
             </span>
-            <span className="block text-xs text-sky-400/80 font-mono mt-0.5">
-              ≈ {(caTotalCDF).toLocaleString('fr-FR')} CDF
+            <span className="text-2xl sm:text-3xl font-bold text-white block">
+              18 corps
+            </span>
+            <span className="text-xs text-slate-400 block pt-1 border-t border-slate-800/80">
+              Prise en charge continue
             </span>
           </div>
-          <div className="text-[11px] text-emerald-400 flex items-center gap-1 pt-1 border-t border-blue-950">
-            <TrendingUp className="w-3.5 h-3.5" />
-            <span>+12.4% ce mois (Traçabilité 100%)</span>
+
+          <div className="bg-[#0F172A] border border-slate-800 rounded-xl p-5 space-y-1">
+            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+              Occupation Casiers
+            </span>
+            <span className="text-2xl sm:text-3xl font-bold text-white block">
+              56%
+            </span>
+            <span className="text-xs text-slate-400 block pt-1 border-t border-slate-800/80">
+              14 casiers libres sur 32
+            </span>
+          </div>
+
+          <div className="bg-[#0F172A] border border-slate-800 rounded-xl p-5 space-y-1">
+            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+              Soins & Thanatopraxie
+            </span>
+            <span className="text-2xl sm:text-3xl font-bold text-white block">
+              4 soins
+            </span>
+            <span className="text-xs text-slate-400 block pt-1 border-t border-slate-800/80">
+              Programmés ce jour
+            </span>
+          </div>
+
+          <div className="bg-[#0F172A] border border-slate-800 rounded-xl p-5 space-y-1">
+            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+              Levées Autorisées
+            </span>
+            <span className="text-2xl sm:text-3xl font-bold text-white block">
+              3 départs
+            </span>
+            <span className="text-xs text-slate-400 block pt-1 border-t border-slate-800/80">
+              Conformes aux autorisations
+            </span>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-[#0F172A] border border-slate-800 rounded-xl p-5 space-y-1">
+            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+              Salons Réservés
+            </span>
+            <span className="text-2xl sm:text-3xl font-bold text-white block">
+              6 salons
+            </span>
+            <span className="text-xs text-slate-400 block pt-1 border-t border-slate-800/80">
+              Sur 8 salons disponibles
+            </span>
+          </div>
+
+          <div className="bg-[#0F172A] border border-slate-800 rounded-xl p-5 space-y-1">
+            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+              Veillées & Cérémonies
+            </span>
+            <span className="text-2xl sm:text-3xl font-bold text-white block">
+              2 veillées
+            </span>
+            <span className="text-xs text-slate-400 block pt-1 border-t border-slate-800/80">
+              Prévues ce soir
+            </span>
+          </div>
+
+          <div className="bg-[#0F172A] border border-slate-800 rounded-xl p-5 space-y-1">
+            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+              Transports Corbillard
+            </span>
+            <span className="text-2xl sm:text-3xl font-bold text-white block">
+              4 convois
+            </span>
+            <span className="text-xs text-slate-400 block pt-1 border-t border-slate-800/80">
+              En cours de planification
+            </span>
+          </div>
+
+          <div className="bg-[#0F172A] border border-slate-800 rounded-xl p-5 space-y-1">
+            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+              Articles & Fleurs
+            </span>
+            <span className="text-2xl sm:text-3xl font-bold text-white block">
+              11 commandes
+            </span>
+            <span className="text-xs text-slate-400 block pt-1 border-t border-slate-800/80">
+              Fleurs, cercueils & plaques
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 3. BANDEAU DE GESTION FINANCIÈRE & CAISSE CENTRALE                         */}
+      {/* ========================================================================= */}
+      <div className="bg-[#0F172A] border border-slate-800 rounded-xl p-4 sm:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+            Synthèse Financière & Caisse Partagée
+          </span>
+          <div className="flex flex-wrap items-baseline gap-3 mt-1">
+            <span className="text-lg sm:text-xl font-bold text-white font-mono">
+              $18 450 USD
+            </span>
+            <span className="text-xs text-slate-400 font-mono">
+              (≈ 51 660 000 CDF)
+            </span>
+            <span className="text-xs text-slate-400">• 4 factures en attente</span>
           </div>
         </div>
 
-        {/* KPI 2 : Factures en Attente */}
-        <div className="bg-[#091838] border border-blue-900/80 rounded-2xl p-5 space-y-2 shadow-sm">
-          <div className="flex items-center justify-between text-xs text-slate-400">
-            <span>Factures / Devis en Attente</span>
-            <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400">
-              <Receipt className="w-4 h-4" />
-            </div>
-          </div>
-          <div>
-            <span className="text-2xl font-black text-white font-mono">
-              {facturesEnAttente} factures
-            </span>
-            <span className="block text-xs text-amber-300 font-mono mt-0.5">
-              En attente d'approbation ou de règlement
-            </span>
-          </div>
-          <div className="text-[11px] text-slate-400 pt-1 border-t border-blue-950">
-            <span>Délai moyen de règlement : 24h</span>
-          </div>
-        </div>
-
-        {/* KPI 3 : Statut de Caisse du Jour */}
-        <div className="bg-[#091838] border border-blue-900/80 rounded-2xl p-5 space-y-2 shadow-sm">
-          <div className="flex items-center justify-between text-xs text-slate-400">
-            <span>Session Caisse Physique</span>
-            <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400">
-              <Coins className="w-4 h-4" />
-            </div>
-          </div>
-          <div>
-            <span className="text-2xl font-black text-white font-mono">
-              ${caisseSession.totalEncaisseLiquideUSD} USD
-            </span>
-            <span className="block text-xs text-emerald-300 font-mono mt-0.5">
+        <div className="text-xs text-slate-300 flex items-center gap-3">
+          <div className="bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800">
+            <span className="text-slate-400">Guichet Caisse : </span>
+            <span className="font-semibold text-white">${caisseSession.totalEncaisseLiquideUSD} USD</span>
+            <span className="text-slate-400 font-mono text-[11px] ml-1">
               + {caisseSession.totalEncaisseLiquideCDF.toLocaleString('fr-FR')} CDF
             </span>
           </div>
-          <div className="text-[11px] text-emerald-400 flex items-center gap-1 pt-1 border-t border-blue-950">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span>{caisseSession.estOuverte ? 'Caisse Active (Guichet Ouvert)' : 'Caisse Clôturée'}</span>
-          </div>
-        </div>
-
-        {/* KPI 4 : Métier Spécifique (Morgue vs Funérarium) */}
-        <div className="bg-[#091838] border border-blue-900/80 rounded-2xl p-5 space-y-2 shadow-sm">
-          <div className="flex items-center justify-between text-xs text-slate-400">
-            <span>
-              {currentPole === 'MORGUE' ? 'Capacité Chambres Froides' : 'Salons & Cérémonies'}
-            </span>
-            <div className="p-2 rounded-xl bg-purple-500/20 text-purple-400">
-              {currentPole === 'MORGUE' ? (
-                <ThermometerSnowflake className="w-4 h-4" />
-              ) : (
-                <CalendarCheck className="w-4 h-4" />
-              )}
-            </div>
-          </div>
-          <div>
-            <span className="text-2xl font-black text-white font-mono">
-              {currentPole === 'MORGUE'
-                ? `${statsMorgue.placesOccupees} / ${statsMorgue.placesOccupees + statsMorgue.placesDisponibles}`
-                : `${statsFunerarium.salonsReserves} réservations`}
-            </span>
-            <span className="block text-xs text-slate-300 font-mono mt-0.5">
-              {currentPole === 'MORGUE'
-                ? `${statsMorgue.placesDisponibles} casiers libres disponibles`
-                : `${statsFunerarium.convoisCorbillard} convois corbillard prévus`}
-            </span>
-          </div>
-          <div className="text-[11px] text-sky-400 pt-1 border-t border-blue-950">
-            <span>
-              {currentPole === 'MORGUE'
-                ? `Taux d'occupation : ${statsMorgue.tauxOccupation}%`
-                : `${statsFunerarium.ceremoniesAujourdhui} veillées ce jour`}
-            </span>
-          </div>
+          <button
+            onClick={() => navigate('/backoffice/payments')}
+            className="text-xs text-slate-300 hover:text-white underline hover:no-underline"
+          >
+            Gérer la caisse ➔
+          </button>
         </div>
       </div>
 
       {/* ========================================================================= */}
-      {/* 2. TABLE DES DOSSIERS & ACTIVITÉS RÉCENTES DU PÔLE                         */}
+      {/* 4. REGISTRE OPÉRATIONNEL SELON LE PÔLE                                    */}
       {/* ========================================================================= */}
-      <div className="bg-[#050E22] border border-blue-950 rounded-2xl p-5 sm:p-6 space-y-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <div className="bg-[#0F172A] border border-slate-800 rounded-xl overflow-hidden shadow-sm">
+        <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between">
           <div>
-            <h3 className="text-base font-bold text-white">
+            <h2 className="text-sm sm:text-base font-bold text-white">
               {currentPole === 'MORGUE'
-                ? 'Dossiers des Corps en Séjour à la Morgue'
-                : 'Dossiers Funéraires & Prestations Réservées'}
-            </h3>
-            <p className="text-xs text-slate-400">
-              Suivi chronologique, statuts de facturation et visa médical
+                ? 'Registre Actif des Admissions & Chambres Froides'
+                : 'Registre des Réservations & Cérémonies Funéraires'}
+            </h2>
+            <p className="text-xs text-slate-400 mt-0.5">
+              {currentPole === 'MORGUE'
+                ? 'Dossiers actuellement pris en charge dans les unités frigorifiques'
+                : 'Salons de recueillement et prestations planifiées'}
             </p>
           </div>
 
           <button
             onClick={() => navigate('/backoffice/ops')}
-            className="text-xs text-sky-400 hover:text-sky-300 font-semibold flex items-center gap-1"
+            className="text-xs text-slate-400 hover:text-white px-2.5 py-1 rounded-lg border border-slate-800 hover:border-slate-700 transition-colors"
           >
-            <span>Voir tout le registre (Ops)</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            Voir tous les dossiers
           </button>
         </div>
 
-        {/* Tableau */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-[#030914] text-slate-400 uppercase text-[10px] tracking-wider border-b border-blue-950">
-              <tr>
-                <th className="py-3 px-4">N° Dossier</th>
-                <th className="py-3 px-4">Identité du Défunt</th>
-                <th className="py-3 px-4">
-                  {currentPole === 'MORGUE' ? 'Emplacement / Casier' : 'Services Retenus'}
-                </th>
-                <th className="py-3 px-4">Statut Opérationnel</th>
-                <th className="py-3 px-4">Solde Facturation</th>
-                <th className="py-3 px-4 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-blue-950/60 text-slate-300">
-              {dossiers.map((d) => (
-                <tr key={d.id} className="hover:bg-slate-900/60 transition-colors">
-                  <td className="py-3.5 px-4 font-mono font-bold text-sky-400">
-                    {d.numeroDossier}
-                  </td>
-                  <td className="py-3.5 px-4">
-                    <span className="font-bold text-white block">
-                      {d.defunt.prenom} {d.defunt.nom}
-                    </span>
-                    <span className="text-[10px] text-slate-400">
-                      Décès : {new Date(d.defunt.dateDeces).toLocaleDateString('fr-FR')} • {d.defunt.lieuDeces}
-                    </span>
-                  </td>
-                  <td className="py-3.5 px-4">
-                    {currentPole === 'MORGUE' ? (
-                      <span className="px-2.5 py-1 rounded bg-blue-950 text-sky-300 font-mono border border-blue-900">
-                        {d.emplacementActuel?.numeroCase || 'Attente case'}
-                      </span>
-                    ) : (
-                      <span className="text-slate-300 text-[11px]">
-                        {d.prestations.length} prestation(s) rattachée(s)
-                      </span>
-                    )}
-                  </td>
-                  <td className="py-3.5 px-4">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-blue-900/40 text-sky-300 border border-sky-400/30">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                      {d.statut}
-                    </span>
-                  </td>
-                  <td className="py-3.5 px-4 font-mono">
-                    <span className="text-white font-bold">${d.finance.soldeRestant} USD</span>
-                    <span className="block text-[10px] text-slate-400">
-                      ({d.finance.statutPaiement})
-                    </span>
-                  </td>
-                  <td className="py-3.5 px-4 text-right">
-                    <button
-                      onClick={() => navigate('/backoffice/ops')}
-                      className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 text-xs font-medium transition-colors"
-                    >
-                      Détail ➔
-                    </button>
-                  </td>
+        {currentPole === 'MORGUE' ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-[#0B132B] text-slate-400 font-medium border-b border-slate-800">
+                <tr>
+                  <th className="py-3 px-4">N° Dossier</th>
+                  <th className="py-3 px-4">Défunt</th>
+                  <th className="py-3 px-4">Date Admission</th>
+                  <th className="py-3 px-4">Emplacement</th>
+                  <th className="py-3 px-4">Soins Réalisés</th>
+                  <th className="py-3 px-4">Statut</th>
+                  <th className="py-3 px-4 text-right">Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-slate-800/80 text-slate-300">
+                {registreMorgue.map((item) => (
+                  <tr key={item.id} className="hover:bg-slate-800/40 transition-colors">
+                    <td className="py-3 px-4 font-mono font-medium text-slate-200">
+                      {item.id}
+                    </td>
+                    <td className="py-3 px-4 font-medium text-white">
+                      {item.defunt}
+                    </td>
+                    <td className="py-3 px-4 text-slate-400">
+                      {item.dateAdmission}
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className="text-slate-200 font-medium">{item.casier}</span>
+                      <span className="block text-[10px] text-slate-400 font-mono">{item.temperature}</span>
+                    </td>
+                    <td className="py-3 px-4 text-slate-300">
+                      {item.soins}
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className="px-2 py-0.5 rounded text-[11px] bg-slate-800 text-slate-200 border border-slate-700">
+                        {item.statut}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      <button
+                        onClick={() => navigate('/backoffice/ops')}
+                        className="text-xs text-blue-400 hover:text-blue-300 font-medium"
+                      >
+                        Consulter
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-[#0B132B] text-slate-400 font-medium border-b border-slate-800">
+                <tr>
+                  <th className="py-3 px-4">N° Dossier</th>
+                  <th className="py-3 px-4">Défunt & Famille</th>
+                  <th className="py-3 px-4">Salon Funéraire</th>
+                  <th className="py-3 px-4">Date & Créneau</th>
+                  <th className="py-3 px-4">Prestations Liées</th>
+                  <th className="py-3 px-4">Statut</th>
+                  <th className="py-3 px-4 text-right">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/80 text-slate-300">
+                {registreFunerarium.map((item) => (
+                  <tr key={item.id} className="hover:bg-slate-800/40 transition-colors">
+                    <td className="py-3 px-4 font-mono font-medium text-slate-200">
+                      {item.id}
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className="font-medium text-white block">{item.defunt}</span>
+                      <span className="text-[11px] text-slate-400 block">{item.famille}</span>
+                    </td>
+                    <td className="py-3 px-4 font-medium text-slate-200">
+                      {item.salon}
+                    </td>
+                    <td className="py-3 px-4 text-slate-400">
+                      {item.creneau}
+                    </td>
+                    <td className="py-3 px-4 text-slate-300">
+                      {item.prestations}
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className="px-2 py-0.5 rounded text-[11px] bg-slate-800 text-slate-200 border border-slate-700">
+                        {item.statut}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      <button
+                        onClick={() => navigate('/backoffice/ops')}
+                        className="text-xs text-emerald-400 hover:text-emerald-300 font-medium"
+                      >
+                        Consulter
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

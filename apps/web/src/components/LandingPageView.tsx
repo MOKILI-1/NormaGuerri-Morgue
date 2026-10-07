@@ -330,6 +330,12 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
               <Search className="w-3.5 h-3.5 text-sky-400" />
               <span>Trouver un décès</span>
             </button>
+            <a
+              href="/backoffice"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-950/80 hover:bg-blue-900 text-sky-200 border border-blue-800/80 transition-colors shadow-sm"
+            >
+              <span>Espace Pro</span>
+            </a>
           </div>
         </div>
       </header>
@@ -554,16 +560,25 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
               © {new Date().getFullYear()} Hospital Nomargueri. Tous droits réservés. Traçabilité par QR Code certifié.
             </p>
 
-            <div className="flex items-center gap-1.5 bg-slate-900/60 px-3 py-1.5 rounded-full border border-blue-950">
-              <span className="text-slate-400">Propulsé par</span>
+            <div className="flex items-center gap-3">
               <a
-                href="https://mokili.io"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-bold text-sky-400 hover:text-sky-300 underline underline-offset-2 transition-colors flex items-center gap-1"
+                href="/backoffice"
+                className="text-slate-400 hover:text-sky-300 text-[11px] transition-colors"
               >
-                Mokili
+                Accès Back-Office
               </a>
+              <span className="text-slate-600">•</span>
+              <div className="flex items-center gap-1.5 bg-slate-900/60 px-3 py-1.5 rounded-full border border-blue-950">
+                <span className="text-slate-400">Propulsé par</span>
+                <a
+                  href="https://mokili.io"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-bold text-sky-400 hover:text-sky-300 underline underline-offset-2 transition-colors flex items-center gap-1"
+                >
+                  Mokili
+                </a>
+              </div>
             </div>
           </div>
         </div>

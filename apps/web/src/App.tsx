@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { BackofficeProvider, useBackoffice } from './context/BackofficeContext';
 import { Shell } from './components/backoffice/Shell';
 import { LoginPage } from './pages/backoffice/LoginPage';
@@ -13,10 +13,18 @@ import { AccessPage } from './pages/backoffice/AccessPage';
 import { LandingPageContainer } from './pages/LandingPageContainer';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isLoggedIn } = useBackoffice();
+  const { isLoggedIn, hasSelectedPole } = useBackoffice();
+  const location = useLocation();
+
   if (!isLoggedIn) {
     return <LoginPage />;
   }
+
+  // Si l'utilisateur est connecté mais n'a pas encore choisi son pôle (Morgue ou Funérarium)
+  if (!hasSelectedPole && location.pathname !== '/backoffice/select-pole') {
+    return <Navigate to="/backoffice/select-pole" replace />;
+  }
+
   return <>{children}</>;
 };
 

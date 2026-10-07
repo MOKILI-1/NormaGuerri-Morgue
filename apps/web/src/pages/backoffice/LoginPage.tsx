@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Lock, Mail, Shield, User, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useBackoffice, UserSession } from '../../context/BackofficeContext';
 
 export const LoginPage: React.FC = () => {
@@ -12,7 +11,7 @@ export const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Comptes de démonstration professionnels prêts à l'emploi
+  // Comptes de démonstration professionnels
   const demoAccounts: UserSession[] = [
     {
       id: 'usr-1',
@@ -74,13 +73,12 @@ export const LoginPage: React.FC = () => {
     setError(null);
 
     setTimeout(() => {
-      // Trouver l'utilisateur correspondant ou prendre le compte par défaut
       const matched = demoAccounts.find((a) => a.email.toLowerCase() === email.toLowerCase()) || demoAccounts[0];
       login(matched);
       setLoading(false);
-      // Redirection vers l'écran d'accueil avec les 2 grosses cases (Norma.jpeg)
+      // Redirection immédiate vers la deuxième page : Sélection des 2 pôles (Morgue ou Funérarium)
       navigate('/backoffice/select-pole');
-    }, 600);
+    }, 450);
   };
 
   const handleSelectDemo = (account: UserSession) => {
@@ -90,82 +88,76 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md">
-      <div className="relative bg-[#071329] border border-blue-900/80 rounded-3xl max-w-md w-full p-7 sm:p-8 text-white shadow-2xl space-y-6">
-        {/* En-tête */}
-        <div className="text-center space-y-2">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md">
+      <div className="relative bg-[#0F172A] border border-slate-800 rounded-2xl max-w-md w-full p-8 text-slate-100 shadow-2xl space-y-6">
+        {/* En-tête sobre et épuré */}
+        <div className="text-center space-y-3">
           <img
             src="/logo-hospital-nomargueri.jpg"
             alt="Hospital Nomargueri"
-            className="w-16 h-16 rounded-full border-2 border-sky-400 mx-auto shadow-lg object-cover bg-white"
+            className="w-14 h-14 rounded-full border border-slate-700 mx-auto object-cover bg-white shadow-sm"
           />
           <div>
-            <h2 className="text-xl font-black text-white tracking-tight uppercase">
+            <h1 className="text-lg font-bold tracking-tight text-white uppercase font-sans">
               HOSPITAL NOMARGUERI
-            </h2>
-            <p className="text-xs text-sky-400 font-mono tracking-wide mt-0.5">
-              Plateforme Métier & Back-Office
+            </h1>
+            <p className="text-xs text-slate-400 font-normal mt-0.5">
+              Portail Hospitalier & Espace Métier
             </p>
           </div>
         </div>
 
         {error && (
-          <div className="p-3 rounded-xl bg-red-950/50 border border-red-800 text-xs text-red-300 flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
-            <span>{error}</span>
+          <div className="p-3 rounded-lg bg-red-950/40 border border-red-900/60 text-xs text-red-300">
+            {error}
           </div>
         )}
 
-        {/* Formulaire de Connexion */}
+        {/* Formulaire épuré sans surcharge d'icônes */}
         <form onSubmit={handleLoginSubmit} className="space-y-4 text-xs">
-          <div>
-            <label className="block text-slate-300 mb-1 font-semibold">Identifiant / E-mail professionnel</label>
-            <div className="relative">
-              <Mail className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full pl-9 pr-3 py-2.5 bg-[#040A1A] border border-blue-950 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 font-mono"
-              />
-            </div>
+          <div className="space-y-1.5">
+            <label className="block text-slate-300 font-medium text-xs">
+              Identifiant / E-mail professionnel
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full px-3.5 py-2.5 bg-[#0B132B] border border-slate-700/80 rounded-xl text-white text-xs placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-colors"
+              placeholder="nom@nomargueri.cd"
+            />
           </div>
 
-          <div>
-            <label className="block text-slate-300 mb-1 font-semibold">Mot de passe</label>
-            <div className="relative">
-              <Lock className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full pl-9 pr-3 py-2.5 bg-[#040A1A] border border-blue-950 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 font-mono"
-              />
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="block text-slate-300 font-medium text-xs">
+                Mot de passe
+              </label>
+              <span className="text-[11px] text-slate-500">Sécurisé</span>
             </div>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full px-3.5 py-2.5 bg-[#0B132B] border border-slate-700/80 rounded-xl text-white text-xs placeholder-slate-500 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-colors"
+            />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold text-xs shadow-lg shadow-blue-600/30 transition-all flex items-center justify-center gap-2"
+            className="w-full py-2.5 mt-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold text-xs tracking-wide transition-colors shadow-sm disabled:opacity-50"
           >
-            {loading ? (
-              <span>Authentification en cours...</span>
-            ) : (
-              <>
-                <span>Se Connecter au Back-Office</span>
-                <ArrowRight className="w-4 h-4" />
-              </>
-            )}
+            {loading ? 'Connexion en cours...' : 'Se connecter'}
           </button>
         </form>
 
-        {/* Comptes rapides prêts pour test */}
-        <div className="pt-2 border-t border-blue-950 space-y-2">
-          <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider block">
-            Accès rapide par profil métier :
+        {/* Accès rapide démonstration : design soft et discret */}
+        <div className="pt-4 border-t border-slate-800/80 space-y-2.5">
+          <span className="text-[11px] text-slate-400 font-medium block">
+            Comptes de test accrédités :
           </span>
           <div className="grid grid-cols-2 gap-2 text-[11px]">
             {demoAccounts.map((acc) => (
@@ -173,22 +165,26 @@ export const LoginPage: React.FC = () => {
                 key={acc.id}
                 type="button"
                 onClick={() => handleSelectDemo(acc)}
-                className="p-2 rounded-xl bg-slate-900/80 hover:bg-blue-950 border border-blue-950/80 text-left transition-colors flex flex-col justify-between"
+                className="p-2 rounded-lg bg-slate-900/60 hover:bg-slate-800 border border-slate-800 text-left transition-colors"
               >
-                <span className="font-bold text-white truncate">{acc.prenom} {acc.nom}</span>
-                <span className="text-[9px] text-sky-400 truncate">{acc.role}</span>
+                <span className="font-medium text-slate-200 block truncate">
+                  {acc.prenom} {acc.nom}
+                </span>
+                <span className="text-[10px] text-slate-400 block truncate">
+                  {acc.role.replace(/_/g, ' ')}
+                </span>
               </button>
             ))}
           </div>
         </div>
 
-        {/* Lien retour au portail public */}
-        <div className="text-center">
+        {/* Lien discret de retour */}
+        <div className="text-center pt-1">
           <a
             href="/"
-            className="text-[11px] text-slate-400 hover:text-sky-300 transition-colors underline"
+            className="text-[11px] text-slate-400 hover:text-slate-200 transition-colors"
           >
-            ← Retourner au portail public
+            ← Retour à la page d'accueil
           </a>
         </div>
       </div>
