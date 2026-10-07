@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { RoleUtilisateur, Utilisateur } from '@nomarguerrie/shared-types';
 
 export type PoleMetier = 'MORGUE' | 'FUNERARIUM';
+export type AppTheme = 'dark' | 'light';
 
 export interface CaisseSession {
   estOuverte: boolean;
@@ -26,7 +27,12 @@ interface BackofficeContextType {
   hasSelectedPole: boolean;
   caisseSession: CaisseSession;
   isLoggedIn: boolean;
+  theme: AppTheme;
+  toggleTheme: () => void;
+  targetPole: PoleMetier | null;
+  setTargetPole: (pole: PoleMetier | null) => void;
   login: (user: UserSession) => void;
+  loginWithPole: (user: UserSession, pole: PoleMetier) => { success: boolean; error?: string };
   logout: () => void;
   setCurrentPole: (pole: PoleMetier) => void;
   resetPoleSelection: () => void;
@@ -34,20 +40,6 @@ interface BackofficeContextType {
   fermerCaisse: (comptageUSD: number, comptageCDF: number) => { ecartUSD: number; ecartCDF: number };
   ajouterEncaissementLiquide: (montantUSD: number, montantCDF: number) => void;
 }
-
-const DEFAULT_USER: UserSession = {
-  id: 'usr-1',
-  nom: 'MUTOMBO',
-  prenom: 'Éric',
-  email: 'eric.mutombo@nomargueri.cd',
-  role: 'RESPONSABLE_EXPLOITATION',
-  niveauAccreditation: 4,
-  estActif: true,
-  telephone: '+243997222228',
-  creeLe: '2026-01-10T08:00:00Z',
-  actorId: 'ACT-DIR-001',
-  directionRattachee: 'DIRECTION_MORGUE'
-};
 
 const DEFAULT_CAISSE: CaisseSession = {
   estOuverte: true,
@@ -64,7 +56,25 @@ const DEFAULT_CAISSE: CaisseSession = {
 const BackofficeContext = createContext<BackofficeContextType | undefined>(undefined);
 
 export const BackofficeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Par défaut, pas d'utilisateur connecté pour forcer l'affichage de la page de login en overlay
+  // Thème Light / Dark persistant
+  const [theme, setTheme] = useState<AppTheme>(() => {
+    try {
+      const saved = localStorage.getItem('nomarguerrie_bo_theme');
+      return (saved === 'light' || saved === 'dark') ? saved : 'dark';
+    } catch {
+      return 'dark';
+    }
+  });
+
+  const toggleTheme = () => {
+    setTheme((prev) => {
+      const next = prev === 'dark' ? 'light' : 'dark';
+      localStorage.setItem('nomarguerrie_bo_theme', next);
+      return next;
+    });
+  };
+
+  // Par défaut, pas d'utilisateur connecté au démarrage
   const [currentUser, setCurrentUser] = useState<UserSession | null>(() => {
     try {
       const saved = sessionStorage.getItem('nomarguerrie_bo_user');
@@ -73,6 +83,9 @@ export const BackofficeProvider: React.FC<{ children: ReactNode }> = ({ children
       return null;
     }
   });
+
+  // Pôle ciblé lors du premier clic sur la page de sélection (Morgue ou Funérarium)
+  const [targetPole, setTargetPole] = useState<PoleMetier | null>(null);
 
   const [hasSelectedPole, setHasSelectedPole] = useState<boolean>(() => {
     try {
@@ -109,19 +122,68 @@ export const BackofficeProvider: React.FC<{ children: ReactNode }> = ({ children
 
   const resetPoleSelection = () => {
     setHasSelectedPole(false);
+    setTargetPole(null);
     sessionStorage.removeItem('nomarguerrie_bo_pole_selected');
   };
 
-  const login = (user: UserSession) => {
-    setCurrentUser(user);
-    setHasSelectedPole(false); // Oblige à passer par la page de sélection des 2 cases
-    sessionStorage.setItem('nomarguerrie_bo_user', JSON.stringify(user));
-    sessionStorage.removeItem('nomarguerrie_bo_pole_selected');
+  // Authentification avec vérification stricte de l'affectation au pôle sélectionné
+  const loginWithPole = (user: UserSession, pole: PoleMetier): { success: boolean; error?: string } => {
+    // 1. Super Admin (Direction Générale) : accès universel absolu
+    if (user.directionRattachee === 'DIRECTION_GENERALE') {
+      setCurrentUser(user);
+      setCurrentPole(pole);
+      sessionStorage.setItem('nomarguerrie_bo_user', JSON.stringify(user));
+      return { success: true };
+    }
+
+    // 2. Caisse Centrale : accès transverse aux deux pôles pour facturation/paiement
+    if (user.directionRattachee === 'CAISSE_CENTRALE') {
+      setCurrentUser(user);
+      setCurrentPole(pole);
+      sessionStorage.setItem('nomarguerrie_bo_user', JSON.stringify(user));
+      return { success: true };
+    }
+
+    // 3. Contrôle Pôle Morgue
+    if (pole === 'MORGUE') {
+      if (user.directionRattachee === 'DIRECTION_MORGUE') {
+        setCurrentUser(user);
+        setCurrentPole(pole);
+        sessionStorage.setItem('nomarguerrie_bo_user', JSON.stringify(user));
+        return { success: true };
+      } else {
+        return {
+          success: false,
+          error: `Accès non autorisé : Le compte de ${user.prenom} ${user.nom} est rattaché au Pôle Funérarium. Vous n'avez pas l'accréditation requise pour la Morgue. Seul le Super Admin (Direction Générale) dispose d'un accès universel.`
+        };
+      }
+    }
+
+    // 4. Contrôle Pôle Funérarium
+    if (pole === 'FUNERARIUM') {
+      if (user.directionRattachee === 'DIRECTION_FUNERARIUM') {
+        setCurrentUser(user);
+        setCurrentPole(pole);
+        sessionStorage.setItem('nomarguerrie_bo_user', JSON.stringify(user));
+        return { success: true };
+      } else {
+        return {
+          success: false,
+          error: `Accès non autorisé : Le compte de ${user.prenom} ${user.nom} est rattaché au Pôle Morgue. Vous n'avez pas l'accréditation requise pour le Funérarium. Seul le Super Admin (Direction Générale) dispose d'un accès universel.`
+        };
+      }
+    }
+
+    return {
+      success: false,
+      error: "Accréditation insuffisante pour ce pôle."
+    };
   };
 
   const logout = () => {
     setCurrentUser(null);
     setHasSelectedPole(false);
+    setTargetPole(null);
     sessionStorage.removeItem('nomarguerrie_bo_user');
     sessionStorage.removeItem('nomarguerrie_bo_pole_selected');
     localStorage.removeItem('nomarguerrie_bo_user');
@@ -173,6 +235,11 @@ export const BackofficeProvider: React.FC<{ children: ReactNode }> = ({ children
     });
   };
 
+  const login = (user: UserSession) => {
+    setCurrentUser(user);
+    sessionStorage.setItem('nomarguerrie_bo_user', JSON.stringify(user));
+  };
+
   return (
     <BackofficeContext.Provider
       value={{
@@ -181,7 +248,12 @@ export const BackofficeProvider: React.FC<{ children: ReactNode }> = ({ children
         hasSelectedPole,
         caisseSession,
         isLoggedIn: currentUser !== null,
+        theme,
+        toggleTheme,
+        targetPole,
+        setTargetPole,
         login,
+        loginWithPole,
         logout,
         setCurrentPole,
         resetPoleSelection,

@@ -1,8 +1,7 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { BackofficeProvider, useBackoffice } from './context/BackofficeContext';
 import { Shell } from './components/backoffice/Shell';
-import { LoginPage } from './pages/backoffice/LoginPage';
 import { PoleSelectPage } from './pages/backoffice/PoleSelectPage';
 import { DashboardPage } from './pages/backoffice/DashboardPage';
 import { OpsPage } from './pages/backoffice/OpsPage';
@@ -12,20 +11,27 @@ import { ReportsPage } from './pages/backoffice/ReportsPage';
 import { AccessPage } from './pages/backoffice/AccessPage';
 import { LandingPageContainer } from './pages/LandingPageContainer';
 
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+// Point d'entrée du Backoffice : 1ère page = Sélection du pôle (Morgue ou Funérarium)
+// C'est après avoir cliqué sur un pôle que l'overlay de login s'affiche
+const BackofficeEntry: React.FC = () => {
   const { isLoggedIn, hasSelectedPole } = useBackoffice();
-  const location = useLocation();
 
-  if (!isLoggedIn) {
-    return <LoginPage />;
+  if (isLoggedIn && hasSelectedPole) {
+    return <Navigate to="/backoffice/dashboard" replace />;
   }
 
-  // Si l'utilisateur est connecté mais n'a pas encore choisi son pôle (Morgue ou Funérarium)
-  if (!hasSelectedPole && location.pathname !== '/backoffice/select-pole') {
-    return <Navigate to="/backoffice/select-pole" replace />;
+  return <PoleSelectPage />;
+};
+
+// Protection du Shell et des sous-modules métier
+const ProtectedShell: React.FC = () => {
+  const { isLoggedIn, hasSelectedPole } = useBackoffice();
+
+  if (!isLoggedIn || !hasSelectedPole) {
+    return <Navigate to="/backoffice" replace />;
   }
 
-  return <>{children}</>;
+  return <Shell />;
 };
 
 export const App: React.FC = () => {
@@ -39,44 +45,27 @@ export const App: React.FC = () => {
           <Route path="/" element={<LandingPageContainer />} />
 
           {/* ========================================================================= */}
-          {/* 2. AUTHENTIFICATION BACK-OFFICE (OVERLAY / LOGIN)                         */}
+          {/* 2. ACCUEIL DU BACKOFFICE : 1ÈRE PAGE = SÉLECTION MORGUE / FUNÉRARIUM       */}
+          {/*    (Le clic sur l'un déclenche ensuite l'overlay de connexion sécurisée)  */}
           {/* ========================================================================= */}
-          <Route path="/backoffice/login" element={<LoginPage />} />
+          <Route path="/backoffice" element={<BackofficeEntry />} />
+          <Route path="/backoffice/login" element={<BackofficeEntry />} />
+          <Route path="/backoffice/select-pole" element={<BackofficeEntry />} />
 
           {/* ========================================================================= */}
-          {/* 3. ACCUEIL SÉLECTION DE PÔLE : MORGUE OU FUNÉRARIUM (NORMA.JPEG)          */}
+          {/* 3. MODULES MÉTIERS PROTÉGÉS APRÈS VALIDATION DU PÔLE ET DE LA SESSION     */}
           {/* ========================================================================= */}
-          <Route
-            path="/backoffice/select-pole"
-            element={
-              <ProtectedRoute>
-                <PoleSelectPage />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* ========================================================================= */}
-          {/* 4. MODULES DU BACK-OFFICE INTÉGRÉS DANS LE COMPOSANT SHELL LATÉRAL        */}
-          {/* ========================================================================= */}
-          <Route
-            path="/backoffice"
-            element={
-              <ProtectedRoute>
-                <Shell />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<Navigate to="/backoffice/dashboard" replace />} />
-            <Route path="dashboard" element={<DashboardPage />} />
-            <Route path="ops" element={<OpsPage />} />
-            <Route path="invoices" element={<OpsPage />} />
-            <Route path="payments" element={<PaymentsHub />} />
-            <Route path="verify" element={<PaymentsHub />} />
-            <Route path="catalog" element={<CatalogPage />} />
-            <Route path="reports" element={<ReportsPage />} />
-            <Route path="accounting" element={<ReportsPage />} />
-            <Route path="access" element={<AccessPage />} />
-            <Route path="org" element={<AccessPage />} />
+          <Route element={<ProtectedShell />}>
+            <Route path="/backoffice/dashboard" element={<DashboardPage />} />
+            <Route path="/backoffice/ops" element={<OpsPage />} />
+            <Route path="/backoffice/invoices" element={<OpsPage />} />
+            <Route path="/backoffice/payments" element={<PaymentsHub />} />
+            <Route path="/backoffice/verify" element={<PaymentsHub />} />
+            <Route path="/backoffice/catalog" element={<CatalogPage />} />
+            <Route path="/backoffice/reports" element={<ReportsPage />} />
+            <Route path="/backoffice/accounting" element={<ReportsPage />} />
+            <Route path="/backoffice/access" element={<AccessPage />} />
+            <Route path="/backoffice/org" element={<AccessPage />} />
           </Route>
 
           {/* FALLBACK GÉNÉRAL */}

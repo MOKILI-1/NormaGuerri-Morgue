@@ -164,18 +164,27 @@ export const LandingPageContainer: React.FC = () => {
     }
   };
 
+  const [modalMode, setModalMode] = useState<'DEFUNT' | 'DOSSIER'>('DEFUNT');
+
+  const handleOpenSearchModal = (mode: 'DEFUNT' | 'DOSSIER' = 'DEFUNT') => {
+    setModalMode(mode);
+    setFamilyTrackedDossier(null);
+    setIsFamilyModalOpen(true);
+  };
+
   return (
     <>
       <LandingPageView
         catalogue={catalogue}
         onCreateDemand={handleNouvelleAdmissionSubmit}
         onSearchDossier={handleFamilySearch}
-        onOpenSearchModal={() => setIsFamilyModalOpen(true)}
+        onOpenSearchModal={handleOpenSearchModal}
       />
       <FamilleSuiviModal
         dossier={familyTrackedDossier}
         dossiers={dossiers}
         isOpen={isFamilyModalOpen}
+        initialMode={modalMode}
         onClose={() => {
           setIsFamilyModalOpen(false);
           setFamilyTrackedDossier(null);

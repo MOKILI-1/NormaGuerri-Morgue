@@ -41,7 +41,7 @@ interface LandingPageViewProps {
     servicesChoisis?: Array<{ article: ArticleCatalogue; quantite: number }>;
   }) => Promise<DossierVivant>;
   onSearchDossier: (numOuToken: string) => void;
-  onOpenSearchModal: () => void;
+  onOpenSearchModal: (mode?: 'DEFUNT' | 'DOSSIER') => void;
 }
 
 export const LandingPageView: React.FC<LandingPageViewProps> = ({
@@ -50,6 +50,9 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
   onSearchDossier,
   onOpenSearchModal
 }) => {
+  // Limite d'affichage des services du catalogue (6 par défaut, clic sur "Voir +" pour afficher le reste)
+  const [showAllServices, setShowAllServices] = useState(false);
+
   // Modal de Déclaration Multi-étapes (Étape 1: Défunt & Famille -> Étape 2: Choix des 5 Pôles de Services -> Étape 3: Récépissé & QR Code)
   const [isWizardOpen, setIsWizardOpen] = useState(false);
   const [wizardStep, setWizardStep] = useState<1 | 2 | 3>(1);
@@ -324,18 +327,12 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
           {/* Bouton d'Action Header */}
           <div className="flex items-center space-x-3 text-xs font-semibold">
             <button
-              onClick={onOpenSearchModal}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-slate-200 border border-blue-900/80 transition-colors shadow-sm"
+              onClick={() => onOpenSearchModal('DEFUNT')}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-slate-200 border border-blue-900/80 transition-colors shadow-sm"
             >
               <Search className="w-3.5 h-3.5 text-sky-400" />
-              <span>Trouver un décès</span>
+              <span>Trouver un défunt</span>
             </button>
-            <a
-              href="/backoffice"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-950/80 hover:bg-blue-900 text-sky-200 border border-blue-800/80 transition-colors shadow-sm"
-            >
-              <span>Espace Pro</span>
-            </a>
           </div>
         </div>
       </header>
@@ -360,7 +357,7 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
               </p>
             </div>
 
-            {/* Colonne Droite : Les 3 CTAs remplaçant l'ancien bloc textuel */}
+            {/* Colonne Droite : Les 3 CTAs */}
             <div className="lg:col-span-5">
               <div className="bg-[#0B1E48]/90 border border-blue-900/80 rounded-2xl p-6 sm:p-7 shadow-2xl space-y-4 backdrop-blur-sm">
                 <div className="text-[11px] font-bold text-sky-400 uppercase tracking-wider">
@@ -377,21 +374,21 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
                     <span>Déclarer un décès</span>
                   </button>
 
-                  {/* CTA 2 : Trouver un décès enregistré */}
+                  {/* CTA 2 : Suivre un dossier */}
                   <button
-                    onClick={onOpenSearchModal}
+                    onClick={() => onOpenSearchModal('DOSSIER')}
                     className="w-full py-3.5 px-5 rounded-xl bg-[#061126] hover:bg-slate-900 text-slate-200 border border-blue-900 font-semibold text-sm transition-all flex items-center justify-center gap-2 shadow-sm"
                   >
                     <Search className="w-4 h-4 text-sky-400" />
-                    <span>Trouver un décès</span>
+                    <span>Suivre un dossier</span>
                   </button>
 
-                  {/* CTA 3 : Découvrir les 5 pôles de services */}
+                  {/* CTA 3 : Nos services */}
                   <a
                     href="#catalogue"
                     className="w-full py-3 px-5 bg-blue-950/60 hover:bg-blue-900/60 text-sky-300 hover:text-white border border-blue-800/60 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
                   >
-                    <span>Découvrir les 5 pôles de services</span>
+                    <span>Nos services</span>
                     <ArrowRight className="w-3.5 h-3.5 text-sky-400" />
                   </a>
                 </div>
@@ -446,9 +443,9 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
             ))}
           </div>
 
-          {/* Grille des prestations sans aucun prix public */}
+          {/* Grille des prestations sans aucun prix public (6 premiers services par défaut) */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
-            {filteredCatalogue.map((art) => (
+            {(showAllServices ? filteredCatalogue : filteredCatalogue.slice(0, 6)).map((art) => (
               <div
                 key={art.id}
                 className="bg-[#0B1E48]/80 hover:bg-[#0D2456] border border-blue-900/60 hover:border-sky-500/50 rounded-2xl p-5 flex flex-col justify-between transition-all group shadow-md"
@@ -489,14 +486,29 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
               </div>
             ))}
           </div>
+
+          {/* Bouton "Voir +" pour afficher le reste des services */}
+          {filteredCatalogue.length > 6 && (
+            <div className="text-center pt-4">
+              <button
+                type="button"
+                onClick={() => setShowAllServices(!showAllServices)}
+                className="px-6 py-2.5 rounded-xl bg-blue-900/70 hover:bg-blue-800 text-sky-200 border border-blue-700/80 font-semibold text-xs transition-colors shadow-sm"
+              >
+                {showAllServices
+                  ? 'Voir moins'
+                  : `Voir + (${filteredCatalogue.length - 6} autres prestations)`}
+              </button>
+            </div>
+          )}
         </div>
       </section>
 
-      {/* FOOTER OFFICIEL — AVEC COORDONNÉES COMPLÈTES & MENTION OBLIGATOIRE "PROPULSÉ PAR MOKILI" */}
+      {/* FOOTER OFFICIEL — AVEC BLOCS ADRESSE & CONTACTS RÉAGENCÉS ET MENTION PROPULSÉ PAR MOKILI */}
       <footer className="mt-auto bg-[#040C1D] py-10 border-t border-blue-950/80 text-xs text-slate-400">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-            {/* Logo et Nom (sans Kinshasa collé au titre) */}
+            {/* Logo et Nom */}
             <div className="flex items-center space-x-3 shrink-0">
               <img
                 src="/logo-hospital-nomargueri.jpg"
@@ -513,43 +525,33 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
               </div>
             </div>
 
-            {/* Coordonnées officielles de l'établissement */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 text-xs text-slate-300 w-full lg:w-auto">
-              {/* Adresse physique */}
+            {/* Deux blocs bien disposés : Adresse & Contacts */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs text-slate-300 w-full lg:w-auto">
+              {/* Bloc Adresse */}
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
                 <div>
                   <span className="text-[10px] text-slate-400 uppercase font-semibold block">Adresse</span>
                   <span className="leading-snug block text-slate-200">
-                    N°10 AV/Mondo Q/Domaine-Village Mbezale C/Nsele
+                    10, Av : Mondo, Domaine-Village Mbezale, Nsele, Kinshasa DRC.
                   </span>
                 </div>
               </div>
 
-              {/* Téléphones de contact 24h/24 */}
+              {/* Bloc Contacts */}
               <div className="flex items-start gap-2.5">
                 <PhoneCall className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
                 <div>
-                  <span className="text-[10px] text-slate-400 uppercase font-semibold block">Contact 24h/24</span>
+                  <span className="text-[10px] text-slate-400 uppercase font-semibold block">Contacts</span>
                   <div className="font-mono text-white text-[11px] space-y-0.5">
-                    <a href="tel:+243997222228" className="hover:text-sky-300 transition-colors block">
-                      +243 997 222 228
-                    </a>
-                    <a href="tel:+243833330040" className="hover:text-sky-300 transition-colors block">
-                      +243 833 330 040
+                    <div>+243 997 222 228 / +243 833 330 040</div>
+                    <a
+                      href="mailto:contact@nomargueri.com"
+                      className="font-mono text-sky-300 hover:underline text-[11px] block"
+                    >
+                      contact@nomargueri.com
                     </a>
                   </div>
-                </div>
-              </div>
-
-              {/* Email officiel */}
-              <div className="flex items-start gap-2.5">
-                <Mail className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
-                <div>
-                  <span className="text-[10px] text-slate-400 uppercase font-semibold block">Email Officiel</span>
-                  <a href="mailto:contact@nomargueri.com" className="font-mono text-sky-300 hover:underline text-[11px] block mt-0.5">
-                    contact@nomargueri.com
-                  </a>
                 </div>
               </div>
             </div>
@@ -560,25 +562,16 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
               © {new Date().getFullYear()} Hospital Nomargueri. Tous droits réservés. Traçabilité par QR Code certifié.
             </p>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 bg-slate-900/60 px-3 py-1.5 rounded-full border border-blue-950">
+              <span className="text-slate-400">Propulsé par</span>
               <a
-                href="/backoffice"
-                className="text-slate-400 hover:text-sky-300 text-[11px] transition-colors"
+                href="https://mokili.io"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-bold text-sky-400 hover:text-sky-300 underline underline-offset-2 transition-colors flex items-center gap-1"
               >
-                Accès Back-Office
+                Mokili
               </a>
-              <span className="text-slate-600">•</span>
-              <div className="flex items-center gap-1.5 bg-slate-900/60 px-3 py-1.5 rounded-full border border-blue-950">
-                <span className="text-slate-400">Propulsé par</span>
-                <a
-                  href="https://mokili.io"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-bold text-sky-400 hover:text-sky-300 underline underline-offset-2 transition-colors flex items-center gap-1"
-                >
-                  Mokili
-                </a>
-              </div>
             </div>
           </div>
         </div>
