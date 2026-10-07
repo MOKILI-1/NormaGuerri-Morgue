@@ -345,6 +345,194 @@ export const DashboardPage: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
+      {/* 2.B. GRAPHIQUES ÉPURÉS & ANALYSE D'ACTIVITÉ EN TEMPS RÉEL                  */}
+      {/* ========================================================================= */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        {/* Graphique 1 : Flux d'activité hebdomadaire (Entrées vs Sorties) - 7 colonnes */}
+        <div
+          className={`lg:col-span-7 border rounded-2xl p-5 space-y-4 transition-colors ${
+            isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <span className={`text-[11px] font-semibold uppercase tracking-wider block ${
+                isDark ? 'text-slate-400' : 'text-slate-500'
+              }`}>
+                Flux d'activité hebdomadaire
+              </span>
+              <h3 className={`text-sm sm:text-base font-bold mt-0.5 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                {currentPole === 'MORGUE'
+                  ? 'Entrées de corps vs Levées autorisées'
+                  : 'Nouveaux dossiers vs Clôtures cérémonies'}
+              </h3>
+            </div>
+            
+            {/* Légende épurée */}
+            <div className="flex items-center gap-3 text-xs">
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-sm bg-blue-500" />
+                <span className={isDark ? 'text-slate-300' : 'text-slate-600'}>Entrées (24)</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-sm bg-indigo-400" />
+                <span className={isDark ? 'text-slate-300' : 'text-slate-600'}>Sorties (19)</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Bar Chart épuré en CSS / Barres */}
+          <div className="pt-2">
+            <div className="h-44 flex items-end justify-between gap-2 sm:gap-4 px-2 border-b border-slate-800/60 pb-2">
+              {[
+                { jour: 'Lun', entrees: 4, sorties: 2, hE: '60%', hS: '35%' },
+                { jour: 'Mar', entrees: 3, sorties: 3, hE: '45%', hS: '45%' },
+                { jour: 'Mer', entrees: 5, sorties: 2, hE: '75%', hS: '35%' },
+                { jour: 'Jeu', entrees: 2, sorties: 4, hE: '30%', hS: '60%' },
+                { jour: 'Ven', entrees: 6, sorties: 5, hE: '90%', hS: '75%' },
+                { jour: 'Sam', entrees: 3, sorties: 2, hE: '45%', hS: '35%' },
+                { jour: 'Dim', entrees: 1, sorties: 1, hE: '15%', hS: '15%' }
+              ].map((col) => (
+                <div key={col.jour} className="flex-1 flex flex-col items-center h-full justify-end group">
+                  <div className="w-full flex items-end justify-center gap-1 h-36">
+                    {/* Barre Entrées */}
+                    <div
+                      style={{ height: col.hE }}
+                      className="w-3 sm:w-4 rounded-t bg-blue-500 hover:bg-blue-400 transition-all relative group-hover:brightness-110"
+                      title={`${col.jour} : ${col.entrees} entrées`}
+                    />
+                    {/* Barre Sorties */}
+                    <div
+                      style={{ height: col.hS }}
+                      className="w-3 sm:w-4 rounded-t bg-indigo-400 hover:bg-indigo-300 transition-all relative group-hover:brightness-110"
+                      title={`${col.jour} : ${col.sorties} sorties`}
+                    />
+                  </div>
+                  <span className={`text-[10px] font-mono mt-2 block ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                    {col.jour}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-between pt-2 text-[11px] text-slate-400">
+              <span>Pic d'activité : Vendredi (11 mouvements)</span>
+              <span>Moyenne : 3,4 dossiers / jour</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Graphique 2 : Taux d'Occupation & Répartition Capacitaire - 5 colonnes */}
+        <div
+          className={`lg:col-span-5 border rounded-2xl p-5 space-y-4 transition-colors ${
+            isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+          }`}
+        >
+          <div>
+            <span className={`text-[11px] font-semibold uppercase tracking-wider block ${
+              isDark ? 'text-slate-400' : 'text-slate-500'
+            }`}>
+              {currentPole === 'MORGUE' ? 'Capacité Chambres Froides' : 'Disponibilité Salons & Véhicules'}
+            </span>
+            <h3 className={`text-sm sm:text-base font-bold mt-0.5 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+              {currentPole === 'MORGUE' ? '56% d’occupation globale (18/32)' : '75% d’occupation salons (6/8)'}
+            </h3>
+          </div>
+
+          {/* Jauge globale épurée */}
+          <div className="space-y-1.5">
+            <div className="w-full bg-slate-800/80 rounded-full h-3 overflow-hidden p-0.5 border border-slate-700/60">
+              <div
+                style={{ width: currentPole === 'MORGUE' ? '56%' : '75%' }}
+                className={`h-full rounded-full transition-all duration-500 ${
+                  currentPole === 'MORGUE'
+                    ? 'bg-gradient-to-r from-blue-600 to-sky-400'
+                    : 'bg-gradient-to-r from-emerald-600 to-teal-400'
+                }`}
+              />
+            </div>
+            <div className="flex items-center justify-between text-[11px]">
+              <span className={isDark ? 'text-slate-300' : 'text-slate-700'}>
+                {currentPole === 'MORGUE' ? '18 corps présents' : '6 salons occupés'}
+              </span>
+              <span className="font-semibold text-emerald-400">
+                {currentPole === 'MORGUE' ? '14 casiers disponibles' : '2 salons libres'}
+              </span>
+            </div>
+          </div>
+
+          {/* Détail par secteur / chambre */}
+          <div className="space-y-2.5 pt-2 border-t border-slate-800/60 text-xs">
+            {currentPole === 'MORGUE' ? (
+              <>
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[11px]">
+                    <span className={isDark ? 'text-slate-300' : 'text-slate-700'}>Chambre F1 (Standard)</span>
+                    <span className="font-mono text-slate-400">8 / 10 casiers (+2.8°C)</span>
+                  </div>
+                  <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                    <div className="bg-blue-500 h-full rounded-full" style={{ width: '80%' }} />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[11px]">
+                    <span className={isDark ? 'text-slate-300' : 'text-slate-700'}>Chambre F2 (Soins & Thanato)</span>
+                    <span className="font-mono text-slate-400">6 / 10 casiers (+3.0°C)</span>
+                  </div>
+                  <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                    <div className="bg-blue-500 h-full rounded-full" style={{ width: '60%' }} />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[11px]">
+                    <span className={isDark ? 'text-slate-300' : 'text-slate-700'}>Chambre F3 (Réserve sécurisée)</span>
+                    <span className="font-mono text-slate-400">4 / 12 casiers (+2.5°C)</span>
+                  </div>
+                  <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                    <div className="bg-blue-500 h-full rounded-full" style={{ width: '33%' }} />
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[11px]">
+                    <span className={isDark ? 'text-slate-300' : 'text-slate-700'}>Grand Salon Cérémonial A</span>
+                    <span className="font-semibold text-amber-400">Réservé (18h-23h)</span>
+                  </div>
+                  <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                    <div className="bg-emerald-500 h-full rounded-full" style={{ width: '100%' }} />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[11px]">
+                    <span className={isDark ? 'text-slate-300' : 'text-slate-700'}>Grand Salon Cérémonial B</span>
+                    <span className="font-semibold text-emerald-400">Disponible ce matin</span>
+                  </div>
+                  <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                    <div className="bg-slate-600 h-full rounded-full" style={{ width: '30%' }} />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[11px]">
+                    <span className={isDark ? 'text-slate-300' : 'text-slate-700'}>Salons Intimistes (6 unités)</span>
+                    <span className="font-mono text-slate-400">5 réservés / 1 libre</span>
+                  </div>
+                  <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                    <div className="bg-emerald-500 h-full rounded-full" style={{ width: '83%' }} />
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ========================================================================= */}
       {/* 3. SYNTHÈSE FINANCE & CAISSE (SLIDE 8 DU STORYBOARD : USD & CDF SÉPARÉS)  */}
       {/* ========================================================================= */}
       <div

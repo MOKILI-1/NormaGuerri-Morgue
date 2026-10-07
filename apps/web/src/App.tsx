@@ -9,6 +9,7 @@ import { PaymentsHub } from './pages/backoffice/PaymentsHub';
 import { CatalogPage } from './pages/backoffice/CatalogPage';
 import { ReportsPage } from './pages/backoffice/ReportsPage';
 import { AccessPage } from './pages/backoffice/AccessPage';
+import { SuperAdminPage } from './pages/backoffice/SuperAdminPage';
 import { LandingPageContainer } from './pages/LandingPageContainer';
 
 // Point d'entrée du Backoffice : 1ère page = Sélection du pôle (Morgue ou Funérarium)
@@ -64,8 +65,10 @@ export const App: React.FC = () => {
             <Route path="/backoffice/catalog" element={<CatalogPage />} />
             <Route path="/backoffice/reports" element={<ReportsPage />} />
             <Route path="/backoffice/accounting" element={<ReportsPage />} />
-            <Route path="/backoffice/access" element={<AccessPage />} />
-            <Route path="/backoffice/org" element={<AccessPage />} />
+            <Route path="/backoffice/access" element={<SuperAdminPage />} />
+            <Route path="/backoffice/org" element={<SuperAdminPage />} />
+            <Route path="/backoffice/admin" element={<SuperAdminPage />} />
+            <Route path="/backoffice/super-admin" element={<SuperAdminPage />} />
           </Route>
 
           {/* FALLBACK GÉNÉRAL */}

@@ -507,8 +507,8 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
       {/* FOOTER OFFICIEL — AVEC BLOCS ADRESSE & CONTACTS RÉAGENCÉS ET MENTION PROPULSÉ PAR MOKILI */}
       <footer className="mt-auto bg-[#040C1D] py-10 border-t border-blue-950/80 text-xs text-slate-400">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-            {/* Logo et Nom */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center justify-between">
+            {/* Colonne Gauche : Logo et Identité */}
             <div className="flex items-center space-x-3 shrink-0">
               <img
                 src="/logo-hospital-nomargueri.jpg"
@@ -525,34 +525,32 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
               </div>
             </div>
 
-            {/* Deux blocs bien disposés : Adresse & Contacts */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs text-slate-300 w-full lg:w-auto">
-              {/* Bloc Adresse */}
-              <div className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
-                <div>
-                  <span className="text-[10px] text-slate-400 uppercase font-semibold block">Adresse</span>
-                  <span className="leading-snug block text-slate-200">
-                    10, Av : Mondo, Domaine-Village Mbezale, Nsele, Kinshasa DRC.
-                  </span>
-                </div>
+            {/* Colonne Centrale : Adresse Centrée avec Kinshasa DRC. à la 2ème ligne */}
+            <div className="flex flex-col items-center text-center space-y-1">
+              <div className="inline-flex items-center gap-1.5 text-sky-400">
+                <MapPin className="w-3.5 h-3.5 shrink-0" />
+                <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Adresse</span>
               </div>
+              <div className="text-xs text-slate-200 leading-snug">
+                <div>10, Av : Mondo, Domaine-Village Mbezale, Nsele,</div>
+                <div className="font-semibold text-slate-100">Kinshasa DRC.</div>
+              </div>
+            </div>
 
-              {/* Bloc Contacts */}
-              <div className="flex items-start gap-2.5">
-                <PhoneCall className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
-                <div>
-                  <span className="text-[10px] text-slate-400 uppercase font-semibold block">Contacts</span>
-                  <div className="font-mono text-white text-[11px] space-y-0.5">
-                    <div>+243 997 222 228 / +243 833 330 040</div>
-                    <a
-                      href="mailto:contact@nomargueri.com"
-                      className="font-mono text-sky-300 hover:underline text-[11px] block"
-                    >
-                      contact@nomargueri.com
-                    </a>
-                  </div>
-                </div>
+            {/* Colonne Droite : Contacts formaté à droite */}
+            <div className="flex flex-col items-start md:items-end text-left md:text-right space-y-1">
+              <div className="inline-flex items-center md:justify-end gap-1.5 text-sky-400">
+                <PhoneCall className="w-3.5 h-3.5 shrink-0" />
+                <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Contacts</span>
+              </div>
+              <div className="font-mono text-white text-[11px] space-y-0.5">
+                <div>+243 997 222 228 / +243 833 330 040</div>
+                <a
+                  href="mailto:contact@nomargueri.com"
+                  className="font-mono text-sky-300 hover:underline text-[11px] block"
+                >
+                  contact@nomargueri.com
+                </a>
               </div>
             </div>
           </div>

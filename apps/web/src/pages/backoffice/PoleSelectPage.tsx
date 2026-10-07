@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBackoffice, PoleMetier, UserSession } from '../../context/BackofficeContext';
-import { Sun, Moon, Lock, Mail, AlertCircle, X, Shield, ArrowRight } from 'lucide-react';
+import { Sun, Moon, Lock, Mail, AlertCircle, X, Shield, ArrowRight, ShieldCheck } from 'lucide-react';
 
 export const PoleSelectPage: React.FC = () => {
   const {
@@ -134,6 +134,12 @@ export const PoleSelectPage: React.FC = () => {
     }, 250);
   };
 
+  const handleAccessSuperAdmin = () => {
+    const superAdmin = demoAccounts.find((a) => a.directionRattachee === 'DIRECTION_GENERALE') || demoAccounts[2];
+    loginWithPole(superAdmin, 'MORGUE');
+    navigate('/backoffice/admin');
+  };
+
   const isDark = theme === 'dark';
 
   return (
@@ -193,17 +199,20 @@ export const PoleSelectPage: React.FC = () => {
             )}
           </button>
 
-          {/* Lien retour portail public */}
-          <a
-            href="/"
-            className={`px-3 py-1.5 rounded-xl border text-xs transition-colors ${
+          {/* Bouton Accès Super Admin */}
+          <button
+            type="button"
+            onClick={handleAccessSuperAdmin}
+            className={`px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all flex items-center gap-1.5 ${
               isDark
-                ? 'bg-slate-900/60 hover:bg-slate-800 border-slate-800 text-slate-300'
-                : 'bg-white hover:bg-slate-100 border-slate-300 text-slate-600'
+                ? 'bg-amber-950/40 hover:bg-amber-900/50 border-amber-800/80 text-amber-300'
+                : 'bg-amber-50 hover:bg-amber-100 border-amber-300 text-amber-800 shadow-sm'
             }`}
+            title="Accéder au cockpit de supervision Super Admin"
           >
-            Portail public
-          </a>
+            <ShieldCheck className="w-3.5 h-3.5 text-amber-400" />
+            <span>Super Admin</span>
+          </button>
         </div>
       </header>
 
@@ -246,9 +255,6 @@ export const PoleSelectPage: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <span className={`text-[11px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                     Pôle Hospitalier
-                  </span>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-950/80 text-blue-300 border border-blue-900/60">
-                    Conservation
                   </span>
                 </div>
 
@@ -312,9 +318,6 @@ export const PoleSelectPage: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <span className={`text-[11px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                     Pôle Cérémonial
-                  </span>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-900/60">
-                    Familles
                   </span>
                 </div>
 
@@ -476,55 +479,7 @@ export const PoleSelectPage: React.FC = () => {
               </button>
             </form>
 
-            {/* Profils de démonstration avec affichage de leurs droits réels */}
-            <div className={`pt-4 border-t space-y-2.5 ${isDark ? 'border-slate-800' : 'border-slate-200'}`}>
-              <span className={`text-[11px] font-medium block ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                Comptes de test pour vérifier les restrictions d'accès :
-              </span>
-              <div className="grid grid-cols-2 gap-2 text-[11px]">
-                {demoAccounts.map((acc) => {
-                  const isUniversal = acc.directionRattachee === 'DIRECTION_GENERALE' || acc.directionRattachee === 'CAISSE_CENTRALE';
-                  const isAllowed = isUniversal || (targetPole === 'MORGUE' && acc.directionRattachee === 'DIRECTION_MORGUE') || (targetPole === 'FUNERARIUM' && acc.directionRattachee === 'DIRECTION_FUNERARIUM');
-
-                  return (
-                    <button
-                      key={acc.id}
-                      type="button"
-                      onClick={() => handleSelectDemo(acc)}
-                      className={`p-2.5 rounded-xl text-left transition-colors border flex flex-col justify-between ${
-                        isDark
-                          ? 'bg-slate-900/60 hover:bg-slate-800 border-slate-800'
-                          : 'bg-slate-50 hover:bg-slate-100 border-slate-200'
-                      }`}
-                    >
-                      <div>
-                        <span className="font-bold block truncate text-xs">
-                          {acc.prenom} {acc.nom}
-                        </span>
-                        <span className={`text-[10px] block truncate ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                          {acc.role.replace(/_/g, ' ')}
-                        </span>
-                      </div>
-                      <span
-                        className={`text-[9px] font-mono mt-1 px-1.5 py-0.5 rounded w-fit ${
-                          isAllowed
-                            ? 'bg-emerald-950 text-emerald-300 border border-emerald-800/80'
-                            : 'bg-red-950 text-red-300 border border-red-800/80'
-                        }`}
-                      >
-                        {isUniversal
-                          ? 'Super Admin (Tout accès)'
-                          : isAllowed
-                          ? 'Accès Autorisé'
-                          : 'Bloqué pour ce pôle'}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="text-center pt-1">
+            <div className="text-center pt-2">
               <button
                 type="button"
                 onClick={handleCloseLoginModal}
