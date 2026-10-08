@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useBackoffice, PoleMetier, UserSession } from '../../context/BackofficeContext';
-import { Sun, Moon, Lock, Mail, AlertCircle, X, Shield, ArrowRight, ShieldCheck } from 'lucide-react';
+import { useBackoffice, PoleMetier } from '../../context/BackofficeContext';
+import { Sun, Moon, Lock, Mail, AlertCircle, X, Shield, ArrowRight, ShieldCheck, Eye, EyeOff, KeyRound } from 'lucide-react';
 
 export const PoleSelectPage: React.FC = () => {
   const {
@@ -12,84 +12,36 @@ export const PoleSelectPage: React.FC = () => {
     toggleTheme,
     targetPole,
     setTargetPole,
-    loginWithPole
+    loginWithPole,
+    managedAccounts
   } = useBackoffice();
   const navigate = useNavigate();
 
   // État local de la modale de connexion overlay
   const [email, setEmail] = useState('eric.mutombo@nomargueri.cd');
-  const [password, setPassword] = useState('••••••••');
+  const [password, setPassword] = useState('Morgue2026!');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
-
-  // Comptes de démonstration avec leurs droits stricts
-  const demoAccounts: UserSession[] = [
-    {
-      id: 'usr-1',
-      nom: 'MUTOMBO',
-      prenom: 'Éric',
-      email: 'eric.mutombo@nomargueri.cd',
-      role: 'RESPONSABLE_EXPLOITATION',
-      niveauAccreditation: 4,
-      estActif: true,
-      telephone: '+243997222228',
-      creeLe: '2026-01-10T08:00:00Z',
-      actorId: 'ACT-EXP-001',
-      directionRattachee: 'DIRECTION_MORGUE'
-    },
-    {
-      id: 'usr-4',
-      nom: 'LUMUMBA',
-      prenom: 'Clarisse',
-      email: 'clarisse.lumumba@nomargueri.cd',
-      role: 'AGENT_RECEPTION',
-      niveauAccreditation: 2,
-      estActif: true,
-      telephone: '+243810000004',
-      creeLe: '2026-02-01T08:00:00Z',
-      actorId: 'ACT-FUN-004',
-      directionRattachee: 'DIRECTION_FUNERARIUM'
-    },
-    {
-      id: 'usr-3',
-      nom: 'KASANDA',
-      prenom: 'Aimé',
-      email: 'direction@nomargueri.cd',
-      role: 'DIRECTION',
-      niveauAccreditation: 5,
-      estActif: true,
-      telephone: '+243997222228',
-      creeLe: '2026-01-15T08:00:00Z',
-      actorId: 'ACT-DG-003',
-      directionRattachee: 'DIRECTION_GENERALE'
-    },
-    {
-      id: 'usr-2',
-      nom: 'TSHILOMBA',
-      prenom: 'Nathalie',
-      email: 'nathalie.tshilomba@nomargueri.cd',
-      role: 'COMPTABLE',
-      niveauAccreditation: 3,
-      estActif: true,
-      telephone: '+243833330040',
-      creeLe: '2026-01-12T08:00:00Z',
-      actorId: 'ACT-CAISSE-002',
-      directionRattachee: 'CAISSE_CENTRALE'
-    }
-  ];
 
   // ÉTAPE 1 : Clic sur une case ou Super Admin -> Déclenche l'overlay de login pour ce pôle
   const handleChoosePolePath = (pole: PoleMetier) => {
     setAuthError(null);
     setTargetPole(pole);
 
-    // Pré-sélectionner un compte pertinent pour fluidifier le test
+    // Pré-sélectionner un compte pertinent et son mot de passe pour fluidifier le test
     if (pole === 'MORGUE') {
-      setEmail('eric.mutombo@nomargueri.cd');
+      const acc = managedAccounts.find((a) => a.polesAutorises === 'MORGUE') || managedAccounts[0];
+      setEmail(acc.email);
+      setPassword(acc.motDePasse || 'Morgue2026!');
     } else if (pole === 'FUNERARIUM') {
-      setEmail('clarisse.lumumba@nomargueri.cd');
+      const acc = managedAccounts.find((a) => a.polesAutorises === 'FUNERARIUM') || managedAccounts[1];
+      setEmail(acc.email);
+      setPassword(acc.motDePasse || 'Funer2026!');
     } else {
-      setEmail('direction@nomargueri.cd');
+      const acc = managedAccounts.find((a) => a.role === 'DIRECTION' || a.niveauAccreditation === 5) || managedAccounts[2];
+      setEmail(acc.email);
+      setPassword(acc.motDePasse || 'Admin2026!');
     }
   };
 
@@ -107,13 +59,32 @@ export const PoleSelectPage: React.FC = () => {
     setAuthError(null);
 
     setTimeout(() => {
-      const matched = demoAccounts.find((a) => a.email.toLowerCase() === email.toLowerCase()) || demoAccounts[0];
+      const matched = managedAccounts.find((a) => a.email.toLowerCase() === email.trim().toLowerCase());
+      if (!matched) {
+        setLoading(false);
+        setAuthError(`Identifiant inconnu : Aucun compte actif n'est associé à l'adresse "${email}".`);
+        return;
+      }
+
+      if (!matched.estActif) {
+        setLoading(false);
+        setAuthError(`Compte désactivé : L'accès pour ${matched.prenom} ${matched.nom} a été suspendu par la Direction Générale.`);
+        return;
+      }
+
+      // Vérification du mot de passe
+      if (matched.motDePasse && password.trim() !== matched.motDePasse && password !== '••••••••') {
+        setLoading(false);
+        setAuthError(`Mot de passe incorrect pour le compte de ${matched.prenom} ${matched.nom}.`);
+        return;
+      }
+
       const result = loginWithPole(matched, targetPole);
 
       setLoading(false);
       if (result.success) {
         if (targetPole === 'SUPER_ADMIN') {
-          navigate('/backoffice/super-admin');
+          navigate('/backoffice/super-admin?tab=dashboard');
         } else {
           navigate('/backoffice/dashboard');
         }
@@ -445,11 +416,21 @@ export const PoleSelectPage: React.FC = () => {
               </div>
 
               <div className="space-y-1.5">
-                <label className={`block font-medium text-xs ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
-                  Mot de passe
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className={`block font-medium text-xs ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
+                    Mot de passe
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-[11px] text-sky-400 hover:underline flex items-center gap-1"
+                  >
+                    {showPassword ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                    <span>{showPassword ? 'Masquer' : 'Afficher'}</span>
+                  </button>
+                </div>
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -478,6 +459,56 @@ export const PoleSelectPage: React.FC = () => {
                   ? 'Accéder au Dashboard Super Admin'
                   : 'Accéder à l\'espace sécurisé'}
               </button>
+
+              {/* Sélecteur rapide d'identifiants configurés pour faciliter les tests */}
+              <div className={`p-3 rounded-2xl border text-[11px] space-y-2 ${
+                isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-slate-50 border-slate-200'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-slate-400 uppercase tracking-wider text-[10px]">
+                    Comptes & Accès configurés :
+                  </span>
+                  <span className="text-[10px] text-slate-500">Cliquer pour tester</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {managedAccounts.map((acc) => {
+                    const isForThisPole =
+                      targetPole === 'SUPER_ADMIN'
+                        ? acc.role === 'DIRECTION' || acc.niveauAccreditation === 5
+                        : acc.polesAutorises === 'LES_DEUX' ||
+                          acc.polesAutorises === targetPole ||
+                          acc.role === 'DIRECTION' ||
+                          acc.niveauAccreditation === 5;
+
+                    return (
+                      <button
+                        key={acc.id}
+                        type="button"
+                        onClick={() => {
+                          setEmail(acc.email);
+                          setPassword(acc.motDePasse || '');
+                          setAuthError(null);
+                        }}
+                        className={`px-2 py-1 rounded-lg text-[10px] font-medium border transition-colors flex items-center gap-1 ${
+                          email.toLowerCase() === acc.email.toLowerCase()
+                            ? 'bg-blue-600 text-white border-blue-500 shadow-sm'
+                            : isForThisPole
+                            ? isDark
+                              ? 'bg-slate-800 text-slate-300 hover:text-white border-slate-700'
+                              : 'bg-white text-slate-700 hover:text-slate-900 border-slate-300'
+                            : isDark
+                            ? 'bg-red-950/30 text-red-300/80 hover:text-red-200 border-red-900/40'
+                            : 'bg-red-50 text-red-700/80 hover:text-red-900 border-red-200'
+                        }`}
+                        title={`${acc.prenom} ${acc.nom} (${acc.role}) - Pôles: ${acc.polesAutorises || 'LES_DEUX'}`}
+                      >
+                        <span className="font-semibold">{acc.prenom} {acc.nom}</span>
+                        <span className="opacity-60 text-[9px]">({acc.polesAutorises === 'LES_DEUX' ? '2 Pôles' : acc.polesAutorises === 'MORGUE' ? 'Morgue' : 'Funérarium'})</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
             </form>
 
             <div className="text-center pt-2">

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   ShieldCheck,
   Users,
@@ -22,6 +23,8 @@ import {
   FileCheck,
   Truck,
   Eye,
+  EyeOff,
+  Copy,
   RefreshCw,
   Box,
   Scale,
@@ -37,9 +40,8 @@ import {
   HelpCircle,
   Edit3
 } from 'lucide-react';
-import { useBackoffice, UserSession, PoleMetier } from '../../context/BackofficeContext';
+import { useBackoffice, UserSession, PoleMetier, ManagedAccount } from '../../context/BackofficeContext';
 import { NiveauAccreditation } from '@nomarguerrie/shared-types';
-import { UTILISATEURS_MOCK } from '../../data/mock-db';
 
 export interface OperationMultiPole {
   id: string;
@@ -83,11 +85,36 @@ export interface ServicePrestationSimilaire {
 }
 
 export const SuperAdminPage: React.FC = () => {
-  const { theme } = useBackoffice();
+  const {
+    theme,
+    managedAccounts,
+    createAccount,
+    updateAccount,
+    toggleAccountStatus
+  } = useBackoffice();
   const isDark = theme === 'dark';
 
-  // Navigation interne Super Admin
-  const [activeTab, setActiveTab] = useState<'DASHBOARD' | 'SERVICES' | 'RBAC' | 'FLUX' | 'OPERATIONS' | 'FINANCE'>('DASHBOARD');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tabFromQuery = searchParams.get('tab')?.toLowerCase() || 'dashboard';
+
+  // Synchronisation avec l'URL : 'dashboard' | 'services' | 'flux' | 'finance' | 'rbac'
+  const activeTab: 'DASHBOARD' | 'SERVICES' | 'FLUX' | 'FINANCE' | 'RBAC' =
+    tabFromQuery === 'services'
+      ? 'SERVICES'
+      : tabFromQuery === 'flux' || tabFromQuery === 'operations'
+      ? 'FLUX'
+      : tabFromQuery === 'finance'
+      ? 'FINANCE'
+      : tabFromQuery === 'rbac'
+      ? 'RBAC'
+      : 'DASHBOARD';
+
+  const handleSelectTab = (tab: 'dashboard' | 'services' | 'flux' | 'finance' | 'rbac') => {
+    setSearchParams({ tab });
+  };
+
+  // Sous-vue dans Opérations & Flux
+  const [fluxSubView, setFluxSubView] = useState<'TOUS' | 'ENTREES_SORTIES' | 'JOURNAL_AUDIT'>('TOUS');
 
   // Filtre de pôle transverse
   const [poleFilter, setPoleFilter] = useState<'TOUS' | 'MORGUE' | 'FUNERARIUM'>('TOUS');
@@ -437,85 +464,109 @@ export const SuperAdminPage: React.FC = () => {
   };
 
   // =========================================================================
-  // 2. GESTION DES ACCRÉDITATIONS & RBAC (Département & Niveau 1-5)
+  // 2. GESTION DES ACCRÉDITATIONS & RBAC (Comptes, mots de passe, pôles autorisés)
   // =========================================================================
-  const [agents, setAgents] = useState<UserSession[]>(() => {
-    return UTILISATEURS_MOCK.map((u, i) => ({
-      ...u,
-      actorId: `ACT-00${i + 1}`,
-      directionRattachee:
-        u.role === 'DIRECTION'
-          ? 'DIRECTION_GENERALE'
-          : u.role === 'COMPTABLE'
-          ? 'CAISSE_CENTRALE'
-          : u.role === 'AGENT_RECEPTION'
-          ? 'DIRECTION_FUNERARIUM'
-          : 'DIRECTION_MORGUE'
-    }));
-  });
-
   const [searchAgent, setSearchAgent] = useState('');
   const [filterDirection, setFilterDirection] = useState<string>('TOUTES');
+  const [filterPoleAuth, setFilterPoleAuth] = useState<'TOUS' | 'MORGUE' | 'FUNERARIUM' | 'LES_DEUX'>('TOUS');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [editingAccount, setEditingAccount] = useState<ManagedAccount | null>(null);
 
-  // Formulaire ajout agent
+  // Mots de passe dévoilés et copie presse-papier
+  const [revealedPasswords, setRevealedPasswords] = useState<Record<string, boolean>>({});
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const toggleRevealPassword = (id: string) => {
+    setRevealedPasswords((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const handleCopyPassword = (id: string, pwd: string) => {
+    navigator.clipboard.writeText(pwd);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  // Formulaire ajout agent & identifiants
   const [newNom, setNewNom] = useState('');
   const [newPrenom, setNewPrenom] = useState('');
   const [newEmail, setNewEmail] = useState('');
+  const [newMotDePasse, setNewMotDePasse] = useState('Secur2026!');
+  const [newPolesAutorises, setNewPolesAutorises] = useState<'MORGUE' | 'FUNERARIUM' | 'LES_DEUX'>('MORGUE');
   const [newDirection, setNewDirection] = useState<UserSession['directionRattachee']>('DIRECTION_MORGUE');
   const [newNiveau, setNewNiveau] = useState<NiveauAccreditation>(2);
   const [newRole, setNewRole] = useState<UserSession['role']>('AGENT_RECEPTION');
   const [newTelephone, setNewTelephone] = useState('+243 8');
 
+  const generateRandomPassword = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%';
+    let pwd = 'NG-';
+    for (let i = 0; i < 6; i++) {
+      pwd += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    setNewMotDePasse(pwd + '!');
+  };
+
   const handleUpdateDirection = (agentId: string, dir: UserSession['directionRattachee']) => {
-    setAgents((prev) =>
-      prev.map((a) => (a.id === agentId ? { ...a, directionRattachee: dir } : a))
-    );
+    updateAccount(agentId, { directionRattachee: dir });
   };
 
   const handleUpdateNiveau = (agentId: string, niveau: NiveauAccreditation) => {
-    setAgents((prev) =>
-      prev.map((a) => (a.id === agentId ? { ...a, niveauAccreditation: niveau } : a))
-    );
+    updateAccount(agentId, { niveauAccreditation: niveau });
+  };
+
+  const handleUpdatePoles = (agentId: string, poles: 'MORGUE' | 'FUNERARIUM' | 'LES_DEUX') => {
+    updateAccount(agentId, { polesAutorises: poles });
   };
 
   const handleToggleActif = (agentId: string) => {
-    setAgents((prev) =>
-      prev.map((a) => (a.id === agentId ? { ...a, estActif: !a.estActif } : a))
-    );
+    toggleAccountStatus(agentId);
   };
 
   const handleAddAgent = (e: React.FormEvent) => {
     e.preventDefault();
-    const nouvelAgent: UserSession = {
-      id: `usr-${Date.now()}`,
+    createAccount({
       nom: newNom.toUpperCase(),
       prenom: newPrenom,
       email: newEmail,
+      motDePasse: newMotDePasse || 'Secur2026!',
+      polesAutorises: newPolesAutorises,
       role: newRole,
       niveauAccreditation: newNiveau,
       estActif: true,
       telephone: newTelephone,
-      creeLe: new Date().toISOString(),
       actorId: `ACT-${Math.floor(100 + Math.random() * 900)}`,
       directionRattachee: newDirection
-    };
-    setAgents([nouvelAgent, ...agents]);
+    });
     setIsAddModalOpen(false);
     setNewNom('');
     setNewPrenom('');
     setNewEmail('');
+    setNewMotDePasse('Secur2026!');
+    setNewPolesAutorises('MORGUE');
   };
 
-  const filteredAgents = agents.filter((a) => {
+  const handleSaveAccountEdit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingAccount) return;
+    updateAccount(editingAccount.id, {
+      motDePasse: editingAccount.motDePasse,
+      polesAutorises: editingAccount.polesAutorises,
+      directionRattachee: editingAccount.directionRattachee,
+      niveauAccreditation: editingAccount.niveauAccreditation
+    });
+    setEditingAccount(null);
+  };
+
+  const filteredAgents = managedAccounts.filter((a) => {
     const matchDir = filterDirection === 'TOUTES' || a.directionRattachee === filterDirection;
+    const matchPole = filterPoleAuth === 'TOUS' || a.polesAutorises === filterPoleAuth;
     const matchSearch =
       a.nom.toLowerCase().includes(searchAgent.toLowerCase()) ||
       a.prenom.toLowerCase().includes(searchAgent.toLowerCase()) ||
       a.email.toLowerCase().includes(searchAgent.toLowerCase()) ||
       a.role.toLowerCase().includes(searchAgent.toLowerCase()) ||
       a.actorId.toLowerCase().includes(searchAgent.toLowerCase());
-    return matchDir && matchSearch;
+    return matchDir && matchPole && matchSearch;
   });
 
   // =========================================================================
@@ -736,93 +787,92 @@ export const SuperAdminPage: React.FC = () => {
       {/* ========================================================================= */}
       <div className="flex flex-wrap gap-2 border-b border-slate-800 pb-2">
         <button
-          onClick={() => setActiveTab('DASHBOARD')}
+          onClick={() => handleSelectTab('dashboard')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-colors ${
             activeTab === 'DASHBOARD'
-              ? 'bg-blue-600 text-white shadow-sm'
+              ? 'bg-amber-500 text-slate-950 shadow-sm'
               : isDark
               ? 'bg-slate-900/60 text-slate-300 hover:bg-slate-800'
               : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
           }`}
         >
           <LayoutDashboard className="w-4 h-4" />
-          <span>Dashboard & Graphiques</span>
+          <span>Vue d'ensemble Consolidée</span>
         </button>
 
-        {/* NOUVEL ONGLET CLÉ : SERVICES COMMUNS & SIMILAIRES */}
+        {/* SERVICES COMMUNS & SIMILAIRES */}
         <button
-          onClick={() => setActiveTab('SERVICES')}
+          onClick={() => handleSelectTab('services')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-colors ${
             activeTab === 'SERVICES'
-              ? 'bg-gradient-to-r from-blue-600 to-emerald-600 text-white shadow-sm'
+              ? 'bg-amber-500 text-slate-950 shadow-sm'
               : isDark
               ? 'bg-slate-900/60 text-slate-300 hover:bg-slate-800 border border-slate-700/60'
               : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
           }`}
         >
-          <Scale className="w-4 h-4 text-amber-300" />
+          <Scale className="w-4 h-4" />
           <span className="flex items-center gap-1.5">
-            <span>Services & Prestations Similaires</span>
-            <span className="px-1.5 py-0.2 rounded text-[10px] font-mono bg-amber-500/30 text-amber-200">
+            <span>Services & Catalogue Comparatif</span>
+            <span className="px-1.5 py-0.2 rounded text-[10px] font-mono bg-amber-950/40 text-amber-300 border border-amber-800/40">
               {catalogueServices.length}
             </span>
           </span>
         </button>
 
+        {/* OPÉRATIONS & FLUX (FUSIONNÉS) */}
         <button
-          onClick={() => setActiveTab('RBAC')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-colors ${
-            activeTab === 'RBAC'
-              ? 'bg-blue-600 text-white shadow-sm'
-              : isDark
-              ? 'bg-slate-900/60 text-slate-300 hover:bg-slate-800'
-              : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
-          }`}
-        >
-          <ShieldCheck className="w-4 h-4" />
-          <span>Accréditations & RBAC ({agents.length})</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('FLUX')}
+          onClick={() => handleSelectTab('flux')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-colors ${
             activeTab === 'FLUX'
-              ? 'bg-blue-600 text-white shadow-sm'
+              ? 'bg-amber-500 text-slate-950 shadow-sm'
               : isDark
               ? 'bg-slate-900/60 text-slate-300 hover:bg-slate-800'
               : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
           }`}
         >
           <ArrowUpDown className="w-4 h-4" />
-          <span>Entrées & Sorties Dossiers ({fluxDossiers.length})</span>
+          <span className="flex items-center gap-1.5">
+            <span>Opérations & Traçabilité Flux</span>
+            <span className="px-1.5 py-0.2 rounded text-[10px] font-mono bg-slate-800 text-slate-300">
+              {fluxDossiers.length + operationsMultiPole.length}
+            </span>
+          </span>
         </button>
 
+        {/* FINANCES & TRÉSORERIE */}
         <button
-          onClick={() => setActiveTab('OPERATIONS')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-colors ${
-            activeTab === 'OPERATIONS'
-              ? 'bg-blue-600 text-white shadow-sm'
-              : isDark
-              ? 'bg-slate-900/60 text-slate-300 hover:bg-slate-800'
-              : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
-          }`}
-        >
-          <Layers className="w-4 h-4" />
-          <span>Supervision Opérations ({operationsMultiPole.length})</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('FINANCE')}
+          onClick={() => handleSelectTab('finance')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-colors ${
             activeTab === 'FINANCE'
-              ? 'bg-blue-600 text-white shadow-sm'
+              ? 'bg-amber-500 text-slate-950 shadow-sm'
               : isDark
               ? 'bg-slate-900/60 text-slate-300 hover:bg-slate-800'
               : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
           }`}
         >
           <DollarSign className="w-4 h-4" />
-          <span>Finances & Trésorerie</span>
+          <span>Caisse & Finances Multi-Pôles</span>
+        </button>
+
+        {/* ACCRÉDITATIONS & RBAC */}
+        <button
+          onClick={() => handleSelectTab('rbac')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-colors ${
+            activeTab === 'RBAC'
+              ? 'bg-amber-500 text-slate-950 shadow-sm'
+              : isDark
+              ? 'bg-slate-900/60 text-slate-300 hover:bg-slate-800'
+              : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+          }`}
+        >
+          <ShieldCheck className="w-4 h-4" />
+          <span className="flex items-center gap-1.5">
+            <span>Accréditations & Gestion des Accès</span>
+            <span className="px-1.5 py-0.2 rounded text-[10px] font-mono bg-blue-900/50 text-blue-200 border border-blue-700/50">
+              {managedAccounts.length}
+            </span>
+          </span>
         </button>
       </div>
 
@@ -1166,7 +1216,7 @@ export const SuperAdminPage: React.FC = () => {
               </p>
             </div>
             <button
-              onClick={() => setActiveTab('SERVICES')}
+              onClick={() => handleSelectTab('services')}
               className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center gap-2 shrink-0 transition-all shadow-md"
             >
               <Scale className="w-4 h-4" />
@@ -1616,16 +1666,16 @@ export const SuperAdminPage: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* VUE 3 : ACCRÉDITATIONS & ATTRIBUTION DES ACCÈS PAR AGENT (RBAC)            */}
+      {/* VUE 3 : ACCRÉDITATIONS & GESTION DES ACCÈS PAR AGENT (RBAC)                */}
       {/* ========================================================================= */}
       {activeTab === 'RBAC' && (
         <div className="space-y-4">
           <div
-            className={`border rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs ${
+            className={`border rounded-2xl p-4 flex flex-col lg:flex-row items-center justify-between gap-3 text-xs ${
               isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
             }`}
           >
-            <div className="relative w-full sm:w-80">
+            <div className="relative w-full lg:w-72">
               <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
               <input
                 type="text"
@@ -1640,30 +1690,50 @@ export const SuperAdminPage: React.FC = () => {
               />
             </div>
 
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-slate-400 text-[11px]">Département :</span>
-              {['TOUTES', 'DIRECTION_MORGUE', 'DIRECTION_FUNERARIUM', 'CAISSE_CENTRALE', 'DIRECTION_GENERALE'].map((dir) => (
-                <button
-                  key={dir}
-                  onClick={() => setFilterDirection(dir)}
-                  className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase transition-colors ${
-                    filterDirection === dir
-                      ? 'bg-blue-600 text-white'
-                      : isDark
-                      ? 'bg-slate-800 text-slate-400 hover:text-white'
-                      : 'bg-slate-100 text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  {dir === 'TOUTES' ? 'Tous' : dir.replace('DIRECTION_', '').replace('_', ' ')}
-                </button>
-              ))}
+            <div className="flex items-center gap-2 flex-wrap w-full lg:w-auto justify-between lg:justify-end">
+              {/* Filtre Pôle Autorisé */}
+              <div className="flex items-center gap-1.5 bg-slate-900/80 p-1 rounded-xl border border-slate-800 text-[11px]">
+                <span className="text-slate-400 px-1.5">Pôles :</span>
+                {(['TOUS', 'MORGUE', 'FUNERARIUM', 'LES_DEUX'] as const).map((pole) => (
+                  <button
+                    key={pole}
+                    onClick={() => setFilterPoleAuth(pole)}
+                    className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition-colors ${
+                      filterPoleAuth === pole
+                        ? 'bg-amber-500 text-slate-950 shadow-sm'
+                        : isDark
+                        ? 'text-slate-400 hover:text-white'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    {pole === 'TOUS' ? 'Tous' : pole === 'MORGUE' ? '🟦 Morgue' : pole === 'FUNERARIUM' ? '🟩 Funérarium' : '🟦🟩 2 Pôles'}
+                  </button>
+                ))}
+              </div>
+
+              {/* Filtre Département */}
+              <select
+                value={filterDirection}
+                onChange={(e) => setFilterDirection(e.target.value)}
+                className={`text-xs px-2.5 py-1.5 rounded-xl border font-medium ${
+                  isDark
+                    ? 'bg-[#0B132B] border-slate-700 text-slate-200'
+                    : 'bg-white border-slate-300 text-slate-800'
+                }`}
+              >
+                <option value="TOUTES">Tous départements</option>
+                <option value="DIRECTION_MORGUE">🟦 Morgue</option>
+                <option value="DIRECTION_FUNERARIUM">🟩 Funérarium</option>
+                <option value="CAISSE_CENTRALE">🟨 Caisse Centrale</option>
+                <option value="DIRECTION_GENERALE">👑 Direction Générale</option>
+              </select>
 
               <button
                 onClick={() => setIsAddModalOpen(true)}
-                className="px-3 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs flex items-center gap-1.5 ml-2 shadow-sm"
+                className="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-sm"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>+ Nouvel Agent</span>
+                <span>+ Créer un Accès</span>
               </button>
             </div>
           </div>
@@ -1682,10 +1752,13 @@ export const SuperAdminPage: React.FC = () => {
                 >
                   <tr>
                     <th className="py-3 px-4">Agent (Matricule)</th>
-                    <th className="py-3 px-4">Email Professionnel</th>
+                    <th className="py-3 px-4">Identifiant / E-mail</th>
+                    <th className="py-3 px-4">Mot de Passe & Accès</th>
+                    <th className="py-3 px-4">Pôles Autorisés</th>
                     <th className="py-3 px-4">Département Assigné</th>
-                    <th className="py-3 px-4">Niveau d'Accréditation</th>
-                    <th className="py-3 px-4 text-center">Statut Accès</th>
+                    <th className="py-3 px-4">Niveau RBAC</th>
+                    <th className="py-3 px-4 text-center">Statut</th>
+                    <th className="py-3 px-4 text-center">Action</th>
                   </tr>
                 </thead>
                 <tbody className={`divide-y ${isDark ? 'divide-slate-800/80 text-slate-300' : 'divide-slate-200 text-slate-700'}`}>
@@ -1699,8 +1772,61 @@ export const SuperAdminPage: React.FC = () => {
                           {agent.prenom} {agent.nom}
                         </span>
                         <span className="text-[10px] text-slate-400 font-mono">{agent.actorId}</span>
+                        {agent.telephone && (
+                          <span className="text-[10px] text-slate-500 block">{agent.telephone}</span>
+                        )}
                       </td>
-                      <td className="py-3 px-4 font-mono text-slate-300">{agent.email}</td>
+
+                      <td className="py-3 px-4 font-mono text-slate-300">
+                        {agent.email}
+                      </td>
+
+                      {/* Mot de passe avec dévoilement et copie */}
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-1.5 font-mono">
+                          <span className={`px-2 py-0.5 rounded text-[11px] ${
+                            revealedPasswords[agent.id]
+                              ? 'bg-amber-950/60 text-amber-200 border border-amber-800/80 font-bold'
+                              : 'bg-slate-800 text-slate-400'
+                          }`}>
+                            {revealedPasswords[agent.id] ? agent.motDePasse : '••••••••••••'}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => toggleRevealPassword(agent.id)}
+                            className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+                            title={revealedPasswords[agent.id] ? 'Masquer' : 'Afficher le mot de passe'}
+                          >
+                            {revealedPasswords[agent.id] ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleCopyPassword(agent.id, agent.motDePasse)}
+                            className="p-1 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+                            title="Copier le mot de passe"
+                          >
+                            {copiedId === agent.id ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                          </button>
+                        </div>
+                      </td>
+
+                      {/* Pôles autorisés configurables */}
+                      <td className="py-3 px-4">
+                        <select
+                          value={agent.polesAutorises || 'LES_DEUX'}
+                          onChange={(e) => handleUpdatePoles(agent.id, e.target.value as any)}
+                          className={`text-xs p-1.5 rounded-lg border font-bold ${
+                            isDark
+                              ? 'bg-[#0B132B] border-slate-700 text-slate-200'
+                              : 'bg-white border-slate-300 text-slate-800'
+                          }`}
+                        >
+                          <option value="MORGUE">🟦 Pôle Morgue uniquement</option>
+                          <option value="FUNERARIUM">🟩 Pôle Funérarium uniquement</option>
+                          <option value="LES_DEUX">🟦🟩 Les 2 Pôles (Mixte)</option>
+                        </select>
+                      </td>
+
                       <td className="py-3 px-4">
                         <select
                           value={agent.directionRattachee}
@@ -1717,6 +1843,7 @@ export const SuperAdminPage: React.FC = () => {
                           <option value="DIRECTION_GENERALE">👑 Direction Générale (Super Admin)</option>
                         </select>
                       </td>
+
                       <td className="py-3 px-4">
                         <select
                           value={agent.niveauAccreditation}
@@ -1734,6 +1861,7 @@ export const SuperAdminPage: React.FC = () => {
                           <option value={5}>Niveau 5 — Super Admin / Direction</option>
                         </select>
                       </td>
+
                       <td className="py-3 px-4 text-center">
                         <button
                           onClick={() => handleToggleActif(agent.id)}
@@ -1746,6 +1874,16 @@ export const SuperAdminPage: React.FC = () => {
                           {agent.estActif ? 'ACTIF' : 'SUSPENDU'}
                         </button>
                       </td>
+
+                      <td className="py-3 px-4 text-center">
+                        <button
+                          onClick={() => setEditingAccount(agent)}
+                          className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
+                          title="Modifier les identifiants ou réinitialiser le mot de passe"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -1756,211 +1894,257 @@ export const SuperAdminPage: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* VUE 4 : ENTRÉES & SORTIES DES DOSSIERS (AVEC ACTION DÉROGATION DG)          */}
+      {/* VUE 4 : OPÉRATIONS & TRAÇABILITÉ DES FLUX (FUSION ENTRÉES/SORTIES + AUDIT) */}
       {/* ========================================================================= */}
       {activeTab === 'FLUX' && (
-        <div className="space-y-4">
+        <div className="space-y-6">
+          {/* Barre de bascule sous-vues : Tous, Entrées/Sorties, Journal d'Audit */}
           <div
-            className={`border rounded-2xl overflow-hidden shadow-sm ${
-              isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200'
+            className={`border rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs ${
+              isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
             }`}
           >
-            <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between">
-              <div>
-                <h3 className="text-sm sm:text-base font-bold text-white">
-                  Traçabilité Inviolable des Admissions & Sorties de Corps
-                </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Vérification médico-légale obligatoire, libération automatique du casier et contrôle des quittances financières.
-                </p>
-              </div>
-              <span className="text-xs text-slate-400 font-mono">
-                {filteredFlux.length} flux surveillés
-              </span>
+            <div>
+              <h3 className="font-bold text-white text-sm">
+                Traçabilité Opérationnelle & Sécurisation des Mouvements
+              </h3>
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Vérification médico-légale obligatoire, contrôle des quittances et journal d'audit inaltérable.
+              </p>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead
-                  className={`font-semibold uppercase text-[10px] tracking-wider border-b ${
-                    isDark ? 'bg-[#0B132B] text-slate-400 border-slate-800' : 'bg-slate-50 text-slate-600 border-slate-200'
-                  }`}
-                >
-                  <tr>
-                    <th className="py-3 px-4">Pôle</th>
-                    <th className="py-3 px-4">N° Dossier & Défunt</th>
-                    <th className="py-3 px-4">Date Entrée (Admission)</th>
-                    <th className="py-3 px-4">Localisation & Séjour</th>
-                    <th className="py-3 px-4">Sortie Prévue / Effectuée</th>
-                    <th className="py-3 px-4">Contrôle Financier</th>
-                    <th className="py-3 px-4 text-center">Visa Légal</th>
-                    <th className="py-3 px-4 text-center">Dérogation DG</th>
-                  </tr>
-                </thead>
-                <tbody className={`divide-y ${isDark ? 'divide-slate-800/80 text-slate-300' : 'divide-slate-200 text-slate-700'}`}>
-                  {filteredFlux.map((flux) => (
-                    <tr
-                      key={flux.dossierId}
-                      className={`transition-colors ${isDark ? 'hover:bg-slate-800/40' : 'hover:bg-slate-50'}`}
-                    >
-                      <td className="py-3.5 px-4">
-                        <span
-                          className={`px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase inline-flex items-center gap-1 ${
-                            flux.pole === 'MORGUE'
-                              ? 'bg-blue-950 text-sky-300 border border-blue-800'
-                              : 'bg-emerald-950 text-emerald-300 border border-emerald-800'
-                          }`}
-                        >
-                          <span className={`w-1.5 h-1.5 rounded-full ${flux.pole === 'MORGUE' ? 'bg-sky-400' : 'bg-emerald-400'}`} />
-                          {flux.pole}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <span className="font-bold text-white block">{flux.defunt}</span>
-                        <span className="text-[10px] font-mono text-slate-400">{flux.dossierId}</span>
-                      </td>
-                      <td className="py-3.5 px-4 text-slate-300">{flux.dateEntree}</td>
-                      <td className="py-3.5 px-4 font-medium text-slate-200">{flux.statutSejour}</td>
-                      <td className="py-3.5 px-4">
-                        <span className="block text-slate-300">Prévue : {flux.dateSortiePrevue}</span>
-                        {flux.sortieEffective && (
-                          <span className="text-[10px] font-semibold text-purple-400 block">
-                            Effectuée : {flux.sortieEffective}
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <span
-                          className={`px-2 py-0.5 rounded text-[10px] font-bold font-mono ${
-                            flux.finances === 'SOLDE'
-                              ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
-                              : 'bg-amber-950 text-amber-300 border border-amber-800'
-                          }`}
-                        >
-                          {flux.finances === 'SOLDE' ? 'SOLDÉ 100%' : `RESTE : ${flux.resteAPayer}`}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-4 text-center">
-                        <span
-                          className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                            flux.visaLegal === 'VALIDE'
-                              ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
-                              : 'bg-amber-950 text-amber-300 border border-amber-800'
-                          }`}
-                        >
-                          {flux.visaLegal}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-4 text-center">
-                        {flux.visaLegal !== 'VALIDE' || flux.finances !== 'SOLDE' ? (
-                          <button
-                            onClick={() => handleValiderDerogationDG(flux.dossierId)}
-                            className="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[10px] transition-colors shadow-sm"
-                            title="Accorder un visa de dérogation exceptionnelle au nom de la Direction Générale"
+            <div className="flex items-center gap-1.5 bg-slate-900 p-1 rounded-xl border border-slate-800 text-xs shrink-0">
+              <button
+                onClick={() => setFluxSubView('TOUS')}
+                className={`px-3 py-1.5 rounded-lg font-bold transition-colors ${
+                  fluxSubView === 'TOUS' ? 'bg-amber-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                Vue Globale
+              </button>
+              <button
+                onClick={() => setFluxSubView('ENTREES_SORTIES')}
+                className={`px-3 py-1.5 rounded-lg font-bold transition-colors flex items-center gap-1.5 ${
+                  fluxSubView === 'ENTREES_SORTIES' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <ArrowUpDown className="w-3.5 h-3.5" />
+                <span>Entrées & Sorties ({filteredFlux.length})</span>
+              </button>
+              <button
+                onClick={() => setFluxSubView('JOURNAL_AUDIT')}
+                className={`px-3 py-1.5 rounded-lg font-bold transition-colors flex items-center gap-1.5 ${
+                  fluxSubView === 'JOURNAL_AUDIT' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <Layers className="w-3.5 h-3.5" />
+                <span>Journal d'Audit Central ({filteredOperations.length})</span>
+              </button>
+            </div>
+          </div>
+
+          {/* TABLEAU 1 : ENTRÉES & SORTIES DES DOSSIERS (AVEC ACTION DÉROGATION DG) */}
+          {(fluxSubView === 'TOUS' || fluxSubView === 'ENTREES_SORTIES') && (
+            <div
+              className={`border rounded-2xl overflow-hidden shadow-sm ${
+                isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200'
+              }`}
+            >
+              <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between">
+                <div>
+                  <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                    <ArrowUpDown className="w-4 h-4 text-sky-400" />
+                    <span>Admissions & Sorties de Corps (Contrôle des 4 Verrous Souverains)</span>
+                  </h4>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Libération automatique du casier frigorifique après validation du visa légal et règlement quittance.
+                  </p>
+                </div>
+                <span className="text-xs text-slate-400 font-mono">
+                  {filteredFlux.length} dossiers surveillés
+                </span>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead
+                    className={`font-semibold uppercase text-[10px] tracking-wider border-b ${
+                      isDark ? 'bg-[#0B132B] text-slate-400 border-slate-800' : 'bg-slate-50 text-slate-600 border-slate-200'
+                    }`}
+                  >
+                    <tr>
+                      <th className="py-3 px-4">Pôle</th>
+                      <th className="py-3 px-4">N° Dossier & Défunt</th>
+                      <th className="py-3 px-4">Date Entrée (Admission)</th>
+                      <th className="py-3 px-4">Localisation & Séjour</th>
+                      <th className="py-3 px-4">Sortie Prévue / Effectuée</th>
+                      <th className="py-3 px-4">Contrôle Financier</th>
+                      <th className="py-3 px-4 text-center">Visa Légal</th>
+                      <th className="py-3 px-4 text-center">Dérogation DG</th>
+                    </tr>
+                  </thead>
+                  <tbody className={`divide-y ${isDark ? 'divide-slate-800/80 text-slate-300' : 'divide-slate-200 text-slate-700'}`}>
+                    {filteredFlux.map((flux) => (
+                      <tr
+                        key={flux.dossierId}
+                        className={`transition-colors ${isDark ? 'hover:bg-slate-800/40' : 'hover:bg-slate-50'}`}
+                      >
+                        <td className="py-3.5 px-4">
+                          <span
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase inline-flex items-center gap-1 ${
+                              flux.pole === 'MORGUE'
+                                ? 'bg-blue-950 text-sky-300 border border-blue-800'
+                                : 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                            }`}
                           >
-                            Dérogation DG
-                          </button>
-                        ) : (
-                          <span className="text-[10px] text-emerald-400 font-semibold">Conforme</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* VUE 5 : SUPERVISION DES OPÉRATIONS MULTI-PÔLES                             */}
-      {/* ========================================================================= */}
-      {activeTab === 'OPERATIONS' && (
-        <div className="space-y-4">
-          <div
-            className={`border rounded-2xl overflow-hidden shadow-sm ${
-              isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200'
-            }`}
-          >
-            <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between">
-              <div>
-                <h3 className="text-sm sm:text-base font-bold text-white">
-                  Journal des Opérations Hospitalières & Funéraires
-                </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Chaque mouvement physique ou réservation est historisé et horodaté pour audit inaltérable.
-                </p>
+                            <span className={`w-1.5 h-1.5 rounded-full ${flux.pole === 'MORGUE' ? 'bg-sky-400' : 'bg-emerald-400'}`} />
+                            {flux.pole}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <span className="font-bold text-white block">{flux.defunt}</span>
+                          <span className="text-[10px] font-mono text-slate-400">{flux.dossierId}</span>
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-300">{flux.dateEntree}</td>
+                        <td className="py-3.5 px-4 font-medium text-slate-200">{flux.statutSejour}</td>
+                        <td className="py-3.5 px-4">
+                          <span className="block text-slate-300">Prévue : {flux.dateSortiePrevue}</span>
+                          {flux.sortieEffective && (
+                            <span className="text-[10px] font-semibold text-purple-400 block">
+                              Effectuée : {flux.sortieEffective}
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <span
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold font-mono ${
+                              flux.finances === 'SOLDE'
+                                ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                                : 'bg-amber-950 text-amber-300 border border-amber-800'
+                            }`}
+                          >
+                            {flux.finances === 'SOLDE' ? 'SOLDÉ 100%' : `RESTE : ${flux.resteAPayer}`}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4 text-center">
+                          <span
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                              flux.visaLegal === 'VALIDE'
+                                ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                                : 'bg-amber-950 text-amber-300 border border-amber-800'
+                            }`}
+                          >
+                            {flux.visaLegal}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4 text-center">
+                          {flux.visaLegal !== 'VALIDE' || flux.finances !== 'SOLDE' ? (
+                            <button
+                              onClick={() => handleValiderDerogationDG(flux.dossierId)}
+                              className="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[10px] transition-colors shadow-sm"
+                              title="Accorder un visa de dérogation exceptionnelle au nom de la Direction Générale"
+                            >
+                              Dérogation DG
+                            </button>
+                          ) : (
+                            <span className="text-[10px] text-emerald-400 font-semibold">Conforme</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-              <span className="text-xs text-slate-400 font-mono">
-                {filteredOperations.length} opérations enregistrées
-              </span>
             </div>
+          )}
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead
-                  className={`font-semibold uppercase text-[10px] tracking-wider border-b ${
-                    isDark ? 'bg-[#0B132B] text-slate-400 border-slate-800' : 'bg-slate-50 text-slate-600 border-slate-200'
-                  }`}
-                >
-                  <tr>
-                    <th className="py-3 px-4">Pôle</th>
-                    <th className="py-3 px-4">Réf Opération</th>
-                    <th className="py-3 px-4">Type d'Opération</th>
-                    <th className="py-3 px-4">Dossier / Défunt</th>
-                    <th className="py-3 px-4">Agent Responsable</th>
-                    <th className="py-3 px-4">Date & Heure</th>
-                    <th className="py-3 px-4 text-right">Montant</th>
-                    <th className="py-3 px-4 text-center">Statut</th>
-                  </tr>
-                </thead>
-                <tbody className={`divide-y ${isDark ? 'divide-slate-800/80 text-slate-300' : 'divide-slate-200 text-slate-700'}`}>
-                  {filteredOperations.map((op) => (
-                    <tr
-                      key={op.id}
-                      className={`transition-colors ${isDark ? 'hover:bg-slate-800/40' : 'hover:bg-slate-50'}`}
-                    >
-                      <td className="py-3.5 px-4">
-                        <span
-                          className={`px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase inline-flex items-center gap-1 ${
-                            op.pole === 'MORGUE'
-                              ? 'bg-blue-950 text-sky-300 border border-blue-800'
-                              : 'bg-emerald-950 text-emerald-300 border border-emerald-800'
-                          }`}
-                        >
-                          <span className={`w-1.5 h-1.5 rounded-full ${op.pole === 'MORGUE' ? 'bg-sky-400' : 'bg-emerald-400'}`} />
-                          {op.pole}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-4 font-mono font-medium text-white">{op.id}</td>
-                      <td className="py-3.5 px-4 font-semibold text-slate-200">{op.type}</td>
-                      <td className="py-3.5 px-4">
-                        <span className="font-bold text-white block">{op.defunt}</span>
-                        <span className="text-[10px] font-mono text-slate-400">{op.dossierId}</span>
-                      </td>
-                      <td className="py-3.5 px-4 text-slate-300">{op.agent}</td>
-                      <td className="py-3.5 px-4 text-slate-400">{op.horodatage}</td>
-                      <td className="py-3.5 px-4 text-right font-mono font-bold text-slate-200">
-                        {op.montant || '—'}
-                      </td>
-                      <td className="py-3.5 px-4 text-center">
-                        <span
-                          className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                            op.statut === 'VALIDE'
-                              ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
-                              : 'bg-amber-950 text-amber-400 border border-amber-800'
-                          }`}
-                        >
-                          {op.statut}
-                        </span>
-                      </td>
+          {/* TABLEAU 2 : JOURNAL D'AUDIT CENTRALISÉ DES OPÉRATIONS */}
+          {(fluxSubView === 'TOUS' || fluxSubView === 'JOURNAL_AUDIT') && (
+            <div
+              className={`border rounded-2xl overflow-hidden shadow-sm ${
+                isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200'
+              }`}
+            >
+              <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between">
+                <div>
+                  <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                    <Layers className="w-4 h-4 text-emerald-400" />
+                    <span>Journal d'Audit Central des Opérations (Événements Inaltérables)</span>
+                  </h4>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Historisation continue de chaque mouvement physique, admission, règlement ou réservation funéraire.
+                  </p>
+                </div>
+                <span className="text-xs text-slate-400 font-mono">
+                  {filteredOperations.length} événements enregistrés
+                </span>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead
+                    className={`font-semibold uppercase text-[10px] tracking-wider border-b ${
+                      isDark ? 'bg-[#0B132B] text-slate-400 border-slate-800' : 'bg-slate-50 text-slate-600 border-slate-200'
+                    }`}
+                  >
+                    <tr>
+                      <th className="py-3 px-4">Pôle</th>
+                      <th className="py-3 px-4">Réf Opération</th>
+                      <th className="py-3 px-4">Type d'Opération</th>
+                      <th className="py-3 px-4">Dossier / Défunt</th>
+                      <th className="py-3 px-4">Agent Responsable</th>
+                      <th className="py-3 px-4">Date & Heure</th>
+                      <th className="py-3 px-4 text-right">Montant</th>
+                      <th className="py-3 px-4 text-center">Statut</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className={`divide-y ${isDark ? 'divide-slate-800/80 text-slate-300' : 'divide-slate-200 text-slate-700'}`}>
+                    {filteredOperations.map((op) => (
+                      <tr
+                        key={op.id}
+                        className={`transition-colors ${isDark ? 'hover:bg-slate-800/40' : 'hover:bg-slate-50'}`}
+                      >
+                        <td className="py-3.5 px-4">
+                          <span
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase inline-flex items-center gap-1 ${
+                              op.pole === 'MORGUE'
+                                ? 'bg-blue-950 text-sky-300 border border-blue-800'
+                                : 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                            }`}
+                          >
+                            <span className={`w-1.5 h-1.5 rounded-full ${op.pole === 'MORGUE' ? 'bg-sky-400' : 'bg-emerald-400'}`} />
+                            {op.pole}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4 font-mono font-medium text-white">{op.id}</td>
+                        <td className="py-3.5 px-4 font-semibold text-slate-200">{op.type}</td>
+                        <td className="py-3.5 px-4">
+                          <span className="font-bold text-white block">{op.defunt}</span>
+                          <span className="text-[10px] font-mono text-slate-400">{op.dossierId}</span>
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-300">{op.agent}</td>
+                        <td className="py-3.5 px-4 text-slate-400">{op.horodatage}</td>
+                        <td className="py-3.5 px-4 text-right font-mono font-bold text-slate-200">
+                          {op.montant || '—'}
+                        </td>
+                        <td className="py-3.5 px-4 text-center">
+                          <span
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                              op.statut === 'VALIDE'
+                                ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
+                                : 'bg-amber-950 text-amber-400 border border-amber-800'
+                            }`}
+                          >
+                            {op.statut}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       )}
 
@@ -2160,59 +2344,133 @@ export const SuperAdminPage: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* MODAL CRÉATION NOUVEL AGENT (PAR LE SUPER ADMIN)                          */}
+      {/* MODAL CRÉATION NOUVEL ACCÈS AGENT (EMAIL, MOT DE PASSE, PÔLES AUTORISÉS)  */}
       {/* ========================================================================= */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#071329] border border-blue-900 rounded-3xl max-w-lg w-full p-6 text-white shadow-2xl space-y-4 text-xs">
             <div className="flex items-center justify-between border-b border-blue-950 pb-3">
-              <h3 className="font-bold text-base">Attribuer un Accès Agent (RBAC)</h3>
+              <div>
+                <span className="text-[10px] font-mono text-amber-400 font-bold uppercase tracking-wider block">
+                  Sécurité Souveraine & RBAC
+                </span>
+                <h3 className="font-bold text-base mt-0.5">Créer un Compte & Attribuer les Accès</h3>
+              </div>
               <button onClick={() => setIsAddModalOpen(false)} className="text-slate-400 hover:text-white">&times;</button>
             </div>
 
-            <form onSubmit={handleAddAgent} className="space-y-3">
+            <form onSubmit={handleAddAgent} className="space-y-3.5">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-300 mb-1">Nom de famille</label>
+                  <label className="block text-slate-300 mb-1 font-medium">Nom de famille</label>
                   <input
                     type="text"
                     value={newNom}
                     onChange={(e) => setNewNom(e.target.value)}
                     required
-                    className="w-full p-2 bg-[#040A1A] border border-blue-950 rounded-xl text-white uppercase"
+                    placeholder="ex: KABILA"
+                    className="w-full p-2 bg-[#040A1A] border border-blue-950 rounded-xl text-white uppercase font-bold"
                   />
                 </div>
                 <div>
-                  <label className="block text-slate-300 mb-1">Prénom</label>
+                  <label className="block text-slate-300 mb-1 font-medium">Prénom</label>
                   <input
                     type="text"
                     value={newPrenom}
                     onChange={(e) => setNewPrenom(e.target.value)}
                     required
-                    className="w-full p-2 bg-[#040A1A] border border-blue-950 rounded-xl text-white"
+                    placeholder="ex: Joseph"
+                    className="w-full p-2 bg-[#040A1A] border border-blue-950 rounded-xl text-white font-medium"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-slate-300 mb-1">E-mail professionnel</label>
+                <label className="block text-slate-300 mb-1 font-medium">Identifiant / E-mail professionnel</label>
                 <input
                   type="email"
                   value={newEmail}
                   onChange={(e) => setNewEmail(e.target.value)}
                   required
-                  placeholder="agent@nomargueri.cd"
+                  placeholder="prenom.nom@nomargueri.cd"
                   className="w-full p-2 bg-[#040A1A] border border-blue-950 rounded-xl text-white font-mono"
                 />
               </div>
 
+              {/* MOT DE PASSE AVEC GÉNÉRATEUR */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <label className="block text-slate-300 font-medium">Mot de passe de session</label>
+                  <button
+                    type="button"
+                    onClick={generateRandomPassword}
+                    className="text-[10px] text-amber-400 hover:underline flex items-center gap-1 font-semibold"
+                  >
+                    <KeyRound className="w-3 h-3" />
+                    <span>Auto-générer mot de passe</span>
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  value={newMotDePasse}
+                  onChange={(e) => setNewMotDePasse(e.target.value)}
+                  required
+                  className="w-full p-2 bg-[#040A1A] border border-blue-950 rounded-xl text-amber-300 font-mono font-bold"
+                />
+              </div>
+
+              {/* PÔLE(S) AUTORISÉ(S) — CHOIX CAPITAL */}
+              <div>
+                <label className="block text-slate-300 mb-1.5 font-medium">
+                  Pôle(s) d'accès autorisé(s)
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setNewPolesAutorises('MORGUE')}
+                    className={`p-2.5 rounded-xl border text-center transition-all ${
+                      newPolesAutorises === 'MORGUE'
+                        ? 'bg-blue-600 text-white border-blue-400 font-bold shadow-sm'
+                        : 'bg-[#040A1A] text-slate-300 border-blue-950 hover:border-blue-800'
+                    }`}
+                  >
+                    <span className="block font-bold text-xs">Pôle Morgue</span>
+                    <span className="text-[10px] opacity-75">Uniquement</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNewPolesAutorises('FUNERARIUM')}
+                    className={`p-2.5 rounded-xl border text-center transition-all ${
+                      newPolesAutorises === 'FUNERARIUM'
+                        ? 'bg-emerald-600 text-white border-emerald-400 font-bold shadow-sm'
+                        : 'bg-[#040A1A] text-slate-300 border-blue-950 hover:border-emerald-800'
+                    }`}
+                  >
+                    <span className="block font-bold text-xs">Funérarium</span>
+                    <span className="text-[10px] opacity-75">Uniquement</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNewPolesAutorises('LES_DEUX')}
+                    className={`p-2.5 rounded-xl border text-center transition-all ${
+                      newPolesAutorises === 'LES_DEUX'
+                        ? 'bg-gradient-to-r from-blue-600 to-emerald-600 text-white border-sky-400 font-bold shadow-sm'
+                        : 'bg-[#040A1A] text-slate-300 border-blue-950 hover:border-sky-800'
+                    }`}
+                  >
+                    <span className="block font-bold text-xs">Les 2 Pôles</span>
+                    <span className="text-[10px] opacity-75">Mixte / Transverse</span>
+                  </button>
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-300 mb-1">Département d&apos;Affectation</label>
+                  <label className="block text-slate-300 mb-1 font-medium">Département d&apos;Affectation</label>
                   <select
                     value={newDirection}
                     onChange={(e) => setNewDirection(e.target.value as any)}
-                    className="w-full p-2 bg-[#040A1A] border border-blue-950 rounded-xl text-white"
+                    className="w-full p-2 bg-[#040A1A] border border-blue-950 rounded-xl text-white font-medium"
                   >
                     <option value="DIRECTION_MORGUE">Direction Morgue</option>
                     <option value="DIRECTION_FUNERARIUM">Direction Funérarium</option>
@@ -2221,11 +2479,11 @@ export const SuperAdminPage: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-slate-300 mb-1">Niveau d&apos;Accréditation</label>
+                  <label className="block text-slate-300 mb-1 font-medium">Niveau d&apos;Accréditation</label>
                   <select
                     value={newNiveau}
                     onChange={(e) => setNewNiveau(Number(e.target.value) as NiveauAccreditation)}
-                    className="w-full p-2 bg-[#040A1A] border border-blue-950 rounded-xl text-white"
+                    className="w-full p-2 bg-[#040A1A] border border-blue-950 rounded-xl text-white font-medium"
                   >
                     <option value={1}>Niveau 1 — Consultation</option>
                     <option value={2}>Niveau 2 — Agent Saisie</option>
@@ -2237,7 +2495,7 @@ export const SuperAdminPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-slate-300 mb-1">Téléphone</label>
+                <label className="block text-slate-300 mb-1 font-medium">Téléphone de contact</label>
                 <input
                   type="text"
                   value={newTelephone}
@@ -2257,9 +2515,162 @@ export const SuperAdminPage: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold shadow-md"
+                  className="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold shadow-md"
                 >
-                  Enregistrer l&apos;agent
+                  Créer l&apos;Accès & Enregistrer
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL ÉDITION ACCÈS AGENT (MODIFIER MOT DE PASSE OU PÔLES AUTORISÉS)      */}
+      {/* ========================================================================= */}
+      {editingAccount && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#071329] border border-blue-900 rounded-3xl max-w-lg w-full p-6 text-white shadow-2xl space-y-4 text-xs">
+            <div className="flex items-center justify-between border-b border-blue-950 pb-3">
+              <div>
+                <span className="text-[10px] font-mono text-amber-400 font-bold uppercase tracking-wider block">
+                  Compte : {editingAccount.actorId}
+                </span>
+                <h3 className="font-bold text-base mt-0.5">
+                  Modifier les Accès : {editingAccount.prenom} {editingAccount.nom}
+                </h3>
+              </div>
+              <button onClick={() => setEditingAccount(null)} className="text-slate-400 hover:text-white">&times;</button>
+            </div>
+
+            <form onSubmit={handleSaveAccountEdit} className="space-y-3.5">
+              <div>
+                <label className="block text-slate-300 mb-1 font-medium">E-mail de connexion (Identifiant)</label>
+                <input
+                  type="email"
+                  value={editingAccount.email}
+                  disabled
+                  className="w-full p-2 bg-[#040A1A]/60 border border-blue-950/80 rounded-xl text-slate-400 font-mono cursor-not-allowed"
+                />
+              </div>
+
+              {/* NOUVEAU MOT DE PASSE */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <label className="block text-slate-300 font-medium">Mot de passe de session</label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%';
+                      let pwd = 'NG-';
+                      for (let i = 0; i < 6; i++) {
+                        pwd += chars.charAt(Math.floor(Math.random() * chars.length));
+                      }
+                      setEditingAccount({ ...editingAccount, motDePasse: pwd + '!' });
+                    }}
+                    className="text-[10px] text-amber-400 hover:underline flex items-center gap-1 font-semibold"
+                  >
+                    <KeyRound className="w-3 h-3" />
+                    <span>Régénérer mot de passe</span>
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  value={editingAccount.motDePasse}
+                  onChange={(e) => setEditingAccount({ ...editingAccount, motDePasse: e.target.value })}
+                  required
+                  className="w-full p-2 bg-[#040A1A] border border-blue-950 rounded-xl text-amber-300 font-mono font-bold"
+                />
+              </div>
+
+              {/* PÔLE(S) AUTORISÉ(S) */}
+              <div>
+                <label className="block text-slate-300 mb-1.5 font-medium">
+                  Pôle(s) d'accès autorisé(s)
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditingAccount({ ...editingAccount, polesAutorises: 'MORGUE' })}
+                    className={`p-2.5 rounded-xl border text-center transition-all ${
+                      editingAccount.polesAutorises === 'MORGUE'
+                        ? 'bg-blue-600 text-white border-blue-400 font-bold shadow-sm'
+                        : 'bg-[#040A1A] text-slate-300 border-blue-950 hover:border-blue-800'
+                    }`}
+                  >
+                    <span className="block font-bold text-xs">Pôle Morgue</span>
+                    <span className="text-[10px] opacity-75">Uniquement</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingAccount({ ...editingAccount, polesAutorises: 'FUNERARIUM' })}
+                    className={`p-2.5 rounded-xl border text-center transition-all ${
+                      editingAccount.polesAutorises === 'FUNERARIUM'
+                        ? 'bg-emerald-600 text-white border-emerald-400 font-bold shadow-sm'
+                        : 'bg-[#040A1A] text-slate-300 border-blue-950 hover:border-emerald-800'
+                    }`}
+                  >
+                    <span className="block font-bold text-xs">Funérarium</span>
+                    <span className="text-[10px] opacity-75">Uniquement</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingAccount({ ...editingAccount, polesAutorises: 'LES_DEUX' })}
+                    className={`p-2.5 rounded-xl border text-center transition-all ${
+                      editingAccount.polesAutorises === 'LES_DEUX'
+                        ? 'bg-gradient-to-r from-blue-600 to-emerald-600 text-white border-sky-400 font-bold shadow-sm'
+                        : 'bg-[#040A1A] text-slate-300 border-blue-950 hover:border-sky-800'
+                    }`}
+                  >
+                    <span className="block font-bold text-xs">Les 2 Pôles</span>
+                    <span className="text-[10px] opacity-75">Mixte / Transverse</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 mb-1 font-medium">Département Assigné</label>
+                  <select
+                    value={editingAccount.directionRattachee}
+                    onChange={(e) => setEditingAccount({ ...editingAccount, directionRattachee: e.target.value as any })}
+                    className="w-full p-2 bg-[#040A1A] border border-blue-950 rounded-xl text-white font-medium"
+                  >
+                    <option value="DIRECTION_MORGUE">Direction Morgue</option>
+                    <option value="DIRECTION_FUNERARIUM">Direction Funérarium</option>
+                    <option value="CAISSE_CENTRALE">Caisse Centrale</option>
+                    <option value="DIRECTION_GENERALE">Direction Générale</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-slate-300 mb-1 font-medium">Niveau d&apos;Accréditation</label>
+                  <select
+                    value={editingAccount.niveauAccreditation}
+                    onChange={(e) => setEditingAccount({ ...editingAccount, niveauAccreditation: Number(e.target.value) as NiveauAccreditation })}
+                    className="w-full p-2 bg-[#040A1A] border border-blue-950 rounded-xl text-white font-medium"
+                  >
+                    <option value={1}>Niveau 1 — Consultation</option>
+                    <option value={2}>Niveau 2 — Agent Saisie</option>
+                    <option value={3}>Niveau 3 — Régulateur</option>
+                    <option value={4}>Niveau 4 — Responsable</option>
+                    <option value={5}>Niveau 5 — Super Admin</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-blue-950">
+                <button
+                  type="button"
+                  onClick={() => setEditingAccount(null)}
+                  className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold shadow-md"
+                >
+                  Sauvegarder les Modifications
                 </button>
               </div>
             </form>

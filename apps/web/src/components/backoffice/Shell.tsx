@@ -7,6 +7,8 @@ import {
   Layers,
   BarChart3,
   ShieldCheck,
+  Scale,
+  ArrowUpDown,
   Menu,
   X,
   Sun,
@@ -30,7 +32,11 @@ export const Shell: React.FC = () => {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const navigationItems = [
+  const isDark = theme === 'dark';
+  const isSuperAdminPage = location.pathname.startsWith('/backoffice/super-admin') || currentPole === 'SUPER_ADMIN';
+
+  // Navigation dynamique : Pôle Métier Standard vs Espace Super Admin Consolidé
+  const regularNavItems = [
     {
       name: "Vue d'ensemble",
       path: '/backoffice/dashboard',
@@ -63,6 +69,54 @@ export const Shell: React.FC = () => {
     }
   ];
 
+  const superAdminNavItems = [
+    {
+      name: "Vue d'ensemble Consolidée",
+      path: '/backoffice/super-admin?tab=dashboard',
+      tabKey: 'dashboard',
+      icon: LayoutDashboard,
+      description: 'KPIs, registres & graphiques'
+    },
+    {
+      name: 'Services & Catalogue Comparatif',
+      path: '/backoffice/super-admin?tab=services',
+      tabKey: 'services',
+      icon: Scale,
+      description: '20 prestations & grille tarifaire'
+    },
+    {
+      name: 'Opérations & Traçabilité Flux',
+      path: '/backoffice/super-admin?tab=flux',
+      tabKey: 'flux',
+      icon: ArrowUpDown,
+      description: 'Entrées/sorties & journal audit'
+    },
+    {
+      name: 'Caisse & Finances Multi-Pôles',
+      path: '/backoffice/super-admin?tab=finance',
+      tabKey: 'finance',
+      icon: CreditCard,
+      description: 'Trésorerie bidevise USD / CDF'
+    },
+    {
+      name: 'Gestion des Accès & RBAC',
+      path: '/backoffice/super-admin?tab=rbac',
+      tabKey: 'rbac',
+      icon: ShieldCheck,
+      description: 'Comptes, mots de passe & pôles'
+    }
+  ];
+
+  const navigationItems = isSuperAdminPage ? superAdminNavItems : regularNavItems;
+  const currentTabParam = new URLSearchParams(location.search).get('tab') || 'dashboard';
+
+  const checkIsActive = (item: any) => {
+    if (isSuperAdminPage) {
+      return (item.tabKey && currentTabParam === item.tabKey) || (!location.search && item.tabKey === 'dashboard');
+    }
+    return location.pathname.startsWith(item.path);
+  };
+
   const handleSwitchPole = () => {
     resetPoleSelection();
     navigate('/backoffice');
@@ -73,8 +127,6 @@ export const Shell: React.FC = () => {
     navigate('/backoffice');
   };
 
-  const isDark = theme === 'dark';
-  const isSuperAdminPage = location.pathname.startsWith('/backoffice/super-admin');
   const hasSuperAdminAccess =
     currentUser?.role === 'DIRECTION' ||
     currentUser?.role === 'ADMINISTRATEUR' ||
@@ -292,7 +344,7 @@ export const Shell: React.FC = () => {
 
               {navigationItems.map((item) => {
                 const Icon = item.icon;
-                const isActive = location.pathname.startsWith(item.path);
+                const isActive = checkIsActive(item);
 
                 return (
                   <NavLink
@@ -300,7 +352,9 @@ export const Shell: React.FC = () => {
                     to={item.path}
                     className={`flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors ${
                       isActive
-                        ? currentPole === 'MORGUE'
+                        ? isSuperAdminPage
+                          ? 'bg-amber-500 text-slate-950 font-bold shadow-md'
+                          : currentPole === 'MORGUE'
                           ? 'bg-blue-600 text-white shadow-sm'
                           : 'bg-emerald-700 text-white shadow-sm'
                         : isDark
@@ -308,13 +362,15 @@ export const Shell: React.FC = () => {
                         : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
                     }`}
                   >
-                    <Icon className="w-4 h-4 shrink-0 opacity-80" />
+                    <Icon className={`w-4 h-4 shrink-0 ${isActive && isSuperAdminPage ? 'text-slate-950 opacity-100' : 'opacity-80'}`} />
                     <div className="flex-1 min-w-0">
                       <span className="block truncate font-semibold">{item.name}</span>
                       <span
                         className={`text-[10px] block truncate font-normal ${
                           isActive
-                            ? 'text-slate-100 opacity-80'
+                            ? isSuperAdminPage
+                              ? 'text-slate-900/80 font-medium'
+                              : 'text-slate-100 opacity-80'
                             : isDark
                             ? 'text-slate-500'
                             : 'text-slate-400'
@@ -326,24 +382,6 @@ export const Shell: React.FC = () => {
                   </NavLink>
                 );
               })}
-
-              {/* Accès Super Admin : présent uniquement sur l'espace Super Admin */}
-              {isSuperAdminPage && (
-                <div className="pt-2">
-                  <NavLink
-                    to="/backoffice/super-admin"
-                    className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors bg-amber-500 text-slate-950 font-bold shadow-sm"
-                  >
-                    <ShieldCheck className="w-4 h-4 shrink-0 text-slate-950" />
-                    <div className="flex-1 min-w-0">
-                      <span className="block truncate font-bold">Espace Super Admin</span>
-                      <span className="text-[10px] block truncate opacity-80">
-                        Direction & Supervision
-                      </span>
-                    </div>
-                  </NavLink>
-                </div>
-              )}
             </div>
           </div>
 
@@ -469,7 +507,7 @@ export const Shell: React.FC = () => {
 
               {navigationItems.map((item) => {
                 const Icon = item.icon;
-                const isActive = location.pathname.startsWith(item.path);
+                const isActive = checkIsActive(item);
 
                 return (
                   <NavLink
@@ -478,7 +516,9 @@ export const Shell: React.FC = () => {
                     onClick={() => setSidebarOpen(false)}
                     className={`flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors ${
                       isActive
-                        ? currentPole === 'MORGUE'
+                        ? isSuperAdminPage
+                          ? 'bg-amber-500 text-slate-950 font-bold shadow-md'
+                          : currentPole === 'MORGUE'
                           ? 'bg-blue-600 text-white shadow-sm'
                           : 'bg-emerald-700 text-white shadow-sm'
                         : isDark
@@ -486,13 +526,15 @@ export const Shell: React.FC = () => {
                         : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
                     }`}
                   >
-                    <Icon className="w-4 h-4 shrink-0 opacity-80" />
+                    <Icon className={`w-4 h-4 shrink-0 ${isActive && isSuperAdminPage ? 'text-slate-950 opacity-100' : 'opacity-80'}`} />
                     <div className="flex-1 min-w-0">
                       <span className="block truncate font-semibold">{item.name}</span>
                       <span
                         className={`text-[10px] block truncate font-normal ${
                           isActive
-                            ? 'text-slate-100 opacity-80'
+                            ? isSuperAdminPage
+                              ? 'text-slate-900/80 font-medium'
+                              : 'text-slate-100 opacity-80'
                             : isDark
                             ? 'text-slate-500'
                             : 'text-slate-400'
@@ -504,25 +546,6 @@ export const Shell: React.FC = () => {
                   </NavLink>
                 );
               })}
-
-              {/* Raccourci vers Super Admin dans le menu mobile : affiché uniquement si sur Super Admin */}
-              {isSuperAdminPage && (
-                <div className="pt-2">
-                  <NavLink
-                    to="/backoffice/super-admin"
-                    onClick={() => setSidebarOpen(false)}
-                    className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors bg-amber-500 text-slate-950 font-bold shadow-sm"
-                  >
-                    <ShieldCheck className="w-4 h-4 shrink-0 text-slate-950" />
-                    <div className="flex-1 min-w-0">
-                      <span className="block truncate font-bold">Espace Super Admin</span>
-                      <span className="text-[10px] block truncate opacity-80">
-                        Direction & Supervision
-                      </span>
-                    </div>
-                  </NavLink>
-                </div>
-              )}
             </div>
           </div>
 

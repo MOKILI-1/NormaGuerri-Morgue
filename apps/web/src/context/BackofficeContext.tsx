@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { RoleUtilisateur, Utilisateur } from '@nomarguerrie/shared-types';
+import { RoleUtilisateur, Utilisateur, NiveauAccreditation } from '@nomarguerrie/shared-types';
 
 export type PoleMetier = 'MORGUE' | 'FUNERARIUM' | 'SUPER_ADMIN';
 export type AppTheme = 'dark' | 'light';
@@ -19,6 +19,13 @@ export interface CaisseSession {
 export interface UserSession extends Utilisateur {
   actorId: string;
   directionRattachee: 'DIRECTION_MORGUE' | 'DIRECTION_FUNERARIUM' | 'CAISSE_CENTRALE' | 'DIRECTION_GENERALE';
+  polesAutorises?: 'MORGUE' | 'FUNERARIUM' | 'LES_DEUX';
+  motDePasse?: string;
+}
+
+export interface ManagedAccount extends UserSession {
+  motDePasse: string;
+  polesAutorises: 'MORGUE' | 'FUNERARIUM' | 'LES_DEUX';
 }
 
 interface BackofficeContextType {
@@ -39,6 +46,11 @@ interface BackofficeContextType {
   ouvrirCaisse: (fondUSD: number, fondCDF: number) => void;
   fermerCaisse: (comptageUSD: number, comptageCDF: number) => { ecartUSD: number; ecartCDF: number };
   ajouterEncaissementLiquide: (montantUSD: number, montantCDF: number) => void;
+  // Gestion dynamique des accès par le Super Admin
+  managedAccounts: ManagedAccount[];
+  createAccount: (account: Omit<ManagedAccount, 'id' | 'creeLe'>) => ManagedAccount;
+  updateAccount: (id: string, updates: Partial<ManagedAccount>) => void;
+  toggleAccountStatus: (id: string) => void;
 }
 
 const DEFAULT_CAISSE: CaisseSession = {
@@ -52,6 +64,99 @@ const DEFAULT_CAISSE: CaisseSession = {
   totalEncaisseLiquideCDF: 3850000,
   statut: 'OUVERTE'
 };
+
+export const DEFAULT_ACCOUNTS: ManagedAccount[] = [
+  {
+    id: 'usr-1',
+    nom: 'MUTOMBO',
+    prenom: 'Éric',
+    email: 'eric.mutombo@nomargueri.cd',
+    motDePasse: 'Morgue2026!',
+    role: 'RESPONSABLE_EXPLOITATION',
+    niveauAccreditation: 4,
+    estActif: true,
+    telephone: '+243997222228',
+    creeLe: '2026-01-10T08:00:00Z',
+    actorId: 'ACT-EXP-001',
+    directionRattachee: 'DIRECTION_MORGUE',
+    polesAutorises: 'MORGUE'
+  },
+  {
+    id: 'usr-4',
+    nom: 'LUMUMBA',
+    prenom: 'Clarisse',
+    email: 'clarisse.lumumba@nomargueri.cd',
+    motDePasse: 'Funer2026!',
+    role: 'AGENT_RECEPTION',
+    niveauAccreditation: 2,
+    estActif: true,
+    telephone: '+243810000004',
+    creeLe: '2026-02-01T08:00:00Z',
+    actorId: 'ACT-FUN-004',
+    directionRattachee: 'DIRECTION_FUNERARIUM',
+    polesAutorises: 'FUNERARIUM'
+  },
+  {
+    id: 'usr-3',
+    nom: 'KASANDA',
+    prenom: 'Aimé',
+    email: 'direction@nomargueri.cd',
+    motDePasse: 'Admin2026!',
+    role: 'DIRECTION',
+    niveauAccreditation: 5,
+    estActif: true,
+    telephone: '+243997222228',
+    creeLe: '2026-01-15T08:00:00Z',
+    actorId: 'ACT-DG-003',
+    directionRattachee: 'DIRECTION_GENERALE',
+    polesAutorises: 'LES_DEUX'
+  },
+  {
+    id: 'usr-2',
+    nom: 'TSHILOMBA',
+    prenom: 'Nathalie',
+    email: 'nathalie.tshilomba@nomargueri.cd',
+    motDePasse: 'Caisse2026!',
+    role: 'COMPTABLE',
+    niveauAccreditation: 3,
+    estActif: true,
+    telephone: '+243833330040',
+    creeLe: '2026-01-12T08:00:00Z',
+    actorId: 'ACT-CAISSE-002',
+    directionRattachee: 'CAISSE_CENTRALE',
+    polesAutorises: 'LES_DEUX'
+  },
+  {
+    id: 'usr-5',
+    nom: 'ILUNGA',
+    prenom: 'Christian (Dr)',
+    email: 'dr.ilunga@nomargueri.cd',
+    motDePasse: 'Legiste2026!',
+    role: 'MEDICO_LEGAL',
+    niveauAccreditation: 4,
+    estActif: true,
+    telephone: '+243810000005',
+    creeLe: '2026-01-18T08:00:00Z',
+    actorId: 'ACT-MED-005',
+    directionRattachee: 'DIRECTION_MORGUE',
+    polesAutorises: 'MORGUE'
+  },
+  {
+    id: 'usr-6',
+    nom: 'MUKENDI',
+    prenom: 'Serge',
+    email: 'serge.mukendi@nomargueri.cd',
+    motDePasse: 'Convoi2026!',
+    role: 'RESPONSABLE_EXPLOITATION',
+    niveauAccreditation: 4,
+    estActif: true,
+    telephone: '+243810000006',
+    creeLe: '2026-01-20T08:00:00Z',
+    actorId: 'ACT-LOG-006',
+    directionRattachee: 'DIRECTION_FUNERARIUM',
+    polesAutorises: 'FUNERARIUM'
+  }
+];
 
 const BackofficeContext = createContext<BackofficeContextType | undefined>(undefined);
 
@@ -113,6 +218,49 @@ export const BackofficeProvider: React.FC<{ children: ReactNode }> = ({ children
     }
   });
 
+  // Liste des comptes d'accès administrés par le Super Admin (avec persistance)
+  const [managedAccounts, setManagedAccounts] = useState<ManagedAccount[]>(() => {
+    try {
+      const saved = localStorage.getItem('nomarguerrie_managed_accounts');
+      if (saved) {
+        return JSON.parse(saved);
+      }
+      return DEFAULT_ACCOUNTS;
+    } catch {
+      return DEFAULT_ACCOUNTS;
+    }
+  });
+
+  const saveAccounts = (newAccounts: ManagedAccount[]) => {
+    setManagedAccounts(newAccounts);
+    try {
+      localStorage.setItem('nomarguerrie_managed_accounts', JSON.stringify(newAccounts));
+    } catch {
+      // ignore
+    }
+  };
+
+  const createAccount = (accountData: Omit<ManagedAccount, 'id' | 'creeLe'>): ManagedAccount => {
+    const newAcc: ManagedAccount = {
+      ...accountData,
+      id: `usr-${Date.now()}`,
+      creeLe: new Date().toISOString()
+    };
+    const updated = [newAcc, ...managedAccounts];
+    saveAccounts(updated);
+    return newAcc;
+  };
+
+  const updateAccount = (id: string, updates: Partial<ManagedAccount>) => {
+    const updated = managedAccounts.map((a) => (a.id === id ? { ...a, ...updates } : a));
+    saveAccounts(updated);
+  };
+
+  const toggleAccountStatus = (id: string) => {
+    const updated = managedAccounts.map((a) => (a.id === id ? { ...a, estActif: !a.estActif } : a));
+    saveAccounts(updated);
+  };
+
   const setCurrentPole = (pole: PoleMetier) => {
     setCurrentPoleState(pole);
     setHasSelectedPole(true);
@@ -126,7 +274,7 @@ export const BackofficeProvider: React.FC<{ children: ReactNode }> = ({ children
     sessionStorage.removeItem('nomarguerrie_bo_pole_selected');
   };
 
-  // Authentification avec vérification stricte de l'affectation au pôle sélectionné
+  // Authentification avec vérification stricte des pôles autorisés configurés par le Super Admin
   const loginWithPole = (user: UserSession, pole: PoleMetier): { success: boolean; error?: string } => {
     // 1. Super Admin (Direction Générale) : accès universel absolu
     if (user.directionRattachee === 'DIRECTION_GENERALE' || user.niveauAccreditation === 5) {
@@ -140,12 +288,12 @@ export const BackofficeProvider: React.FC<{ children: ReactNode }> = ({ children
     if (pole === 'SUPER_ADMIN') {
       return {
         success: false,
-        error: `Accès refusé : Le compte de ${user.prenom} ${user.nom} (${user.directionRattachee.replace(/_/g, ' ')}) ne dispose pas des droits Super Admin. Cet espace est strictement réservé à la Direction Générale.`
+        error: `Accès refusé : Le compte de ${user.prenom} ${user.nom} ne dispose pas des accréditations Super Admin. Cet espace est strictement réservé à la Direction Générale.`
       };
     }
 
-    // 2. Caisse Centrale : accès transverse aux deux pôles pour facturation/paiement
-    if (user.directionRattachee === 'CAISSE_CENTRALE') {
+    // 2. Accès configuré aux 2 Pôles (Morgue ET Funérarium) ou Caisse Centrale
+    if (user.polesAutorises === 'LES_DEUX' || user.directionRattachee === 'CAISSE_CENTRALE') {
       setCurrentUser(user);
       setCurrentPole(pole);
       sessionStorage.setItem('nomarguerrie_bo_user', JSON.stringify(user));
@@ -154,7 +302,7 @@ export const BackofficeProvider: React.FC<{ children: ReactNode }> = ({ children
 
     // 3. Contrôle Pôle Morgue
     if (pole === 'MORGUE') {
-      if (user.directionRattachee === 'DIRECTION_MORGUE') {
+      if (user.polesAutorises === 'MORGUE' || user.directionRattachee === 'DIRECTION_MORGUE') {
         setCurrentUser(user);
         setCurrentPole(pole);
         sessionStorage.setItem('nomarguerrie_bo_user', JSON.stringify(user));
@@ -162,14 +310,14 @@ export const BackofficeProvider: React.FC<{ children: ReactNode }> = ({ children
       } else {
         return {
           success: false,
-          error: `Accès non autorisé : Le compte de ${user.prenom} ${user.nom} est rattaché au Pôle Funérarium. Vous n'avez pas l'accréditation requise pour la Morgue. Seul le Super Admin (Direction Générale) dispose d'un accès universel.`
+          error: `Accès non autorisé : Votre compte (${user.prenom} ${user.nom}) est configuré pour le Pôle Funérarium uniquement. L'accès au Pôle Morgue vous est refusé.`
         };
       }
     }
 
     // 4. Contrôle Pôle Funérarium
     if (pole === 'FUNERARIUM') {
-      if (user.directionRattachee === 'DIRECTION_FUNERARIUM') {
+      if (user.polesAutorises === 'FUNERARIUM' || user.directionRattachee === 'DIRECTION_FUNERARIUM') {
         setCurrentUser(user);
         setCurrentPole(pole);
         sessionStorage.setItem('nomarguerrie_bo_user', JSON.stringify(user));
@@ -177,7 +325,7 @@ export const BackofficeProvider: React.FC<{ children: ReactNode }> = ({ children
       } else {
         return {
           success: false,
-          error: `Accès non autorisé : Le compte de ${user.prenom} ${user.nom} est rattaché au Pôle Morgue. Vous n'avez pas l'accréditation requise pour le Funérarium. Seul le Super Admin (Direction Générale) dispose d'un accès universel.`
+          error: `Accès non autorisé : Votre compte (${user.prenom} ${user.nom}) est configuré pour le Pôle Morgue uniquement. L'accès au Pôle Funérarium vous est refusé.`
         };
       }
     }
@@ -267,7 +415,11 @@ export const BackofficeProvider: React.FC<{ children: ReactNode }> = ({ children
         resetPoleSelection,
         ouvrirCaisse,
         fermerCaisse,
-        ajouterEncaissementLiquide
+        ajouterEncaissementLiquide,
+        managedAccounts,
+        createAccount,
+        updateAccount,
+        toggleAccountStatus
       }}
     >
       {children}
