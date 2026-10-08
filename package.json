@@ -13,8 +13,9 @@
     "build": "npm run build --workspaces --if-present",
     "test": "npm run test --workspaces --if-present"
   },
-  "devDependencies": {
-    "typescript": "^5.4.5"
+  "dependencies": {
+    "typescript": "^5.4.5",
+    "vite": "^5.2.11"
   },
   "keywords": [
     "mokili",
