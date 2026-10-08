@@ -253,10 +253,10 @@ export const DashboardPage: React.FC = () => {
   const [activeTabFunerarium, setActiveTabFunerarium] = useState<'REGISTRE' | 'PLANNING_SALONS' | 'LOGISTIQUE'>('REGISTRE');
 
   // =========================================================================
-  // 2. MODALES OPÉRATIONNELLES FONCTIONNELLES (SLIDES PPTX 4, 5, 6, 7)
+  // 2. MODALES OPÉRATIONNELLES FONCTIONNELLES
   // =========================================================================
 
-  // Modal 1 : Workflow d'Admission Morgue en 6 Étapes (Slide 4)
+  // Modal 1 : Workflow d'Admission Morgue en 6 Étapes
   const [isAdmissionModalOpen, setIsAdmissionModalOpen] = useState(false);
   const [admissionStep, setAdmissionStep] = useState<1 | 2 | 3 | 4 | 5 | 6>(1);
   const [admNom, setAdmNom] = useState('');
@@ -279,7 +279,7 @@ export const DashboardPage: React.FC = () => {
   const [admChambre, setAdmChambre] = useState('Chambre F1 (Standard)');
   const [admCasier, setAdmCasier] = useState('Casier #18');
 
-  // Modal 2 : Contrôle & Sortie du Corps (Slide 5)
+  // Modal 2 : Contrôle & Sortie du Corps
   const [selectedSortieDossier, setSelectedSortieDossier] = useState<DefuntMorgue | null>(null);
   const [checkIdValid, setCheckIdValid] = useState(false);
   const [checkAyantDroitValid, setCheckAyantDroitValid] = useState(false);
@@ -287,7 +287,7 @@ export const DashboardPage: React.FC = () => {
   const [recepteurNom, setRecepteurNom] = useState('');
   const [destinationCimetiere, setDestinationCimetiere] = useState('Cimetière de la Nsele');
 
-  // Modal 3 : Nouvelle Demande Funéraire (Slide 6 en 5 étapes)
+  // Modal 3 : Nouvelle Demande Funéraire (en 5 étapes)
   const [isFuneraireModalOpen, setIsFuneraireModalOpen] = useState(false);
   const [funStep, setFunStep] = useState<1 | 2 | 3 | 4 | 5>(1);
   const [funSelectedDossierRef, setFunSelectedDossierRef] = useState('');
@@ -303,7 +303,7 @@ export const DashboardPage: React.FC = () => {
     'Corbillard limousine d’honneur'
   ]);
 
-  // Modal 4 : Consultation Dossier Unique NG-2026-XXXX (Slide 7)
+  // Modal 4 : Consultation Dossier Unique NG-2026-XXXX
   const [dossierUniqueConsulte, setDossierUniqueConsulte] = useState<{
     numeroDossier: string;
     defunt: string;
@@ -320,12 +320,12 @@ export const DashboardPage: React.FC = () => {
     visasComplets: boolean;
   } | null>(null);
 
-  // Modal 5 : Soins & Séjour (Slide 5)
+  // Modal 5 : Soins & Séjour
   const [selectedSoinsDefunt, setSelectedSoinsDefunt] = useState<DefuntMorgue | null>(null);
   const [nouveauxSoins, setNouveauxSoins] = useState('Thanatopraxie complète, habillage solennel et coiffure');
 
   // =========================================================================
-  // 3. LOGIQUE D'EXÉCUTION DES WORKFLOWS (SLIDE 4, 5, 6, 7)
+  // 3. LOGIQUE D'EXÉCUTION DES WORKFLOWS MÉTIERS
   // =========================================================================
 
   // Émission d'une nouvelle admission morgue
@@ -361,7 +361,7 @@ export const DashboardPage: React.FC = () => {
     alert(`Dossier d'admission ${nouveauNum} créé avec succès ! Casier ${admCasier} affecté.`);
   };
 
-  // Exécution de la Sortie du Corps avec libération du casier (Slide 5)
+  // Exécution de la Sortie du Corps avec libération du casier
   const handleConfirmerSortie = () => {
     if (!selectedSortieDossier) return;
     if (!checkIdValid || !checkAyantDroitValid || !checkMedicoLegalValid) {
@@ -395,7 +395,7 @@ export const DashboardPage: React.FC = () => {
     setSelectedSortieDossier(null);
   };
 
-  // Enregistrement nouvelle demande funéraire (Slide 6)
+  // Enregistrement nouvelle demande funéraire
   const handleValiderDemandeFuneraire = (e: React.FormEvent) => {
     e.preventDefault();
     const dossierRef = funSelectedDossierRef || `#NG-2026-00${Math.floor(2582 + Math.random() * 50)}`;
@@ -500,7 +500,7 @@ export const DashboardPage: React.FC = () => {
                 className="py-3 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs shadow-lg shadow-emerald-700/30 transition-all flex items-center gap-2"
               >
                 <Plus className="w-4 h-4" />
-                <span>+ Nouvelle Demande Funéraire (Slide 6)</span>
+                <span>+ Nouvelle Demande Funéraire</span>
               </button>
             )}
           </div>
@@ -508,11 +508,11 @@ export const DashboardPage: React.FC = () => {
       </div>
 
       {/* ========================================================================= */}
-      {/* 2. INDICATEURS KPIS STRICTS DU STORYBOARD PPTX (SLIDE 9)                  */}
+      {/* 2. INDICATEURS KPIS SOUVERAINS                                             */}
       {/* ========================================================================= */}
       {currentPole === 'MORGUE' ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* KPI 1 : Défunts présents / sortis (Slide 9) */}
+          {/* KPI 1 : Défunts présents / sortis */}
           <div
             className={`border rounded-2xl p-5 space-y-1 transition-colors ${
               isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
@@ -532,7 +532,7 @@ export const DashboardPage: React.FC = () => {
             </span>
           </div>
 
-          {/* KPI 2 : Places disponibles & Taux d'occupation (Slide 9) */}
+          {/* KPI 2 : Places disponibles & Taux d'occupation */}
           <div
             className={`border rounded-2xl p-5 space-y-1 transition-colors ${
               isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
@@ -552,7 +552,7 @@ export const DashboardPage: React.FC = () => {
             </span>
           </div>
 
-          {/* KPI 3 : Durée moyenne de séjour (Slide 9) */}
+          {/* KPI 3 : Durée moyenne de séjour */}
           <div
             className={`border rounded-2xl p-5 space-y-1 transition-colors ${
               isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
@@ -572,7 +572,7 @@ export const DashboardPage: React.FC = () => {
             </div>
           </div>
 
-          {/* KPI 4 : Sorties prévues ce jour (Slide 9) */}
+          {/* KPI 4 : Sorties prévues ce jour */}
           <div
             className={`border rounded-2xl p-5 space-y-1 transition-colors ${
               isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
@@ -594,7 +594,7 @@ export const DashboardPage: React.FC = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* KPI 1 Funéraire : Salons réservés (Slide 9) */}
+          {/* KPI 1 Funéraire : Salons réservés */}
           <div
             className={`border rounded-2xl p-5 space-y-1 transition-colors ${
               isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
@@ -614,7 +614,7 @@ export const DashboardPage: React.FC = () => {
             </span>
           </div>
 
-          {/* KPI 2 Funéraire : Funérailles du jour (Slide 9) */}
+          {/* KPI 2 Funéraire : Funérailles du jour */}
           <div
             className={`border rounded-2xl p-5 space-y-1 transition-colors ${
               isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
@@ -634,7 +634,7 @@ export const DashboardPage: React.FC = () => {
             </span>
           </div>
 
-          {/* KPI 3 Funéraire : Dossiers à préparer (Slide 9) */}
+          {/* KPI 3 Funéraire : Dossiers à préparer */}
           <div
             className={`border rounded-2xl p-5 space-y-1 transition-colors ${
               isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
@@ -654,7 +654,7 @@ export const DashboardPage: React.FC = () => {
             </span>
           </div>
 
-          {/* KPI 4 Funéraire : Convois corbillard disponibles (Slide 9) */}
+          {/* KPI 4 Funéraire : Convois corbillard disponibles */}
           <div
             className={`border rounded-2xl p-5 space-y-1 transition-colors ${
               isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
@@ -677,7 +677,7 @@ export const DashboardPage: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* 3. SYNTHÈSE FINANCIÈRE & CAISSE ÉTANCHE USD & CDF (SLIDE 8 DU PPTX)        */}
+      {/* 3. SYNTHÈSE FINANCIÈRE & CAISSE ÉTANCHE USD & CDF                          */}
       {/* ========================================================================= */}
       <div
         className={`border rounded-2xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition-colors ${
@@ -687,7 +687,7 @@ export const DashboardPage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">
-              SLIDE 8 — RÈGLE STRICTE
+              RÈGLE DE CAISSE MULTI-DEVISES
             </span>
             <span className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
               USD et CDF sont suivis séparément : aucune conversion automatique sans taux défini.
@@ -923,7 +923,7 @@ export const DashboardPage: React.FC = () => {
         >
           <div className="border-b border-slate-800 pb-3">
             <h3 className="font-bold text-sm sm:text-base text-white">
-              Vérification des 4 Verrous Légaux & Financiers avant Levée du Corps (Slide 5)
+              Vérification des 4 Verrous Légaux & Financiers avant Levée du Corps
             </h3>
             <p className="text-xs text-slate-400 mt-0.5">
               Règle souveraine : aucun corps ne peut franchir le sas de sortie sans l’alignement parfait des 4 validations ci-dessous.
@@ -979,7 +979,7 @@ export const DashboardPage: React.FC = () => {
         </div>
       )}
 
-      {/* Vue Funérarium : Registre des Prestations & Cérémonies (Slide 6) */}
+      {/* Vue Funérarium : Registre des Prestations & Cérémonies */}
       {currentPole === 'FUNERARIUM' && (
         <div
           className={`border rounded-2xl overflow-hidden shadow-sm transition-colors ${
@@ -1082,7 +1082,7 @@ export const DashboardPage: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* 6. MODAL 1 : WORKFLOW NOUVELLE ADMISSION MORGUE EN 6 ÉTAPES (SLIDE 4)     */}
+      {/* 6. MODAL 1 : WORKFLOW NOUVELLE ADMISSION MORGUE EN 6 ÉTAPES               */}
       {/* ========================================================================= */}
       {isAdmissionModalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
@@ -1090,7 +1090,7 @@ export const DashboardPage: React.FC = () => {
             <div className="flex items-center justify-between border-b border-blue-950 pb-4">
               <div>
                 <span className="text-[10px] font-mono uppercase font-bold text-sky-400">
-                  SLIDE 4 DU STORYBOARD PPTX — ADMISSION OFFICIELLE
+                  PROTOCOLE D'ADMISSION & BRACELETAGE DU CORPS
                 </span>
                 <h3 className="text-lg font-bold text-white">
                   Nouvelle Admission de Corps en Chambre Froide
@@ -1200,7 +1200,7 @@ export const DashboardPage: React.FC = () => {
               {admissionStep === 2 && (
                 <div className="space-y-4">
                   <div className="font-bold text-sky-400 uppercase tracking-wider text-[11px]">
-                    2. Informations d'Arrivée & État du Corps (Slide 4)
+                    2. Informations d'Arrivée & État du Corps
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
@@ -1242,7 +1242,7 @@ export const DashboardPage: React.FC = () => {
               {admissionStep === 3 && (
                 <div className="space-y-4">
                   <div className="font-bold text-sky-400 uppercase tracking-wider text-[11px]">
-                    3. Contact Famille / Ayant Droit Responsable (Slide 4)
+                    3. Contact Famille / Ayant Droit Responsable
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
@@ -1297,7 +1297,7 @@ export const DashboardPage: React.FC = () => {
               {admissionStep === 4 && (
                 <div className="space-y-4">
                   <div className="font-bold text-sky-400 uppercase tracking-wider text-[11px]">
-                    4. Pièces Justificatives et Visas Légaux (Slide 4)
+                    4. Pièces Justificatives et Visas Légaux
                   </div>
                   <div className="space-y-2.5 bg-[#061126] p-4 rounded-xl border border-blue-950">
                     <label className="flex items-center gap-2 cursor-pointer">
@@ -1339,7 +1339,7 @@ export const DashboardPage: React.FC = () => {
               {admissionStep === 5 && (
                 <div className="space-y-4">
                   <div className="font-bold text-sky-400 uppercase tracking-wider text-[11px]">
-                    5. Sélection de la Chambre Froide et du Casier Disponible (Slide 4)
+                    5. Sélection de la Chambre Froide et du Casier Disponible
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
@@ -1382,7 +1382,7 @@ export const DashboardPage: React.FC = () => {
               {admissionStep === 6 && (
                 <div className="space-y-4">
                   <div className="font-bold text-sky-400 uppercase tracking-wider text-[11px]">
-                    6. Confirmation et Génération du Dossier Unique NG-2026-XXXX (Slide 4)
+                    6. Confirmation et Génération du Dossier Unique NG-2026-XXXX
                   </div>
                   <div className="bg-[#061126] p-4 rounded-xl border border-blue-900 space-y-2 text-xs">
                     <div><strong>Défunt :</strong> {admPrenom} {admNom.toUpperCase()}</div>
@@ -1404,7 +1404,7 @@ export const DashboardPage: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* 7. MODAL 2 : CONTRÔLE ET SORTIE DU CORPS (SLIDE 5 DU PPTX)                */}
+      {/* 7. MODAL 2 : CONTRÔLE ET SORTIE DU CORPS                                   */}
       {/* ========================================================================= */}
       {selectedSortieDossier && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
@@ -1412,7 +1412,7 @@ export const DashboardPage: React.FC = () => {
             <div className="flex items-center justify-between border-b border-blue-950 pb-3">
               <div>
                 <span className="text-[10px] font-mono uppercase font-bold text-amber-400">
-                  SLIDE 5 DU STORYBOARD PPTX — SORTIE DU CORPS
+                  PROTOCOLE DE SORTIE SÉCURISÉE DU CORPS
                 </span>
                 <h3 className="text-lg font-bold text-white">
                   Contrôle des 4 Verrous Obligatoires avant Levée de Corps
@@ -1472,7 +1472,7 @@ export const DashboardPage: React.FC = () => {
                   : 'bg-red-950/40 border-red-800 text-red-300'
               }`}>
                 <div>
-                  <strong className="block">4. Situation Financière en Caisse (Règle Slide 8)</strong>
+                  <strong className="block">4. Situation Financière en Caisse</strong>
                   <span className="text-[11px]">
                     {selectedSortieDossier.situationFinanciere === 'SOLDE'
                       ? '✓ Facture 100% Soldée en caisse centrale.'
@@ -1522,7 +1522,7 @@ export const DashboardPage: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* 8. MODAL 3 : NOUVELLE DEMANDE FUNÉRAIRE (SLIDE 6 DU PPTX EN 5 ÉTAPES)     */}
+      {/* 8. MODAL 3 : NOUVELLE DEMANDE FUNÉRAIRE (EN 5 ÉTAPES)                     */}
       {/* ========================================================================= */}
       {isFuneraireModalOpen && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
@@ -1530,7 +1530,7 @@ export const DashboardPage: React.FC = () => {
             <div className="flex items-center justify-between border-b border-blue-950 pb-3">
               <div>
                 <span className="text-[10px] font-mono uppercase font-bold text-emerald-400">
-                  SLIDE 6 DU STORYBOARD PPTX — PARCOURS FUNÉRAIRE
+                  RÉSERVATION DES SALONS & PARCOURS FUNÉRAIRE
                 </span>
                 <h3 className="text-lg font-bold text-white">
                   Nouvelle Réservation & Prestations Funéraires
@@ -1541,7 +1541,7 @@ export const DashboardPage: React.FC = () => {
 
             <form onSubmit={handleValiderDemandeFuneraire} className="space-y-4 text-xs">
               <div className="p-3 bg-emerald-950/40 border border-emerald-900 rounded-xl text-emerald-300">
-                <strong>Règle Slide 6 :</strong> Retrouver le défunt existant via son n° NG-2026-XXXX ou créer les informations nécessaires. Zéro double saisie.
+                <strong>Continuité du Dossier Unique :</strong> Retrouver le défunt existant via son n° NG-2026-XXXX ou créer les informations nécessaires. Zéro double saisie.
               </div>
 
               <div>
@@ -1620,7 +1620,7 @@ export const DashboardPage: React.FC = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* 9. MODAL 4 : FICHE DÉTAILLÉE DU DOSSIER UNIQUE NG-2026-XXXX (SLIDE 7)     */}
+      {/* 9. MODAL 4 : FICHE DÉTAILLÉE DU DOSSIER UNIQUE NG-2026-XXXX               */}
       {/* ========================================================================= */}
       {dossierUniqueConsulte && (
         <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
@@ -1628,7 +1628,7 @@ export const DashboardPage: React.FC = () => {
             <div className="flex items-center justify-between border-b border-blue-950 pb-3">
               <div>
                 <span className="text-[10px] font-mono uppercase font-bold text-sky-400">
-                  SLIDE 7 DU STORYBOARD PPTX — DOSSIER UNIQUE CENTRALISÉ
+                  DOSSIER UNIQUE DU DÉFUNT — TRAÇABILITÉ INTÉGRALE
                 </span>
                 <h3 className="text-lg font-bold text-white">
                   Fiche Défunt • {dossierUniqueConsulte.numeroDossier}
@@ -1662,7 +1662,7 @@ export const DashboardPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Volet Finance (Slide 8) */}
+            {/* Volet Finance */}
             <div className="p-4 rounded-xl bg-[#061126] border border-slate-700 text-xs space-y-2">
               <div className="font-bold text-amber-400 uppercase text-[11px]">
                 Volet Comptabilité & Caisse (Suivi strict USD & CDF séparés)

@@ -202,23 +202,19 @@ export const Shell: React.FC = () => {
             <span className="hidden md:inline text-[11px]">{isDark ? 'Clair' : 'Sombre'}</span>
           </button>
 
-          {/* Bouton Super Admin */}
-          <NavLink
-            to="/backoffice/super-admin"
-            className={({ isActive }) =>
-              `hidden sm:inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg border font-semibold transition-colors ${
-                isActive
-                  ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-sm font-bold'
-                  : isDark
-                  ? 'text-amber-300 hover:text-amber-200 bg-amber-950/40 hover:bg-amber-900/50 border-amber-800/80'
-                  : 'text-amber-800 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 border-amber-300'
-              }`
-            }
-            title="Cockpit de supervision Super Admin"
-          >
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Super Admin</span>
-          </NavLink>
+          {/* Bouton Super Admin (uniquement présent lorsqu'on est sur l'espace Super Admin) */}
+          {isSuperAdminPage && (
+            <div
+              className={`hidden sm:inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg border font-bold ${
+                isDark
+                  ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-sm'
+                  : 'bg-amber-500 text-slate-950 border-amber-400 shadow-sm'
+              }`}
+            >
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>Super Admin Direction</span>
+            </div>
+          )}
 
           {/* Déconnexion */}
           <button
@@ -331,20 +327,14 @@ export const Shell: React.FC = () => {
                 );
               })}
 
-              {/* Accès Super Admin direct dans la barre latérale pour les profils habilités */}
-              {hasSuperAdminAccess && (
+              {/* Accès Super Admin : présent uniquement sur l'espace Super Admin */}
+              {isSuperAdminPage && (
                 <div className="pt-2">
                   <NavLink
                     to="/backoffice/super-admin"
-                    className={`flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors ${
-                      isSuperAdminPage
-                        ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
-                        : isDark
-                        ? 'text-amber-300 hover:text-amber-200 hover:bg-amber-950/40 border border-amber-900/40'
-                        : 'text-amber-800 hover:text-amber-950 hover:bg-amber-50 border border-amber-200'
-                    }`}
+                    className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors bg-amber-500 text-slate-950 font-bold shadow-sm"
                   >
-                    <ShieldCheck className="w-4 h-4 shrink-0 text-amber-400" />
+                    <ShieldCheck className="w-4 h-4 shrink-0 text-slate-950" />
                     <div className="flex-1 min-w-0">
                       <span className="block truncate font-bold">Espace Super Admin</span>
                       <span className="text-[10px] block truncate opacity-80">
@@ -515,21 +505,15 @@ export const Shell: React.FC = () => {
                 );
               })}
 
-              {/* Raccourci vers Super Admin dans le menu mobile */}
-              {hasSuperAdminAccess && (
+              {/* Raccourci vers Super Admin dans le menu mobile : affiché uniquement si sur Super Admin */}
+              {isSuperAdminPage && (
                 <div className="pt-2">
                   <NavLink
                     to="/backoffice/super-admin"
                     onClick={() => setSidebarOpen(false)}
-                    className={`flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors ${
-                      isSuperAdminPage
-                        ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
-                        : isDark
-                        ? 'text-amber-300 hover:text-amber-200 hover:bg-amber-950/40 border border-amber-900/40'
-                        : 'text-amber-800 hover:text-amber-950 hover:bg-amber-50 border border-amber-200'
-                    }`}
+                    className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors bg-amber-500 text-slate-950 font-bold shadow-sm"
                   >
-                    <ShieldCheck className="w-4 h-4 shrink-0 text-amber-400" />
+                    <ShieldCheck className="w-4 h-4 shrink-0 text-slate-950" />
                     <div className="flex-1 min-w-0">
                       <span className="block truncate font-bold">Espace Super Admin</span>
                       <span className="text-[10px] block truncate opacity-80">
