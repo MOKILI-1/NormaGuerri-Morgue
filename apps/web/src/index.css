@@ -3,7 +3,36 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply bg-slate-100 text-slate-800 font-sans;
+  html,
+  body,
+  #root {
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
   }
+
+  body {
+    @apply bg-slate-100 text-slate-800 font-sans antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Scrollbars fines et esthétiques pour une navigation fluide */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.6);
 }

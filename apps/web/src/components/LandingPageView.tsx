@@ -306,31 +306,31 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
 
       {/* HEADER PRINCIPAL PROPORTIONNÉ */}
       <header className="sticky top-0 z-40 bg-[#061126]/95 backdrop-blur-md border-b border-blue-950/80 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Logo et Identité H+ Hospital Nomargueri (format compact sans badge souverain) */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0">
             <img
               src="/logo-hospital-nomargueri.jpg"
               alt="Logo H+ Hospital Nomargueri"
-              className="w-9 h-9 rounded-full border border-sky-400/80 shadow-sm object-cover bg-white shrink-0"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-sky-400/80 shadow-sm object-cover bg-white shrink-0"
             />
-            <div>
-              <span className="text-sm sm:text-base font-extrabold tracking-tight text-white uppercase font-sans block leading-none">
+            <div className="min-w-0">
+              <span className="text-xs sm:text-base font-extrabold tracking-tight text-white uppercase font-sans block leading-none truncate">
                 HOSPITAL NOMARGUERI
               </span>
-              <p className="text-[10px] text-sky-300/80 tracking-wide uppercase font-medium mt-1">
+              <p className="text-[9px] sm:text-[10px] text-sky-300/80 tracking-wide uppercase font-medium mt-0.5 sm:mt-1 truncate">
                 Morgue & Parcours Funéraire
               </p>
             </div>
           </div>
 
           {/* Bouton d'Action Header */}
-          <div className="flex items-center space-x-3 text-xs font-semibold">
+          <div className="flex items-center space-x-2 sm:space-x-3 text-xs font-semibold shrink-0">
             <button
               onClick={() => onOpenSearchModal('DEFUNT')}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-slate-200 border border-blue-900/80 transition-colors shadow-sm"
+              className="flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-slate-200 border border-blue-900/80 transition-colors shadow-sm text-[11px] sm:text-xs"
             >
-              <Search className="w-3.5 h-3.5 text-sky-400" />
+              <Search className="w-3.5 h-3.5 text-sky-400 shrink-0" />
               <span>Trouver un défunt</span>
             </button>
           </div>
@@ -338,21 +338,21 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
       </header>
 
       {/* SECTION 1 — HERO SECTION (DISPOSITION 2 COLONNES AVEC LES CTAS EN BLOC DÉDIÉ) */}
-      <section className="relative overflow-hidden pt-12 pb-16 lg:pt-16 lg:pb-20 border-b border-blue-950/60 bg-gradient-to-b from-[#061126] via-[#091A3E] to-[#0A1E48]">
+      <section className="relative overflow-hidden pt-8 pb-12 sm:pt-12 sm:pb-16 lg:pt-16 lg:pb-20 border-b border-blue-950/60 bg-gradient-to-b from-[#061126] via-[#091A3E] to-[#0A1E48]">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(2,132,199,0.15),transparent_60%)] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
             {/* Colonne Gauche : Titre percutant & Description */}
-            <div className="lg:col-span-7 space-y-6">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1]">
+            <div className="lg:col-span-7 space-y-4 sm:space-y-6">
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.15]">
                 Hospital Nomargueri.<br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-blue-400 to-indigo-300">
                   Dignité • Sérénité • Traçabilité
                 </span>
               </h1>
 
-              <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl font-normal">
+              <p className="text-xs sm:text-base text-slate-300 leading-relaxed max-w-2xl font-normal">
                 Prise en charge intégrale et personnalisée du parcours funéraire : réservation de salons de recueillement, soins de thanatopraxie, logistique de transport sécurisée et assistance aux formalités officielles.
               </p>
             </div>
@@ -509,13 +509,13 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center justify-between">
             {/* Colonne Gauche : Logo et Identité */}
-            <div className="flex items-center space-x-3 shrink-0">
+            <div className="flex items-center justify-center md:justify-start space-x-3 shrink-0">
               <img
                 src="/logo-hospital-nomargueri.jpg"
                 alt="Hospital Nomargueri"
                 className="w-10 h-10 rounded-full border border-sky-400/80 shadow object-cover bg-white shrink-0"
               />
-              <div>
+              <div className="text-left">
                 <span className="font-bold text-white uppercase text-sm block">
                   HOSPITAL NOMARGUERI
                 </span>
@@ -538,7 +538,7 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
             </div>
 
             {/* Colonne Droite : Contacts formaté à droite */}
-            <div className="flex flex-col items-start md:items-end text-left md:text-right space-y-1">
+            <div className="flex flex-col items-center md:items-end text-center md:text-right space-y-1">
               <div className="inline-flex items-center md:justify-end gap-1.5 text-sky-400">
                 <PhoneCall className="w-3.5 h-3.5 shrink-0" />
                 <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Contacts</span>

@@ -12,10 +12,9 @@ import {
   Sun,
   Moon,
   ArrowLeftRight,
-  LogOut,
-  ExternalLink
+  LogOut
 } from 'lucide-react';
-import { useBackoffice, PoleMetier } from '../../context/BackofficeContext';
+import { useBackoffice } from '../../context/BackofficeContext';
 
 export const Shell: React.FC = () => {
   const {
@@ -75,46 +74,59 @@ export const Shell: React.FC = () => {
   };
 
   const isDark = theme === 'dark';
+  const isSuperAdminPage = location.pathname.startsWith('/backoffice/super-admin');
+  const hasSuperAdminAccess =
+    currentUser?.role === 'DIRECTION' ||
+    currentUser?.role === 'ADMINISTRATEUR' ||
+    currentUser?.niveauAccreditation === 5 ||
+    isSuperAdminPage;
 
   return (
     <div
-      className={`min-h-screen flex flex-col font-sans transition-colors duration-200 ${
+      className={`h-screen w-full overflow-hidden flex flex-col font-sans transition-colors duration-200 ${
         isDark ? 'bg-[#0B132B] text-slate-100' : 'bg-slate-50 text-slate-900'
       }`}
     >
       {/* ========================================================================= */}
-      {/* 1. TOP HEADER APP BAR CORPORATE AVEC TOGGLE LIGHT/DARK & PÔLE ACTIF       */}
+      {/* 1. TOP HEADER APP BAR CORPORATE — STRICTEMENT IMMOBILE                    */}
       {/* ========================================================================= */}
       <header
-        className={`h-16 border-b flex items-center justify-between px-4 sm:px-6 z-30 sticky top-0 transition-colors ${
+        className={`h-16 shrink-0 border-b flex items-center justify-between px-3 sm:px-6 z-30 transition-colors select-none ${
           isDark
             ? 'bg-[#0F172A] border-slate-800 text-slate-100'
             : 'bg-white border-slate-200 text-slate-900 shadow-sm'
         }`}
       >
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2.5 sm:space-x-3">
+          {/* Bouton Hamburger Mobile (visibilité < lg) */}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className={`lg:hidden p-2 rounded-lg transition-colors ${
+            className={`lg:hidden p-2 rounded-xl transition-colors ${
               isDark
                 ? 'text-slate-400 hover:text-white hover:bg-slate-800'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
+            aria-label="Menu de navigation"
           >
             {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
 
-          <div className="flex items-center space-x-3">
+          {/* Logo et Identité H+ */}
+          <div className="flex items-center space-x-2.5 sm:space-x-3">
             <img
               src="/logo-hospital-nomargueri.jpg"
               alt="Hospital Nomargueri"
-              className="w-8 h-8 rounded-full border border-slate-700 object-cover bg-white shrink-0"
+              className="w-8 h-8 rounded-full border border-sky-400/80 shadow-sm object-cover bg-white shrink-0"
             />
-            <div>
-              <span className="font-bold text-xs uppercase tracking-wide block">
+            <div className="min-w-0">
+              <span className="font-bold text-xs uppercase tracking-wide block truncate">
                 HOSPITAL NOMARGUERI
               </span>
-              <span className={`text-[10px] block leading-tight ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+              <span
+                className={`text-[10px] hidden sm:block leading-tight ${
+                  isDark ? 'text-slate-400' : 'text-slate-500'
+                }`}
+              >
                 Plateforme Clinique & Espace Métier
               </span>
             </div>
@@ -122,40 +134,42 @@ export const Shell: React.FC = () => {
         </div>
 
         {/* PÔLE ACTIF, SWITCHER, STATUTS CAISSE, TOGGLE THÈME & DÉCONNEXION */}
-        <div className="flex items-center space-x-2.5 sm:space-x-3">
+        <div className="flex items-center space-x-1.5 sm:space-x-3">
           {/* Badge Pôle Actif & Bouton Changer de Pôle */}
           <div
-            className={`flex items-center px-2.5 py-1 rounded-xl border gap-2 ${
+            className={`flex items-center px-2 sm:px-2.5 py-1 rounded-xl border gap-1.5 sm:gap-2 ${
               isDark
                 ? 'bg-[#0B132B] border-slate-800 text-slate-300'
                 : 'bg-slate-100 border-slate-200 text-slate-700'
             }`}
           >
-            <span className="text-[11px] hidden sm:inline opacity-80">Pôle :</span>
+            <span className="text-[11px] hidden md:inline opacity-80">Pôle :</span>
             <span
-              className={`text-xs font-semibold px-2 py-0.5 rounded ${
-                currentPole === 'MORGUE'
+              className={`text-[11px] sm:text-xs font-semibold px-2 py-0.5 rounded ${
+                isSuperAdminPage
+                  ? 'bg-amber-500 text-slate-950 font-bold'
+                  : currentPole === 'MORGUE'
                   ? 'bg-blue-600 text-white'
                   : 'bg-emerald-700 text-white'
               }`}
             >
-              {currentPole === 'MORGUE' ? 'Morgue' : 'Funérarium'}
+              {isSuperAdminPage ? 'Super Admin' : currentPole === 'MORGUE' ? 'Morgue' : 'Funérarium'}
             </span>
             <button
               onClick={handleSwitchPole}
-              className={`text-[11px] underline hover:no-underline font-medium transition-colors flex items-center gap-1 ${
+              className={`text-[11px] hover:underline font-medium transition-colors flex items-center gap-1 ${
                 isDark ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
               }`}
-              title="Retourner à la sélection des 2 pôles"
+              title="Retourner à la sélection des pôles"
             >
               <ArrowLeftRight className="w-3 h-3" />
-              <span className="hidden md:inline">Changer</span>
+              <span className="hidden sm:inline">Changer</span>
             </button>
           </div>
 
           {/* Statut Caisse */}
           <div
-            className={`hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-xl border text-xs ${
+            className={`hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-xl border text-xs ${
               isDark
                 ? 'bg-slate-900/60 border-slate-800 text-slate-400'
                 : 'bg-slate-50 border-slate-200 text-slate-600'
@@ -173,7 +187,7 @@ export const Shell: React.FC = () => {
           <button
             type="button"
             onClick={toggleTheme}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl border text-xs font-medium transition-colors ${
+            className={`flex items-center gap-1.5 p-1.5 sm:px-2.5 sm:py-1 rounded-xl border text-xs font-medium transition-colors ${
               isDark
                 ? 'bg-slate-800/80 hover:bg-slate-700 border-slate-700 text-amber-300'
                 : 'bg-slate-100 hover:bg-slate-200 border-slate-300 text-slate-700'
@@ -185,7 +199,7 @@ export const Shell: React.FC = () => {
             ) : (
               <Moon className="w-3.5 h-3.5 text-slate-700" />
             )}
-            <span className="hidden sm:inline text-[11px]">{isDark ? 'Clair' : 'Sombre'}</span>
+            <span className="hidden md:inline text-[11px]">{isDark ? 'Clair' : 'Sombre'}</span>
           </button>
 
           {/* Bouton Super Admin */}
@@ -194,7 +208,7 @@ export const Shell: React.FC = () => {
             className={({ isActive }) =>
               `hidden sm:inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg border font-semibold transition-colors ${
                 isActive
-                  ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-sm'
+                  ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-sm font-bold'
                   : isDark
                   ? 'text-amber-300 hover:text-amber-200 bg-amber-950/40 hover:bg-amber-900/50 border-amber-800/80'
                   : 'text-amber-800 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 border-amber-300'
@@ -209,37 +223,44 @@ export const Shell: React.FC = () => {
           {/* Déconnexion */}
           <button
             onClick={handleLogout}
-            className={`text-xs px-2.5 py-1 rounded-lg border transition-colors flex items-center gap-1.5 ${
+            className={`text-xs p-1.5 sm:px-2.5 sm:py-1 rounded-lg border transition-colors flex items-center gap-1.5 ${
               isDark
                 ? 'text-slate-400 hover:text-red-300 border-slate-800 hover:border-red-900/60'
                 : 'text-slate-600 hover:text-red-600 border-slate-200 hover:border-red-300 bg-white'
             }`}
             title="Se déconnecter"
           >
-            <LogOut className="w-3 h-3" />
+            <LogOut className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Déconnexion</span>
           </button>
         </div>
       </header>
 
       {/* ========================================================================= */}
-      {/* 2. BODY AVEC SIDEBAR LATÉRALE ET ZONE DE CONTENU                          */}
+      {/* 2. BODY CONTAINER : CONTENEUR FIXE À HAUTEUR 100% SANS SCROLL GLOBAL      */}
       {/* ========================================================================= */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* SIDEBAR NAVIGATION LATÉRALE */}
+      <div className="flex-1 flex overflow-hidden relative">
+        {/* ======================================================================= */}
+        {/* SIDEBAR DESKTOP FIXE & STRICTEMENT IMMOBILE AU SCROLL                   */}
+        {/* Seul son sous-contenu défile si la hauteur d'écran est très faible      */}
+        {/* ======================================================================= */}
         <aside
-          className={`fixed lg:static inset-y-16 left-0 z-20 w-60 border-r flex flex-col justify-between transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+          className={`hidden lg:flex w-64 shrink-0 flex-col justify-between border-r h-full overflow-hidden select-none z-20 transition-colors ${
             isDark
               ? 'bg-[#0B132B] border-slate-800 text-slate-100'
               : 'bg-white border-slate-200 text-slate-900'
-          } ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+          }`}
         >
-          {/* Menu Haut */}
-          <div className="p-3.5 space-y-5 overflow-y-auto">
+          {/* Menu Haut déroulant uniquement en interne */}
+          <div className="flex-1 overflow-y-auto p-3.5 space-y-4">
             {/* Rappel du Pôle actif */}
             <div
-              className={`p-3 rounded-xl border text-xs ${
-                currentPole === 'MORGUE'
+              className={`p-3 rounded-xl border text-xs transition-colors ${
+                isSuperAdminPage
+                  ? isDark
+                    ? 'bg-amber-950/40 border-amber-800/70 text-amber-200'
+                    : 'bg-amber-50 border-amber-200 text-amber-900'
+                  : currentPole === 'MORGUE'
                   ? isDark
                     ? 'bg-blue-950/40 border-blue-900/60 text-blue-200'
                     : 'bg-blue-50 border-blue-200 text-blue-900'
@@ -250,10 +271,14 @@ export const Shell: React.FC = () => {
             >
               <div className="flex items-center justify-between text-[10px] uppercase font-semibold tracking-wider">
                 <span>Espace en cours</span>
-                <span className="font-mono">{currentPole}</span>
+                <span className="font-mono font-bold">
+                  {isSuperAdminPage ? 'SUPER ADMIN' : currentPole}
+                </span>
               </div>
               <p className={`text-[11px] mt-1 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
-                {currentPole === 'MORGUE'
+                {isSuperAdminPage
+                  ? 'Supervision transverse & RBAC'
+                  : currentPole === 'MORGUE'
                   ? 'Corps, chambres froides & soins'
                   : 'Salons de veillée & prestations'}
               </p>
@@ -261,9 +286,11 @@ export const Shell: React.FC = () => {
 
             {/* Liens de navigation */}
             <div className="space-y-1">
-              <span className={`text-[10px] uppercase font-semibold tracking-wider px-3 block ${
-                isDark ? 'text-slate-500' : 'text-slate-400'
-              }`}>
+              <span
+                className={`text-[10px] uppercase font-semibold tracking-wider px-3 block ${
+                  isDark ? 'text-slate-500' : 'text-slate-400'
+                }`}
+              >
                 Menu de gestion
               </span>
 
@@ -275,8 +302,7 @@ export const Shell: React.FC = () => {
                   <NavLink
                     key={item.path}
                     to={item.path}
-                    onClick={() => setSidebarOpen(false)}
-                    className={`flex items-center space-x-3 px-3 py-2 rounded-xl text-xs font-medium transition-colors ${
+                    className={`flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors ${
                       isActive
                         ? currentPole === 'MORGUE'
                           ? 'bg-blue-600 text-white shadow-sm'
@@ -288,7 +314,7 @@ export const Shell: React.FC = () => {
                   >
                     <Icon className="w-4 h-4 shrink-0 opacity-80" />
                     <div className="flex-1 min-w-0">
-                      <span className="block truncate">{item.name}</span>
+                      <span className="block truncate font-semibold">{item.name}</span>
                       <span
                         className={`text-[10px] block truncate font-normal ${
                           isActive
@@ -304,12 +330,36 @@ export const Shell: React.FC = () => {
                   </NavLink>
                 );
               })}
+
+              {/* Accès Super Admin direct dans la barre latérale pour les profils habilités */}
+              {hasSuperAdminAccess && (
+                <div className="pt-2">
+                  <NavLink
+                    to="/backoffice/super-admin"
+                    className={`flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors ${
+                      isSuperAdminPage
+                        ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
+                        : isDark
+                        ? 'text-amber-300 hover:text-amber-200 hover:bg-amber-950/40 border border-amber-900/40'
+                        : 'text-amber-800 hover:text-amber-950 hover:bg-amber-50 border border-amber-200'
+                    }`}
+                  >
+                    <ShieldCheck className="w-4 h-4 shrink-0 text-amber-400" />
+                    <div className="flex-1 min-w-0">
+                      <span className="block truncate font-bold">Espace Super Admin</span>
+                      <span className="text-[10px] block truncate opacity-80">
+                        Direction & Supervision
+                      </span>
+                    </div>
+                  </NavLink>
+                </div>
+              )}
             </div>
           </div>
 
           {/* Bas de Sidebar : Profil Agent */}
           <div
-            className={`p-3.5 border-t ${
+            className={`p-3.5 border-t shrink-0 ${
               isDark ? 'border-slate-800 bg-[#0A1024]' : 'border-slate-200 bg-slate-50'
             }`}
           >
@@ -329,13 +379,212 @@ export const Shell: React.FC = () => {
           </div>
         </aside>
 
-        {/* CONTENU PRINCIPAL DE LA PAGE AVEC GESTION DU THÈME */}
+        {/* ======================================================================= */}
+        {/* TIROIR MOBILE LATÉRAL (DRAWER EN OVERLAY POUR SMARTPHONES ET TABLETTES) */}
+        {/* ======================================================================= */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-40 lg:hidden transition-opacity"
+            onClick={() => setSidebarOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+
+        <aside
+          className={`fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] flex flex-col justify-between shadow-2xl transition-transform duration-300 ease-in-out lg:hidden ${
+            isDark
+              ? 'bg-[#0B132B] border-r border-slate-800 text-slate-100'
+              : 'bg-white border-r border-slate-200 text-slate-900'
+          } ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        >
+          {/* Header du Tiroir Mobile */}
+          <div
+            className={`p-4 border-b flex items-center justify-between shrink-0 ${
+              isDark ? 'border-slate-800 bg-[#0F172A]' : 'border-slate-200 bg-slate-100'
+            }`}
+          >
+            <div className="flex items-center space-x-2.5">
+              <img
+                src="/logo-hospital-nomargueri.jpg"
+                alt="Hospital Nomargueri"
+                className="w-8 h-8 rounded-full border border-sky-400 object-cover bg-white shrink-0"
+              />
+              <div>
+                <span className="font-bold text-xs uppercase tracking-wide block">
+                  HOSPITAL NOMARGUERI
+                </span>
+                <span className={`text-[10px] block leading-tight ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                  Navigation Métier
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className={`p-1.5 rounded-lg transition-colors ${
+                isDark
+                  ? 'text-slate-400 hover:text-white hover:bg-slate-800'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
+              }`}
+              aria-label="Fermer le menu"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Corps défilable du Tiroir */}
+          <div className="flex-1 overflow-y-auto p-3.5 space-y-4">
+            {/* Rappel Pôle & Switcher rapide */}
+            <div
+              className={`p-3 rounded-xl border text-xs ${
+                isSuperAdminPage
+                  ? isDark
+                    ? 'bg-amber-950/40 border-amber-800/70 text-amber-200'
+                    : 'bg-amber-50 border-amber-200 text-amber-900'
+                  : currentPole === 'MORGUE'
+                  ? isDark
+                    ? 'bg-blue-950/40 border-blue-900/60 text-blue-200'
+                    : 'bg-blue-50 border-blue-200 text-blue-900'
+                  : isDark
+                  ? 'bg-emerald-950/40 border-emerald-900/60 text-emerald-200'
+                  : 'bg-emerald-50 border-emerald-200 text-emerald-900'
+              }`}
+            >
+              <div className="flex items-center justify-between text-[10px] uppercase font-semibold">
+                <span>Pôle en cours</span>
+                <span className="font-mono font-bold">
+                  {isSuperAdminPage ? 'SUPER ADMIN' : currentPole}
+                </span>
+              </div>
+              <button
+                onClick={() => {
+                  setSidebarOpen(false);
+                  handleSwitchPole();
+                }}
+                className="mt-2 w-full py-1.5 px-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-[11px] font-medium flex items-center justify-center gap-1.5 transition-colors border border-slate-700"
+              >
+                <ArrowLeftRight className="w-3.5 h-3.5" />
+                <span>Changer de Pôle</span>
+              </button>
+            </div>
+
+            {/* Liens de navigation */}
+            <div className="space-y-1">
+              <span
+                className={`text-[10px] uppercase font-semibold tracking-wider px-3 block ${
+                  isDark ? 'text-slate-500' : 'text-slate-400'
+                }`}
+              >
+                Menu de gestion
+              </span>
+
+              {navigationItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = location.pathname.startsWith(item.path);
+
+                return (
+                  <NavLink
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setSidebarOpen(false)}
+                    className={`flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors ${
+                      isActive
+                        ? currentPole === 'MORGUE'
+                          ? 'bg-blue-600 text-white shadow-sm'
+                          : 'bg-emerald-700 text-white shadow-sm'
+                        : isDark
+                        ? 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                        : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4 shrink-0 opacity-80" />
+                    <div className="flex-1 min-w-0">
+                      <span className="block truncate font-semibold">{item.name}</span>
+                      <span
+                        className={`text-[10px] block truncate font-normal ${
+                          isActive
+                            ? 'text-slate-100 opacity-80'
+                            : isDark
+                            ? 'text-slate-500'
+                            : 'text-slate-400'
+                        }`}
+                      >
+                        {item.description}
+                      </span>
+                    </div>
+                  </NavLink>
+                );
+              })}
+
+              {/* Raccourci vers Super Admin dans le menu mobile */}
+              {hasSuperAdminAccess && (
+                <div className="pt-2">
+                  <NavLink
+                    to="/backoffice/super-admin"
+                    onClick={() => setSidebarOpen(false)}
+                    className={`flex items-center space-x-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-colors ${
+                      isSuperAdminPage
+                        ? 'bg-amber-500 text-slate-950 font-bold shadow-sm'
+                        : isDark
+                        ? 'text-amber-300 hover:text-amber-200 hover:bg-amber-950/40 border border-amber-900/40'
+                        : 'text-amber-800 hover:text-amber-950 hover:bg-amber-50 border border-amber-200'
+                    }`}
+                  >
+                    <ShieldCheck className="w-4 h-4 shrink-0 text-amber-400" />
+                    <div className="flex-1 min-w-0">
+                      <span className="block truncate font-bold">Espace Super Admin</span>
+                      <span className="text-[10px] block truncate opacity-80">
+                        Direction & Supervision
+                      </span>
+                    </div>
+                  </NavLink>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Bas du Tiroir Mobile : Profil & Déconnexion */}
+          <div
+            className={`p-3.5 border-t shrink-0 ${
+              isDark ? 'border-slate-800 bg-[#0A1024]' : 'border-slate-200 bg-slate-50'
+            }`}
+          >
+            {currentUser && (
+              <div className="space-y-2">
+                <div className="text-xs">
+                  <span className={`font-semibold block truncate ${isDark ? 'text-slate-200' : 'text-slate-900'}`}>
+                    {currentUser.prenom} {currentUser.nom}
+                  </span>
+                  <span className={`text-[10px] block truncate ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                    {currentUser.role.replace(/_/g, ' ')}
+                  </span>
+                </div>
+                <button
+                  onClick={() => {
+                    setSidebarOpen(false);
+                    handleLogout();
+                  }}
+                  className="w-full py-1.5 px-3 rounded-lg bg-red-950/40 hover:bg-red-900/60 text-red-300 border border-red-900/50 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Se déconnecter</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </aside>
+
+        {/* ======================================================================= */}
+        {/* ZONE PRINCIPALE DE CONTENU — SEUL CE CONTENU DÉFILE VERTICALEMENT       */}
+        {/* La barre latérale gauche reste strictement immobile et figée à l'écran */}
+        {/* ======================================================================= */}
         <main
-          className={`flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 transition-colors ${
+          className={`flex-1 h-full overflow-y-auto p-3.5 sm:p-5 lg:p-7 min-w-0 transition-colors focus:outline-none ${
             isDark ? 'bg-[#070F22]' : 'bg-slate-50'
           }`}
         >
-          <Outlet />
+          <div className="max-w-7xl mx-auto w-full pb-16">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>
