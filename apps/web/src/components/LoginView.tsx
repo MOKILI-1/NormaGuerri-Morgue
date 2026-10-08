@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { RoleUtilisateur, Utilisateur } from '@nomarguerrie/shared-types';
 import { ShieldCheck, Lock, User, ArrowRight, KeyRound, AlertCircle } from 'lucide-react';
-import { UTILISATEURS_MOCK } from '../../../api/src/data/mock-db';
+import { UTILISATEURS_MOCK } from '../data/mock-db';
 
 interface LoginViewProps {
   onLoginSuccess: (user: Utilisateur) => void;

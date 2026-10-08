@@ -26,7 +26,7 @@ import {
 } from 'lucide-react';
 import { useBackoffice, UserSession, PoleMetier } from '../../context/BackofficeContext';
 import { NiveauAccreditation } from '@nomarguerrie/shared-types';
-import { UTILISATEURS_MOCK } from '../../../../api/src/data/mock-db';
+import { UTILISATEURS_MOCK } from '../../data/mock-db';
 
 interface OperationMultiPole {
   id: string;
@@ -1251,7 +1251,7 @@ export const SuperAdminPage: React.FC = () => {
           <div className="bg-[#071329] border border-blue-900 rounded-3xl max-w-lg w-full p-6 text-white shadow-2xl space-y-4 text-xs">
             <div className="flex items-center justify-between border-b border-blue-950 pb-3">
               <h3 className="font-bold text-base">Attribuer un Accès Agent (RBAC)</h3>
-              <button onClick={() => setIsAddModalOpen(false)} className="text-slate-400">✕</button>
+              <button onClick={() => setIsAddModalOpen(false)} className="text-slate-400">&times;</button>
             </div>
 
             <form onSubmit={handleAddAgent} className="space-y-3">
@@ -1292,7 +1292,7 @@ export const SuperAdminPage: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-slate-300 mb-1">Département d'Affectation</label>
+                  <label className="block text-slate-300 mb-1">Département d&apos;Affectation</label>
                   <select
                     value={newDirection}
                     onChange={(e) => setNewDirection(e.target.value as any)}
@@ -1305,10 +1305,10 @@ export const SuperAdminPage: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-slate-300 mb-1">Niveau d'Accréditation</label>
+                  <label className="block text-slate-300 mb-1">Niveau d&apos;Accréditation</label>
                   <select
                     value={newNiveau}
-                    onChange={(e) => setNewNiveau(parseInt(e.target.value, 10) as NiveauAccreditation)}
+                    onChange={(e) => setNewNiveau(Number(e.target.value) as NiveauAccreditation)}
                     className="w-full p-2 bg-[#040A1A] border border-blue-950 rounded-xl text-white"
                   >
                     <option value={1}>Niveau 1 — Consultation</option>
@@ -1343,7 +1343,7 @@ export const SuperAdminPage: React.FC = () => {
                   type="submit"
                   className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold"
                 >
-                  Enregistrer l'agent
+                  Enregistrer l&apos;agent
                 </button>
               </div>
             </form>

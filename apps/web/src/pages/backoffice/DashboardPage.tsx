@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useBackoffice } from '../../context/BackofficeContext';
 import { ApiClient } from '../../services/api';
 import { DossierVivant } from '@nomarguerrie/shared-types';
-import { DOSSIERS_MOCK } from '../../../../api/src/data/mock-db';
+import { DOSSIERS_MOCK } from '../../data/mock-db';
 
 export const DashboardPage: React.FC = () => {
   const { currentPole, currentUser, caisseSession, theme } = useBackoffice();

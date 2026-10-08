@@ -3,7 +3,7 @@ import { DossierVivant, ArticleCatalogue, PrestationDossier } from '@nomarguerri
 import { LandingPageView } from '../components/LandingPageView';
 import { FamilleSuiviModal } from '../components/FamilleSuiviModal';
 import { ApiClient } from '../services/api';
-import { CATALOGUE_SERVICES_MOCK, DOSSIERS_MOCK } from '../../../api/src/data/mock-db';
+import { CATALOGUE_SERVICES_MOCK, DOSSIERS_MOCK } from '../data/mock-db';
 
 export const LandingPageContainer: React.FC = () => {
   const [dossiers, setDossiers] = useState<DossierVivant[]>(DOSSIERS_MOCK);

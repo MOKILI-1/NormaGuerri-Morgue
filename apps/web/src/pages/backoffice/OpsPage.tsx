@@ -18,7 +18,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { useBackoffice } from '../../context/BackofficeContext';
-import { CATALOGUE_SERVICES_MOCK, DOSSIERS_MOCK } from '../../../../api/src/data/mock-db';
+import { CATALOGUE_SERVICES_MOCK, DOSSIERS_MOCK } from '../../data/mock-db';
 
 interface Facture {
   id: string;

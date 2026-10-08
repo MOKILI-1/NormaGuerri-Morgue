@@ -15,7 +15,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { useBackoffice } from '../../context/BackofficeContext';
-import { CATALOGUE_SERVICES_MOCK } from '../../../../api/src/data/mock-db';
+import { CATALOGUE_SERVICES_MOCK } from '../../data/mock-db';
 import { ArticleCatalogue, CategorieService } from '@nomarguerrie/shared-types';
 
 export const CatalogPage: React.FC = () => {

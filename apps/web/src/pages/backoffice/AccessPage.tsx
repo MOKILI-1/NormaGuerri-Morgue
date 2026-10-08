@@ -14,7 +14,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { useBackoffice, UserSession } from '../../context/BackofficeContext';
-import { UTILISATEURS_MOCK } from '../../../../api/src/data/mock-db';
+import { UTILISATEURS_MOCK } from '../../data/mock-db';
 
 export const AccessPage: React.FC = () => {
   const { currentUser } = useBackoffice();
