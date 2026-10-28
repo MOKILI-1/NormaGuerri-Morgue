@@ -45,7 +45,7 @@ import { NiveauAccreditation } from '@nomarguerrie/shared-types';
 
 export interface OperationMultiPole {
   id: string;
-  pole: 'MORGUE' | 'FUNERARIUM';
+  pole: 'MORGUE' | 'FUNERARIUM' | 'HOPITAL';
   type: string;
   dossierId: string;
   defunt: string;
@@ -58,7 +58,7 @@ export interface OperationMultiPole {
 export interface FluxDossier {
   dossierId: string;
   defunt: string;
-  pole: 'MORGUE' | 'FUNERARIUM';
+  pole: 'MORGUE' | 'FUNERARIUM' | 'HOPITAL';
   dateEntree: string;
   statutSejour: string;
   dateSortiePrevue: string;
@@ -70,10 +70,10 @@ export interface FluxDossier {
 
 export interface ServicePrestationSimilaire {
   id: string;
-  categorie: 'SOINS_CORPS' | 'HEBERGEMENT_ESPACE' | 'TRANSPORT_CONVOI' | 'FOURNITURES' | 'FORMALITES' | 'CAISSE_TARIFS';
+  categorie: 'SOINS_CORPS' | 'HEBERGEMENT_ESPACE' | 'TRANSPORT_CONVOI' | 'FOURNITURES' | 'FORMALITES' | 'CAISSE_TARIFS' | 'SOINS_HOSPITALIERS';
   nomCategorie: string;
   nomService: string;
-  pole: 'MORGUE' | 'FUNERARIUM';
+  pole: 'MORGUE' | 'FUNERARIUM' | 'HOPITAL';
   perimetreMission: string;
   lieuOuRessource: string;
   prixUSD: number;
@@ -117,7 +117,7 @@ export const SuperAdminPage: React.FC = () => {
   const [fluxSubView, setFluxSubView] = useState<'TOUS' | 'ENTREES_SORTIES' | 'JOURNAL_AUDIT'>('TOUS');
 
   // Filtre de pôle transverse
-  const [poleFilter, setPoleFilter] = useState<'TOUS' | 'MORGUE' | 'FUNERARIUM'>('TOUS');
+  const [poleFilter, setPoleFilter] = useState<'TOUS' | 'MORGUE' | 'FUNERARIUM' | 'HOPITAL'>('TOUS');
 
   // =========================================================================
   // 1. SERVICES & PRESTATIONS COMMUNS OU SIMILAIRES (AVEC BADGES ET MATRIX)
@@ -193,58 +193,58 @@ export const SuperAdminPage: React.FC = () => {
       nomService: 'Conservation en Casier Frigorifique (+2°C / +4°C)',
       pole: 'MORGUE',
       perimetreMission: 'Séjour en case frigorifique régulée avec contrôle thermo-hygrométrique continu 24h/24, sonde numérique connectée, alerte automatique si durée > 15 jours.',
-      lieuOuRessource: 'Chambres Froides F1, F2 ou F3 (32 casiers)',
+      lieuOuRessource: 'Chambres Froides F1, F2 ou F3 (60 box frigorifiques)',
       prixUSD: 25,
-      prixCDF: 700000, // Forfait jour
+      prixCDF: 70000, // Forfait jour
       statut: 'ACTIF',
       responsableMetier: 'Régulateur Frigoriste & Agent d’Admission',
-      differentiateurCle: 'Conservation sous chaîne de froid positive continue du corps biologique.',
-      correspondancePaire: 'Location Grand Salon Cérémonial Climatisé (Veillée)'
+      differentiateurCle: 'Conservation sous chaîne de froid positive continue du corps biologique (+2°C/+4°C).',
+      correspondancePaire: 'Location Chapiteaux Climatisés & Espaces Verts'
     },
     {
       id: 'SRV-006',
       categorie: 'HEBERGEMENT_ESPACE',
       nomCategorie: 'Hébergement & Espaces de Recueillement',
-      nomService: 'Location Grand Salon Cérémonial Climatisé (Veillée)',
+      nomService: 'Location Grands Chapiteaux Climatisés (250 places)',
       pole: 'FUNERARIUM',
-      perimetreMission: 'Espace climatisé de recueillement et de culte (capacité 120 places assises), pupitre d’hommage, sonorisation, diffusion photo/vidéo souvenir, loge famille privée.',
-      lieuOuRessource: 'Grand Salon Cérémonial A ou B',
-      prixUSD: 650,
-      prixCDF: 1820000,
+      perimetreMission: 'Chapiteau étanche grand format climatisé (250 places assises), pupitre d’hommage, sonorisation broadcast, loge famille climatisée.',
+      lieuOuRessource: 'Chapiteaux Cérémoniaux Principaux A et B',
+      prixUSD: 750,
+      prixCDF: 2100000,
       statut: 'ACTIF',
-      responsableMetier: 'Régisseur Général des Salons Funéraires',
-      differentiateurCle: 'Accueil collectif de la communauté pour veillées religieuses ou cérémonies d’adieu.',
+      responsableMetier: 'Régisseur Général des Salons & Chapiteaux',
+      differentiateurCle: 'Accueil sous chapiteau étanche climatisé pour veillées religieuses ou cérémonies de grand hommage.',
       correspondancePaire: 'Conservation en Casier Frigorifique (+2°C / +4°C)'
     },
     {
       id: 'SRV-007',
       categorie: 'HEBERGEMENT_ESPACE',
       nomCategorie: 'Hébergement & Espaces de Recueillement',
-      nomService: 'Casier Frigorifique Grand Froid / Réserve Sécurisée',
+      nomService: 'Box Frigorifique Grand Froid / Réserve Sécurisée (sur 60 box)',
       pole: 'MORGUE',
-      perimetreMission: 'Conservation spécialisée longue durée sous scellé parquet ou litige successoral, casier sécurisé avec traçabilité biométrique d’ouverture.',
-      lieuOuRessource: 'Chambre F3 (Réserve sécurisée sous scellé)',
+      perimetreMission: 'Conservation spécialisée longue durée sous scellé parquet ou litige successoral, box sécurisé avec traçabilité d’ouverture.',
+      lieuOuRessource: 'Chambre F3 (Réserve sécurisée 60 box sous scellé)',
       prixUSD: 40,
       prixCDF: 112000,
       statut: 'ACTIF',
       responsableMetier: 'Chef d’Exploitation Morgue',
       differentiateurCle: 'Conservation judiciaire et sous scellé officiel inviolable.',
-      correspondancePaire: 'Salon Intimiste de Recueillement VIP'
+      correspondancePaire: 'Gradins Modulaires d’Honneur & Espaces Verts'
     },
     {
       id: 'SRV-008',
       categorie: 'HEBERGEMENT_ESPACE',
       nomCategorie: 'Hébergement & Espaces de Recueillement',
-      nomService: 'Salon Intimiste de Recueillement VIP',
+      nomService: 'Gradins Modulaires d’Honneur & Privatisation Espaces Verts',
       pole: 'FUNERARIUM',
-      perimetreMission: 'Salon feutré climatisé (capacité 30 personnes) pour adieu intime de la proche famille, service conciergerie, boissons chaudes et eau de source.',
-      lieuOuRessource: 'Salons Intimistes C et D',
-      prixUSD: 350,
-      prixCDF: 980000,
+      perimetreMission: 'Gradins modulaires d’honneur (120 places) et aménagement paysager des espaces verts pour recueillement solennel en plein air.',
+      lieuOuRessource: 'Espaces Verts Paysagers & Gradins Cérémoniaux',
+      prixUSD: 450,
+      prixCDF: 1260000,
       statut: 'ACTIF',
-      responsableMetier: 'Hôte d’Accueil & Conciergerie Funéraire',
-      differentiateurCle: 'Espace de confidentialité réservé aux ayants droit immédiats.',
-      correspondancePaire: 'Casier Frigorifique Grand Froid / Réserve Sécurisée'
+      responsableMetier: 'Coordinateur des Espaces Cérémoniaux',
+      differentiateurCle: 'Disposition en gradins d’honneur et jardins paysagers paysagers pour rassemblements de grande dignité.',
+      correspondancePaire: 'Box Frigorifique Grand Froid / Réserve Sécurisée'
     },
 
     // --- 3. TRANSPORTS, CONVOIS & LOGISTIQUE ---
@@ -433,6 +433,98 @@ export const SuperAdminPage: React.FC = () => {
       responsableMetier: 'Responsable Caisse & Facturation Obsèques',
       differentiateurCle: 'Facturation modulaire des prestations d’hommage avec échéancier d’acompte.',
       correspondancePaire: 'Facturation Conservation & Droits Hospitaliers'
+    },
+
+    // --- 7. PÔLE HÔPITAL (URGENCES, HOSPITALISATION, DÉCÈS & PRESTATIONS TECHNIQUES) ---
+    {
+      id: 'SRV-021',
+      categorie: 'SOINS_HOSPITALIERS',
+      nomCategorie: 'Soins Médicaux & Hospitaliers',
+      nomService: 'Admissions de la Journée & Triage Urgences 24/7',
+      pole: 'HOPITAL',
+      perimetreMission: 'Prise en charge médicale immédiate des nouveaux cas, constantes vitales, stabilisation aiguë et orientation vers lits ou pavillons.',
+      lieuOuRessource: 'Pavillon Urgences & Salle de Déchoquage',
+      prixUSD: 50,
+      prixCDF: 140000,
+      statut: 'ACTIF',
+      responsableMetier: 'Dr. Jeanne KASONGO (Médecin Urgentiste)',
+      differentiateurCle: 'Diagnostic médical vital et orientation des nouveaux patients avant admission formelle.',
+      correspondancePaire: 'Transfert Sanitaire & Admission Dépouille'
+    },
+    {
+      id: 'SRV-022',
+      categorie: 'SOINS_HOSPITALIERS',
+      nomCategorie: 'Soins Médicaux & Hospitaliers',
+      nomService: 'Hospitalisation Pavillonnaire & Lits Monitorés',
+      pole: 'HOPITAL',
+      perimetreMission: 'Séjour en chambre ou pavillon (75 lits disponibles), surveillance infirmière 24/24, perfusion et administration thérapeutique quotidienne.',
+      lieuOuRessource: 'Pavillons A, B, C & Soins Intensifs (75 Lits)',
+      prixUSD: 60,
+      prixCDF: 168000,
+      statut: 'ACTIF',
+      responsableMetier: 'Major Infirmier Tshilolo & Médecin Chef',
+      differentiateurCle: 'Prise en charge thérapeutique continue de patients vivants en réhabilitation.',
+      correspondancePaire: 'Conservation en Casier Frigorifique (+2°C / +4°C)'
+    },
+    {
+      id: 'SRV-023',
+      categorie: 'SOINS_HOSPITALIERS',
+      nomCategorie: 'Soins Médicaux & Hospitaliers',
+      nomService: 'Sorties & Guérisons Médicales avec Billet de Décharge',
+      pole: 'HOPITAL',
+      perimetreMission: 'Validation de fin de séjour par le médecin traitant, remise du bilan de sortie, protocole d’ordonnance et visa de sortie caisse.',
+      lieuOuRessource: 'Secrétariat Médical & Bureau des Sorties',
+      prixUSD: 0,
+      prixCDF: 0,
+      statut: 'ACTIF',
+      responsableMetier: 'Médecin Traitant & Caissier Hôpital',
+      differentiateurCle: 'Autorisation médicale et administrative de retour à domicile après guérison.',
+      correspondancePaire: 'Permis d’Inhumer & Concession Cimetière'
+    },
+    {
+      id: 'SRV-024',
+      categorie: 'SOINS_HOSPITALIERS',
+      nomCategorie: 'Soins Médicaux & Hospitaliers',
+      nomService: 'Transferts Sanitaires & Évacuations Médicalisées',
+      pole: 'HOPITAL',
+      perimetreMission: 'Évacuation médicale vers plateaux techniques externes partenaires (angioplastie, IRM, chirurgie lourde), régulation SAMU et ambulance équipée.',
+      lieuOuRessource: 'Ambulance Médicalisée SAMU #02',
+      prixUSD: 150,
+      prixCDF: 420000,
+      statut: 'ACTIF',
+      responsableMetier: 'Régulateur Médical SAMU',
+      differentiateurCle: 'Continuité des soins inter-hospitaliers d’urgence pour cas critiques.',
+      correspondancePaire: 'Convoi d’Honneur Corbillard Limousine VIP'
+    },
+    {
+      id: 'SRV-025',
+      categorie: 'SOINS_HOSPITALIERS',
+      nomCategorie: 'Soins Médicaux & Hospitaliers',
+      nomService: 'Constat de Décès & Passerelle Immédiate Morgue (60 Box)',
+      pole: 'HOPITAL',
+      perimetreMission: 'Constat officiel de décès par médecin légiste, braceletage d’identification et réservation instantanée d’un box parmi nos 60 box frigorifiques.',
+      lieuOuRessource: 'Sas Médical & Passerelle vers Chambre Froide (60 Box)',
+      prixUSD: 70,
+      prixCDF: 196000,
+      statut: 'ACTIF',
+      responsableMetier: 'Dr. Christian ILUNGA (Médecin Légiste)',
+      differentiateurCle: 'Pont direct reliant la fin de vie hospitalière à la chaîne de conservation froide.',
+      correspondancePaire: 'Constat Officiel de Décès & Visa Médico-Légal'
+    },
+    {
+      id: 'SRV-026',
+      categorie: 'SOINS_HOSPITALIERS',
+      nomCategorie: 'Soins Médicaux & Hospitaliers',
+      nomService: 'Plateau Technique & Livraisons (Pharmacie, Labo, Imagerie, Bloc)',
+      pole: 'HOPITAL',
+      perimetreMission: 'Examens biologiques complets, radiographies, cœlioscopie, dispensation pharmaceutique et actes opératoires spécialisés.',
+      lieuOuRessource: 'Laboratoire Central, Imagerie Numérique & Bloc Opératoire',
+      prixUSD: 180,
+      prixCDF: 504000,
+      statut: 'ACTIF',
+      responsableMetier: 'Biologiste Dr. Lukusa & Dr. MWAMBA (Chirurgien)',
+      differentiateurCle: 'Examens diagnostiques et actes interventionnels sur patients.',
+      correspondancePaire: 'Fournitures, Cercueils & Équipements'
     }
   ]);
 
@@ -491,7 +583,7 @@ export const SuperAdminPage: React.FC = () => {
   const [newPrenom, setNewPrenom] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newMotDePasse, setNewMotDePasse] = useState('Secur2026!');
-  const [newPolesAutorises, setNewPolesAutorises] = useState<'MORGUE' | 'FUNERARIUM' | 'LES_DEUX'>('MORGUE');
+  const [newPolesAutorises, setNewPolesAutorises] = useState<'MORGUE' | 'FUNERARIUM' | 'HOPITAL' | 'LES_DEUX' | 'TOUS'>('MORGUE');
   const [newDirection, setNewDirection] = useState<UserSession['directionRattachee']>('DIRECTION_MORGUE');
   const [newNiveau, setNewNiveau] = useState<NiveauAccreditation>(2);
   const [newRole, setNewRole] = useState<UserSession['role']>('AGENT_RECEPTION');
@@ -514,7 +606,7 @@ export const SuperAdminPage: React.FC = () => {
     updateAccount(agentId, { niveauAccreditation: niveau });
   };
 
-  const handleUpdatePoles = (agentId: string, poles: 'MORGUE' | 'FUNERARIUM' | 'LES_DEUX') => {
+  const handleUpdatePoles = (agentId: string, poles: 'MORGUE' | 'FUNERARIUM' | 'HOPITAL' | 'LES_DEUX' | 'TOUS') => {
     updateAccount(agentId, { polesAutorises: poles });
   };
 
@@ -625,6 +717,27 @@ export const SuperAdminPage: React.FC = () => {
       sortieEffective: '05/10/2026 - 11:20',
       finances: 'SOLDE',
       visaLegal: 'VALIDE'
+    },
+    {
+      dossierId: 'HOP-2026-00412',
+      defunt: 'BOKETSHU Jean-Marc (Patient Hospitalisé)',
+      pole: 'HOPITAL',
+      dateEntree: '28/10/2026 - 08:30',
+      statutSejour: 'Admis Urgences / Triage (Lit U-03)',
+      dateSortiePrevue: '31/10/2026 - 12:00',
+      finances: 'SOLDE',
+      visaLegal: 'VALIDE'
+    },
+    {
+      dossierId: 'HOP-2026-00408',
+      defunt: 'KABAMBA Léonard (Décès Constaté)',
+      pole: 'HOPITAL',
+      dateEntree: '27/10/2026 - 22:45',
+      statutSejour: 'Constat Décès 06h45 • Transféré Box #18 Morgue (sur 60 box)',
+      dateSortiePrevue: '28/10/2026 - 07:15',
+      sortieEffective: '28/10/2026 - 07:15',
+      finances: 'SOLDE',
+      visaLegal: 'VALIDE'
     }
   ]);
 
@@ -649,6 +762,27 @@ export const SuperAdminPage: React.FC = () => {
   // 4. SUPERVISION OPÉRATIONS MULTI-PÔLES (JOURNAL D’AUDIT CENTRAL)
   // =========================================================================
   const operationsMultiPole: OperationMultiPole[] = [
+    {
+      id: 'OP-1051',
+      pole: 'HOPITAL',
+      type: 'Admission Urgences & Bilan Biologique',
+      dossierId: 'HOP-2026-00412',
+      defunt: 'BOKETSHU Jean-Marc',
+      agent: 'Dr. Jeanne KASONGO',
+      horodatage: '28/10/2026 - 08:30',
+      statut: 'VALIDE',
+      montant: '$180 USD'
+    },
+    {
+      id: 'OP-1050',
+      pole: 'HOPITAL',
+      type: 'Constat Décès & Passerelle Box #18 Morgue (60 box)',
+      dossierId: 'HOP-2026-00408',
+      defunt: 'KABAMBA Léonard',
+      agent: 'Dr. Christian ILUNGA',
+      horodatage: '28/10/2026 - 06:45',
+      statut: 'VALIDE'
+    },
     {
       id: 'OP-1049',
       pole: 'MORGUE',
@@ -722,12 +856,13 @@ export const SuperAdminPage: React.FC = () => {
   // Catégories uniques pour les onglets de services
   const categoriesList = [
     { id: 'TOUTES', label: 'Toutes les Prestations' },
-    { id: 'SOINS_CORPS', label: '1. Soins & Thanatopraxie' },
-    { id: 'HEBERGEMENT_ESPACE', label: '2. Hébergement & Salons' },
-    { id: 'TRANSPORT_CONVOI', label: '3. Transports & Convois' },
-    { id: 'FOURNITURES', label: '4. Fournitures & Cercueils' },
-    { id: 'FORMALITES', label: '5. Formalités Légales' },
-    { id: 'CAISSE_TARIFS', label: '6. Caisse & Tarification' }
+    { id: 'SOINS_HOSPITALIERS', label: '1. Soins Médicaux & Hôpital' },
+    { id: 'SOINS_CORPS', label: '2. Soins du Corps & Thanatopraxie' },
+    { id: 'HEBERGEMENT_ESPACE', label: '3. Hébergement, 60 Box & Chapiteaux' },
+    { id: 'TRANSPORT_CONVOI', label: '4. Transports, SAMU & Convois' },
+    { id: 'FOURNITURES', label: '5. Pompes Funèbres & Fournitures' },
+    { id: 'FORMALITES', label: '6. Formalités Légales & Constats' },
+    { id: 'CAISSE_TARIFS', label: '7. Caisse & Tarification' }
   ];
 
   return (
@@ -747,12 +882,12 @@ export const SuperAdminPage: React.FC = () => {
             Cockpit de Supervision Transverse & Gestion des Accès
           </h1>
           <p className="text-xs text-slate-400 mt-0.5">
-            Pilotage unifié des Pôles Morgue & Funérarium, différenciation des services similaires, attribution RBAC et contrôle financier.
+            Pilotage unifié des Pôles Hôpital, Morgue (60 box) & Funérarium (Chapiteaux, Gradins, Espaces Verts, Convois, Pompes Funèbres), différenciation des services et contrôle RBAC.
           </p>
         </div>
 
         {/* Filtres globaux de secteur avec badges très clairs */}
-        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-900 border border-slate-800 text-xs shrink-0">
+        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-900 border border-slate-800 text-xs shrink-0 flex-wrap">
           <button
             onClick={() => setPoleFilter('TOUS')}
             className={`px-3 py-1.5 rounded-lg font-bold transition-colors ${
@@ -762,13 +897,22 @@ export const SuperAdminPage: React.FC = () => {
             Vue Consolidée
           </button>
           <button
+            onClick={() => setPoleFilter('HOPITAL')}
+            className={`px-3 py-1.5 rounded-lg font-bold transition-colors flex items-center gap-1.5 ${
+              poleFilter === 'HOPITAL' ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <span className="w-2.5 h-2.5 rounded-full bg-purple-400" />
+            <span>Pôle Hôpital</span>
+          </button>
+          <button
             onClick={() => setPoleFilter('MORGUE')}
             className={`px-3 py-1.5 rounded-lg font-bold transition-colors flex items-center gap-1.5 ${
               poleFilter === 'MORGUE' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
             }`}
           >
             <span className="w-2.5 h-2.5 rounded-full bg-sky-400" />
-            <span>Pôle Morgue</span>
+            <span>Pôle Morgue (60 box)</span>
           </button>
           <button
             onClick={() => setPoleFilter('FUNERARIUM')}
@@ -881,8 +1025,100 @@ export const SuperAdminPage: React.FC = () => {
       {/* ========================================================================= */}
       {activeTab === 'DASHBOARD' && (
         <div className="space-y-6">
-          {/* 8 KPIS STRATÉGIQUES AVEC BADGES TRÈS VISIBLES */}
+          {/* KPIS STRATÉGIQUES AVEC BADGES TRÈS VISIBLES */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* KPI HÔPITAL 1 : Admissions du Jour */}
+            {(poleFilter === 'TOUS' || poleFilter === 'HOPITAL') && (
+              <div
+                className={`border rounded-xl p-5 space-y-1 relative overflow-hidden transition-colors ${
+                  isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-semibold uppercase text-slate-400">
+                    Admissions du Jour
+                  </span>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-950 text-purple-300 border border-purple-800 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+                    PÔLE HÔPITAL
+                  </span>
+                </div>
+                <div className="text-2xl sm:text-3xl font-bold text-white">14 admis</div>
+                <div className="text-xs text-purple-400 pt-1 border-t border-slate-800">
+                  12 Urgences/Triage • 2 programmés
+                </div>
+              </div>
+            )}
+
+            {/* KPI HÔPITAL 2 : Lits & Pavillons */}
+            {(poleFilter === 'TOUS' || poleFilter === 'HOPITAL') && (
+              <div
+                className={`border rounded-xl p-5 space-y-1 relative overflow-hidden transition-colors ${
+                  isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-semibold uppercase text-slate-400">
+                    Lits & Pavillons
+                  </span>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-950 text-purple-300 border border-purple-800 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+                    PÔLE HÔPITAL
+                  </span>
+                </div>
+                <div className="text-2xl sm:text-3xl font-bold text-white">48 lits</div>
+                <div className="text-xs text-slate-400 pt-1 border-t border-slate-800">
+                  64% d'occupation (sur 75 lits)
+                </div>
+              </div>
+            )}
+
+            {/* KPI HÔPITAL 3 : Sorties & Guérisons */}
+            {(poleFilter === 'TOUS' || poleFilter === 'HOPITAL') && (
+              <div
+                className={`border rounded-xl p-5 space-y-1 relative overflow-hidden transition-colors ${
+                  isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-semibold uppercase text-slate-400">
+                    Sorties & Guérisons
+                  </span>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-950 text-purple-300 border border-purple-800 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+                    PÔLE HÔPITAL
+                  </span>
+                </div>
+                <div className="text-2xl sm:text-3xl font-bold text-white">9 décharges</div>
+                <div className="text-xs text-emerald-400 pt-1 border-t border-slate-800">
+                  6 guérisons complètes • 3 ordonnances
+                </div>
+              </div>
+            )}
+
+            {/* KPI HÔPITAL 4 : Transferts & Constats Décès */}
+            {(poleFilter === 'TOUS' || poleFilter === 'HOPITAL') && (
+              <div
+                className={`border rounded-xl p-5 space-y-1 relative overflow-hidden transition-colors ${
+                  isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-semibold uppercase text-slate-400">
+                    Transferts & Décès
+                  </span>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-purple-950 text-purple-300 border border-purple-800 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
+                    PÔLE HÔPITAL
+                  </span>
+                </div>
+                <div className="text-2xl sm:text-3xl font-bold text-white">2 transf. • 1 décès</div>
+                <div className="text-xs text-amber-400 pt-1 border-t border-slate-800">
+                  Décès orienté vers Box #18 Morgue (60 box)
+                </div>
+              </div>
+            )}
+
             {/* KPI 1 : MORGUE - Défunts Présents / Sortis */}
             {(poleFilter === 'TOUS' || poleFilter === 'MORGUE') && (
               <div
@@ -906,7 +1142,7 @@ export const SuperAdminPage: React.FC = () => {
               </div>
             )}
 
-            {/* KPI 2 : MORGUE - Casiers Frigorifiques */}
+            {/* KPI 2 : MORGUE - Capacité 60 Box Frigorifiques */}
             {(poleFilter === 'TOUS' || poleFilter === 'MORGUE') && (
               <div
                 className={`border rounded-xl p-5 space-y-1 relative overflow-hidden transition-colors ${
@@ -915,21 +1151,21 @@ export const SuperAdminPage: React.FC = () => {
               >
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-semibold uppercase text-slate-400">
-                    Casiers Frigorifiques
+                    Capacité Froid • 60 Box
                   </span>
                   <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-950 text-sky-300 border border-blue-800 flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
                     PÔLE MORGUE
                   </span>
                 </div>
-                <div className="text-2xl sm:text-3xl font-bold text-white">14 libres</div>
-                <div className="text-xs text-slate-400 pt-1 border-t border-slate-800">
-                  56% d’occupation (18/32 casiers)
+                <div className="text-2xl sm:text-3xl font-bold text-white">26 libres</div>
+                <div className="text-xs text-sky-400 pt-1 border-t border-slate-800">
+                  34 occupés • 56,7% d'occupation (sur 60 box)
                 </div>
               </div>
             )}
 
-            {/* KPI 3 : FUNÉRARIUM - Salons de Veillée */}
+            {/* KPI 3 : FUNÉRARIUM - Chapiteaux & Espaces Verts */}
             {(poleFilter === 'TOUS' || poleFilter === 'FUNERARIUM') && (
               <div
                 className={`border rounded-xl p-5 space-y-1 relative overflow-hidden transition-colors ${
@@ -938,21 +1174,21 @@ export const SuperAdminPage: React.FC = () => {
               >
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-semibold uppercase text-slate-400">
-                    Salons de Veillée
+                    Chapiteaux & Espaces Verts
                   </span>
                   <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-800 flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                     PÔLE FUNÉRARIUM
                   </span>
                 </div>
-                <div className="text-2xl sm:text-3xl font-bold text-white">6 réservés</div>
+                <div className="text-2xl sm:text-3xl font-bold text-white">4 réservés</div>
                 <div className="text-xs text-slate-400 pt-1 border-t border-slate-800">
-                  75% d’occupation (sur 8 salons)
+                  Chapiteaux 250p & Jardins paysagers
                 </div>
               </div>
             )}
 
-            {/* KPI 4 : FUNÉRARIUM - Cérémonies du Jour */}
+            {/* KPI 4 : FUNÉRARIUM - Gradins & Pompes Funèbres */}
             {(poleFilter === 'TOUS' || poleFilter === 'FUNERARIUM') && (
               <div
                 className={`border rounded-xl p-5 space-y-1 relative overflow-hidden transition-colors ${
@@ -961,16 +1197,16 @@ export const SuperAdminPage: React.FC = () => {
               >
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-semibold uppercase text-slate-400">
-                    Cérémonies du Jour
+                    Gradins & Pompes Funèbres
                   </span>
                   <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-800 flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                     PÔLE FUNÉRARIUM
                   </span>
                 </div>
-                <div className="text-2xl sm:text-3xl font-bold text-white">2 cérémonies</div>
+                <div className="text-2xl sm:text-3xl font-bold text-white">3 gradins d'honneur</div>
                 <div className="text-xs text-slate-400 pt-1 border-t border-slate-800">
-                  4 convois corbillard planifiés
+                  4 convois corbillard & 5 cercueils en cours
                 </div>
               </div>
             )}
@@ -1146,6 +1382,23 @@ export const SuperAdminPage: React.FC = () => {
               </div>
 
               <div className="space-y-4">
+                {/* Jauge Hôpital */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-semibold text-slate-300 flex items-center gap-1.5">
+                      <span className="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-purple-950 text-purple-300 border border-purple-800">
+                        HÔPITAL
+                      </span>
+                      Lits d'Hospitalisation (75 lits)
+                    </span>
+                    <span className="font-mono text-purple-400 font-bold">64% (48/75)</span>
+                  </div>
+                  <div className="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                    <div className="bg-purple-500 h-full rounded-full transition-all duration-500" style={{ width: '64%' }} />
+                  </div>
+                  <span className="text-[10px] text-slate-400 block">27 lits immédiatement disponibles en pavillon</span>
+                </div>
+
                 {/* Jauge Morgue */}
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
@@ -1153,14 +1406,14 @@ export const SuperAdminPage: React.FC = () => {
                       <span className="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-blue-950 text-sky-300 border border-blue-800">
                         MORGUE
                       </span>
-                      Casiers Frigorifiques (32 places)
+                      Box Frigorifiques (60 box)
                     </span>
-                    <span className="font-mono text-sky-400 font-bold">56% (18/32)</span>
+                    <span className="font-mono text-sky-400 font-bold">56,7% (34/60)</span>
                   </div>
                   <div className="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
-                    <div className="bg-blue-500 h-full rounded-full transition-all duration-500" style={{ width: '56%' }} />
+                    <div className="bg-blue-500 h-full rounded-full transition-all duration-500" style={{ width: '56.7%' }} />
                   </div>
-                  <span className="text-[10px] text-slate-400 block">14 casiers immédiatement disponibles pour admission</span>
+                  <span className="text-[10px] text-slate-400 block">26 box immédiatement disponibles pour admission</span>
                 </div>
 
                 {/* Jauge Funérarium */}
@@ -1170,14 +1423,14 @@ export const SuperAdminPage: React.FC = () => {
                       <span className="px-1.5 py-0.2 rounded text-[9px] font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
                         FUNÉRARIUM
                       </span>
-                      Salons de Recueillement (8 salons)
+                      Chapiteaux & Espaces Verts (6 modules)
                     </span>
-                    <span className="font-mono text-emerald-400 font-bold">75% (6/8)</span>
+                    <span className="font-mono text-emerald-400 font-bold">66% (4/6)</span>
                   </div>
                   <div className="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden">
-                    <div className="bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: '75%' }} />
+                    <div className="bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: '66%' }} />
                   </div>
-                  <span className="text-[10px] text-slate-400 block">2 salons disponibles pour nouvelles veillées</span>
+                  <span className="text-[10px] text-slate-400 block">2 zones paysagères libres pour nouvelles veillées</span>
                 </div>
 
                 {/* Jauge Convois & Flotte Corbillards */}
@@ -1274,11 +1527,25 @@ export const SuperAdminPage: React.FC = () => {
                           className={`px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase inline-flex items-center gap-1 ${
                             item.pole === 'MORGUE'
                               ? 'bg-blue-950 text-sky-300 border border-blue-800'
+                              : item.pole === 'HOPITAL'
+                              ? 'bg-purple-950 text-purple-300 border border-purple-800'
                               : 'bg-emerald-950 text-emerald-300 border border-emerald-800'
                           }`}
                         >
-                          <span className={`w-1.5 h-1.5 rounded-full ${item.pole === 'MORGUE' ? 'bg-sky-400' : 'bg-emerald-400'}`} />
-                          {item.pole === 'MORGUE' ? 'PÔLE MORGUE' : 'PÔLE FUNÉRARIUM'}
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full ${
+                              item.pole === 'MORGUE'
+                                ? 'bg-sky-400'
+                                : item.pole === 'HOPITAL'
+                                ? 'bg-purple-400'
+                                : 'bg-emerald-400'
+                            }`}
+                          />
+                          {item.pole === 'MORGUE'
+                            ? 'PÔLE MORGUE'
+                            : item.pole === 'HOPITAL'
+                            ? 'PÔLE HÔPITAL'
+                            : 'PÔLE FUNÉRARIUM'}
                         </span>
                       </td>
                       <td className="py-3.5 px-4 font-mono font-bold text-white">{item.dossierId}</td>
@@ -1452,15 +1719,25 @@ export const SuperAdminPage: React.FC = () => {
                             className={`px-2.5 py-1 rounded text-[10px] font-bold font-mono uppercase inline-flex items-center gap-1.5 shadow-sm ${
                               service.pole === 'MORGUE'
                                 ? 'bg-blue-950 text-sky-300 border border-blue-800'
+                                : service.pole === 'HOPITAL'
+                                ? 'bg-purple-950 text-purple-300 border border-purple-800'
                                 : 'bg-emerald-950 text-emerald-300 border border-emerald-800'
                             }`}
                           >
                             <span
                               className={`w-2 h-2 rounded-full ${
-                                service.pole === 'MORGUE' ? 'bg-sky-400 animate-pulse' : 'bg-emerald-400 animate-pulse'
+                                service.pole === 'MORGUE'
+                                  ? 'bg-sky-400 animate-pulse'
+                                  : service.pole === 'HOPITAL'
+                                  ? 'bg-purple-400 animate-pulse'
+                                  : 'bg-emerald-400 animate-pulse'
                               }`}
                             />
-                            {service.pole === 'MORGUE' ? 'PÔLE MORGUE' : 'PÔLE FUNÉRARIUM'}
+                            {service.pole === 'MORGUE'
+                              ? 'PÔLE MORGUE'
+                              : service.pole === 'HOPITAL'
+                              ? 'PÔLE HÔPITAL'
+                              : 'PÔLE FUNÉRARIUM'}
                           </span>
                         </td>
 
@@ -1692,12 +1969,12 @@ export const SuperAdminPage: React.FC = () => {
 
             <div className="flex items-center gap-2 flex-wrap w-full lg:w-auto justify-between lg:justify-end">
               {/* Filtre Pôle Autorisé */}
-              <div className="flex items-center gap-1.5 bg-slate-900/80 p-1 rounded-xl border border-slate-800 text-[11px]">
+              <div className="flex items-center gap-1.5 bg-slate-900/80 p-1 rounded-xl border border-slate-800 text-[11px] flex-wrap">
                 <span className="text-slate-400 px-1.5">Pôles :</span>
-                {(['TOUS', 'MORGUE', 'FUNERARIUM', 'LES_DEUX'] as const).map((pole) => (
+                {(['TOUS', 'HOPITAL', 'MORGUE', 'FUNERARIUM', 'LES_DEUX'] as const).map((pole) => (
                   <button
                     key={pole}
-                    onClick={() => setFilterPoleAuth(pole)}
+                    onClick={() => setFilterPoleAuth(pole as any)}
                     className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition-colors ${
                       filterPoleAuth === pole
                         ? 'bg-amber-500 text-slate-950 shadow-sm'
@@ -1706,7 +1983,15 @@ export const SuperAdminPage: React.FC = () => {
                         : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
-                    {pole === 'TOUS' ? 'Tous' : pole === 'MORGUE' ? '🟦 Morgue' : pole === 'FUNERARIUM' ? '🟩 Funérarium' : '🟦🟩 2 Pôles'}
+                    {pole === 'TOUS'
+                      ? 'Tous'
+                      : pole === 'HOPITAL'
+                      ? '🟪 Hôpital'
+                      : pole === 'MORGUE'
+                      ? '🟦 Morgue'
+                      : pole === 'FUNERARIUM'
+                      ? '🟩 Funérarium'
+                      : '🌐 Multi-Pôles'}
                   </button>
                 ))}
               </div>
@@ -1722,6 +2007,7 @@ export const SuperAdminPage: React.FC = () => {
                 }`}
               >
                 <option value="TOUTES">Tous départements</option>
+                <option value="DIRECTION_HOPITAL">🟪 Hôpital</option>
                 <option value="DIRECTION_MORGUE">🟦 Morgue</option>
                 <option value="DIRECTION_FUNERARIUM">🟩 Funérarium</option>
                 <option value="CAISSE_CENTRALE">🟨 Caisse Centrale</option>
@@ -2109,11 +2395,21 @@ export const SuperAdminPage: React.FC = () => {
                             className={`px-2 py-0.5 rounded text-[10px] font-bold font-mono uppercase inline-flex items-center gap-1 ${
                               op.pole === 'MORGUE'
                                 ? 'bg-blue-950 text-sky-300 border border-blue-800'
+                                : op.pole === 'HOPITAL'
+                                ? 'bg-purple-950 text-purple-300 border border-purple-800'
                                 : 'bg-emerald-950 text-emerald-300 border border-emerald-800'
                             }`}
                           >
-                            <span className={`w-1.5 h-1.5 rounded-full ${op.pole === 'MORGUE' ? 'bg-sky-400' : 'bg-emerald-400'}`} />
-                            {op.pole}
+                            <span
+                              className={`w-1.5 h-1.5 rounded-full ${
+                                op.pole === 'MORGUE'
+                                  ? 'bg-sky-400'
+                                  : op.pole === 'HOPITAL'
+                                  ? 'bg-purple-400'
+                                  : 'bg-emerald-400'
+                              }`}
+                            />
+                            {op.pole === 'MORGUE' ? 'PÔLE MORGUE' : op.pole === 'HOPITAL' ? 'PÔLE HÔPITAL' : 'PÔLE FUNÉRARIUM'}
                           </span>
                         </td>
                         <td className="py-3.5 px-4 font-mono font-medium text-white">{op.id}</td>
@@ -2424,7 +2720,19 @@ export const SuperAdminPage: React.FC = () => {
                 <label className="block text-slate-300 mb-1.5 font-medium">
                   Pôle(s) d'accès autorisé(s)
                 </label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setNewPolesAutorises('HOPITAL')}
+                    className={`p-2.5 rounded-xl border text-center transition-all ${
+                      newPolesAutorises === 'HOPITAL'
+                        ? 'bg-purple-600 text-white border-purple-400 font-bold shadow-sm'
+                        : 'bg-[#040A1A] text-slate-300 border-blue-950 hover:border-purple-800'
+                    }`}
+                  >
+                    <span className="block font-bold text-xs">Pôle Hôpital</span>
+                    <span className="text-[10px] opacity-75">Uniquement</span>
+                  </button>
                   <button
                     type="button"
                     onClick={() => setNewPolesAutorises('MORGUE')}
@@ -2451,15 +2759,15 @@ export const SuperAdminPage: React.FC = () => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setNewPolesAutorises('LES_DEUX')}
+                    onClick={() => setNewPolesAutorises('TOUS')}
                     className={`p-2.5 rounded-xl border text-center transition-all ${
-                      newPolesAutorises === 'LES_DEUX'
-                        ? 'bg-gradient-to-r from-blue-600 to-emerald-600 text-white border-sky-400 font-bold shadow-sm'
+                      newPolesAutorises === 'TOUS' || newPolesAutorises === 'LES_DEUX'
+                        ? 'bg-gradient-to-r from-purple-600 via-blue-600 to-emerald-600 text-white border-sky-400 font-bold shadow-sm'
                         : 'bg-[#040A1A] text-slate-300 border-blue-950 hover:border-sky-800'
                     }`}
                   >
-                    <span className="block font-bold text-xs">Les 2 Pôles</span>
-                    <span className="text-[10px] opacity-75">Mixte / Transverse</span>
+                    <span className="block font-bold text-xs">Tous les Pôles</span>
+                    <span className="text-[10px] opacity-75">Hôp + Mrg + Fun</span>
                   </button>
                 </div>
               </div>
@@ -2472,6 +2780,7 @@ export const SuperAdminPage: React.FC = () => {
                     onChange={(e) => setNewDirection(e.target.value as any)}
                     className="w-full p-2 bg-[#040A1A] border border-blue-950 rounded-xl text-white font-medium"
                   >
+                    <option value="DIRECTION_HOPITAL">Direction Hôpital</option>
                     <option value="DIRECTION_MORGUE">Direction Morgue</option>
                     <option value="DIRECTION_FUNERARIUM">Direction Funérarium</option>
                     <option value="CAISSE_CENTRALE">Caisse Centrale</option>
@@ -2588,7 +2897,19 @@ export const SuperAdminPage: React.FC = () => {
                 <label className="block text-slate-300 mb-1.5 font-medium">
                   Pôle(s) d'accès autorisé(s)
                 </label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditingAccount({ ...editingAccount, polesAutorises: 'HOPITAL' })}
+                    className={`p-2.5 rounded-xl border text-center transition-all ${
+                      editingAccount.polesAutorises === 'HOPITAL'
+                        ? 'bg-purple-600 text-white border-purple-400 font-bold shadow-sm'
+                        : 'bg-[#040A1A] text-slate-300 border-blue-950 hover:border-purple-800'
+                    }`}
+                  >
+                    <span className="block font-bold text-xs">Pôle Hôpital</span>
+                    <span className="text-[10px] opacity-75">Uniquement</span>
+                  </button>
                   <button
                     type="button"
                     onClick={() => setEditingAccount({ ...editingAccount, polesAutorises: 'MORGUE' })}
@@ -2615,15 +2936,15 @@ export const SuperAdminPage: React.FC = () => {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setEditingAccount({ ...editingAccount, polesAutorises: 'LES_DEUX' })}
+                    onClick={() => setEditingAccount({ ...editingAccount, polesAutorises: 'TOUS' })}
                     className={`p-2.5 rounded-xl border text-center transition-all ${
-                      editingAccount.polesAutorises === 'LES_DEUX'
-                        ? 'bg-gradient-to-r from-blue-600 to-emerald-600 text-white border-sky-400 font-bold shadow-sm'
+                      editingAccount.polesAutorises === 'TOUS' || editingAccount.polesAutorises === 'LES_DEUX'
+                        ? 'bg-gradient-to-r from-purple-600 via-blue-600 to-emerald-600 text-white border-sky-400 font-bold shadow-sm'
                         : 'bg-[#040A1A] text-slate-300 border-blue-950 hover:border-sky-800'
                     }`}
                   >
-                    <span className="block font-bold text-xs">Les 2 Pôles</span>
-                    <span className="text-[10px] opacity-75">Mixte / Transverse</span>
+                    <span className="block font-bold text-xs">Tous les Pôles</span>
+                    <span className="text-[10px] opacity-75">Hôp + Mrg + Fun</span>
                   </button>
                 </div>
               </div>
@@ -2636,6 +2957,7 @@ export const SuperAdminPage: React.FC = () => {
                     onChange={(e) => setEditingAccount({ ...editingAccount, directionRattachee: e.target.value as any })}
                     className="w-full p-2 bg-[#040A1A] border border-blue-950 rounded-xl text-white font-medium"
                   >
+                    <option value="DIRECTION_HOPITAL">Direction Hôpital</option>
                     <option value="DIRECTION_MORGUE">Direction Morgue</option>
                     <option value="DIRECTION_FUNERARIUM">Direction Funérarium</option>
                     <option value="CAISSE_CENTRALE">Caisse Centrale</option>

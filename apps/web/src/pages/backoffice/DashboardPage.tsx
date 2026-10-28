@@ -29,7 +29,17 @@ import {
   Box,
   MapPin,
   Sparkles,
-  ArrowLeftRight
+  ArrowLeftRight,
+  Activity,
+  Stethoscope,
+  Bed,
+  HeartPulse,
+  Pill,
+  Microscope,
+  UserCheck,
+  UserX,
+  Send,
+  HeartCrack
 } from 'lucide-react';
 import { useBackoffice } from '../../context/BackofficeContext';
 import { ApiClient } from '../../services/api';
@@ -79,6 +89,54 @@ interface ReservationFuneraire {
   statutCeremonie: 'CONFIRME' | 'EN_COURS' | 'CLOTURE';
   corbillardAssigné?: string;
   avancementPreparation: number; // 0 - 100%
+}
+
+export interface PatientHopital {
+  id: string;
+  numeroDossier: string;
+  patientNom: string;
+  patientPrenom: string;
+  sexe: 'MASCULIN' | 'FEMININ';
+  age: number;
+  telephone: string;
+  dateAdmission: string;
+  typeAdmission: 'NOUVEAU_CAS' | 'ANCIEN_PATIENT';
+  statutClinique: 'ADMIS_URGENCES' | 'HOSPITALISE' | 'SORTIE_GUERI' | 'TRANSFERE' | 'DECEDE';
+  service: 'URGENCES' | 'MEDECINE_INTERNE' | 'CHIRURGIE' | 'MATERNITE' | 'PEDIATRIE' | 'SOINS_INTENSIFS';
+  chambreLit: string;
+  medecinTraitant: string;
+  diagnosticPrincipal: string;
+  totalUSD: number;
+  totalCDF: number;
+  payeUSD: number;
+  statutPaiement: 'SOLDE' | 'ACOMPTE' | 'EN_ATTENTE';
+  transfertDetails?: {
+    etablissementCible: string;
+    motifTransfert: string;
+    dateHeure: string;
+    ambulanceAssignee: string;
+  };
+  decesDetails?: {
+    dateHeureConstat: string;
+    medecinDeclarant: string;
+    boxMorgueAssignee: string;
+    transfereMorgue: boolean;
+  };
+  actesLivres: string[];
+}
+
+export interface ServiceHospitalierLivraison {
+  id: string;
+  dateHeure: string;
+  numeroDossier: string;
+  patientNom: string;
+  departement: 'PHARMACIE' | 'LABORATOIRE' | 'IMAGERIE' | 'BLOC' | 'SOINS_INFIRMIERS';
+  designationActeOuProduit: string;
+  quantite: number;
+  montantUSD: number;
+  montantCDF: number;
+  praticienResponsable: string;
+  statutLivraison: 'LIVRE' | 'EN_COURS' | 'VALIDE';
 }
 
 export const DashboardPage: React.FC = () => {
@@ -188,11 +246,17 @@ export const DashboardPage: React.FC = () => {
       familleNom: 'Famille KASANDA (Grâce)',
       familleTel: '+243 82 555 1234',
       defuntNom: 'KASANDA TSHIYOYO Jean-Luc',
-      salon: 'Grand Salon Cérémonial A',
+      salon: 'Grand Chapiteau Climatisé (250 places)',
       creneau: '08/10/2026 • 18h00 - 23h00',
-      prestations: ['Cercueil Chêne Massif', 'Traiteur 50p', 'Mémorial Numérique Web', 'Chapiteau & Chaises VIP'],
-      devisUSD: 1450,
-      devisCDF: 4060000,
+      prestations: [
+        'Location Chapiteau étanche climatisé (250p)',
+        'Gradins modulaires d’honneur (120 places)',
+        'Privatisation Espaces Verts paysagers',
+        'Corbillard Limousine Mercedes VIP #01',
+        'Pompes Funèbres : Cercueil Chêne Massif & Fleuristerie'
+      ],
+      devisUSD: 1850,
+      devisCDF: 5180000,
       statutPaiement: 'SOLDE',
       statutCeremonie: 'CONFIRME',
       corbillardAssigné: 'Corbillard Limousine Mercedes VIP #01',
@@ -204,11 +268,16 @@ export const DashboardPage: React.FC = () => {
       familleNom: 'Famille MUTOMBO (Patrick)',
       familleTel: '+243 99 722 2228',
       defuntNom: 'MUTOMBO KABEYA Patient',
-      salon: 'Salon Intimiste B',
+      salon: 'Espaces Verts & Tente de Recueillement',
       creneau: '07/10/2026 • 14h00 - 18h00',
-      prestations: ['Corbillard Limousine VIP', 'Gerbe Florale Prestige', 'Livre d’Or cuir & Stylos'],
-      devisUSD: 980,
-      devisCDF: 2744000,
+      prestations: [
+        'Privatisation Espaces Verts paysagers',
+        'Gradins modulaires d’honneur',
+        'Corbillard Limousine Lincoln #02',
+        'Pompes Funèbres : Livre d’Or cuir & Couronnes'
+      ],
+      devisUSD: 1200,
+      devisCDF: 3360000,
       statutPaiement: 'SOLDE',
       statutCeremonie: 'EN_COURS',
       corbillardAssigné: 'Corbillard Limousine Lincoln #02',
@@ -220,11 +289,16 @@ export const DashboardPage: React.FC = () => {
       familleNom: 'Famille TSHILOMBA (Alain)',
       familleTel: '+243 81 234 5678',
       defuntNom: 'TSHILOMBA MBIYA Thérèse',
-      salon: 'Grand Salon Cérémonial B',
+      salon: 'Grand Chapiteau Cérémonial B',
       creneau: '09/10/2026 • 19h00 - 06h00',
-      prestations: ['Conciergerie & Boissons chaudes', 'Veillée de prière', 'Sono & Chœur liturgique'],
-      devisUSD: 1120,
-      devisCDF: 3136000,
+      prestations: [
+        'Location Chapiteau climatisé 150p',
+        'Gradins modulaires d’honneur',
+        'Corbillard Fourgon Deluxe #03',
+        'Pompes Funèbres : Cercueil Tradition Acajou'
+      ],
+      devisUSD: 1420,
+      devisCDF: 3976000,
       statutPaiement: 'ACOMPTE',
       statutCeremonie: 'CONFIRME',
       corbillardAssigné: 'Corbillard Fourgon Deluxe #03',
@@ -236,21 +310,270 @@ export const DashboardPage: React.FC = () => {
       familleNom: 'Famille LUMUMBA (Marc)',
       familleTel: '+243 83 330 0400',
       defuntNom: 'LUMUMBA DIUMI André',
-      salon: 'Salon Intimiste A',
+      salon: 'Espaces Verts & Jardins Paysagers A',
       creneau: '10/10/2026 • 10h00 - 14h00',
-      prestations: ['Plaque commémorative en marbre', 'Transfert depuis centre médical'],
-      devisUSD: 650,
-      devisCDF: 1820000,
+      prestations: [
+        'Espaces Verts de recueillement & Chaises d’honneur',
+        'Transport Corbillard Fourgon d’escorte',
+        'Pompes Funèbres : Registre commémoratif'
+      ],
+      devisUSD: 850,
+      devisCDF: 2380000,
       statutPaiement: 'SOLDE',
       statutCeremonie: 'CONFIRME',
-      corbillardAssigné: 'Non assigné',
+      corbillardAssigné: 'Corbillard Mercedes Deluxe #04',
       avancementPreparation: 40
+    }
+  ]);
+
+  // =========================================================================
+  // 1.B ÉTAT DES DONNÉES DU REGISTRE HÔPITAL (SOINS, ADMISSIONS, TRANSFERTS, DÉCÈS)
+  // =========================================================================
+  const [registreHopital, setRegistreHopital] = useState<PatientHopital[]>([
+    {
+      id: 'hop-1',
+      numeroDossier: '#HOP-2026-00412',
+      patientNom: 'BOKETSHU',
+      patientPrenom: 'Jean-Marc',
+      sexe: 'MASCULIN',
+      age: 34,
+      telephone: '+243 81 999 1122',
+      dateAdmission: '28/10/2026 - 08:30',
+      typeAdmission: 'NOUVEAU_CAS',
+      statutClinique: 'ADMIS_URGENCES',
+      service: 'URGENCES',
+      chambreLit: 'Lit U-03 (Triage)',
+      medecinTraitant: 'Dr. Jeanne KASONGO',
+      diagnosticPrincipal: 'Paludisme grave avec syndrome fébrile aigu et déshydratation',
+      totalUSD: 180,
+      totalCDF: 504000,
+      payeUSD: 180,
+      statutPaiement: 'SOLDE',
+      actesLivres: ['Consultation Urgences', 'Bilan Goutte Épaisse & NFS', 'Perfusion Artésunate IV 24h']
+    },
+    {
+      id: 'hop-2',
+      numeroDossier: '#HOP-2026-00398',
+      patientNom: 'MUKUNA',
+      patientPrenom: 'Antoinette',
+      sexe: 'FEMININ',
+      age: 58,
+      telephone: '+243 99 444 8877',
+      dateAdmission: '24/10/2026 - 14:15',
+      typeAdmission: 'ANCIEN_PATIENT',
+      statutClinique: 'HOSPITALISE',
+      service: 'MEDECINE_INTERNE',
+      chambreLit: 'Pavillon A — Lit #12 (Séjour 4j)',
+      medecinTraitant: 'Dr. Christian ILUNGA',
+      diagnosticPrincipal: 'Décompensation cardio-vasculaire & HTA stade 3 sous surveillance',
+      totalUSD: 480,
+      totalCDF: 1344000,
+      payeUSD: 300,
+      statutPaiement: 'ACOMPTE',
+      actesLivres: ['Hospitalisation 4j', 'Échocardiographie doppler', 'Surveillance monitorée']
+    },
+    {
+      id: 'hop-3',
+      numeroDossier: '#HOP-2026-00405',
+      patientNom: 'TSHIELA',
+      patientPrenom: 'Clarisse',
+      sexe: 'FEMININ',
+      age: 28,
+      telephone: '+243 82 333 5544',
+      dateAdmission: '26/10/2026 - 10:00',
+      typeAdmission: 'ANCIEN_PATIENT',
+      statutClinique: 'SORTIE_GUERI',
+      service: 'MATERNITE',
+      chambreLit: 'Pavillon B — Lit #05 (Libéré)',
+      medecinTraitant: 'Dr. MBALU Roger',
+      diagnosticPrincipal: 'Accouchement eutocique sans complication, nouveau-né à terme en bonne santé',
+      totalUSD: 350,
+      totalCDF: 980000,
+      payeUSD: 350,
+      statutPaiement: 'SOLDE',
+      actesLivres: ['Accouchement assisté', 'Soins du nouveau-né & carnet', 'Ordonnance de sortie délivrée']
+    },
+    {
+      id: 'hop-4',
+      numeroDossier: '#HOP-2026-00410',
+      patientNom: 'KALOMBO',
+      patientPrenom: 'David',
+      sexe: 'MASCULIN',
+      age: 46,
+      telephone: '+243 85 777 2211',
+      dateAdmission: '28/10/2026 - 06:15',
+      typeAdmission: 'NOUVEAU_CAS',
+      statutClinique: 'TRANSFERE',
+      service: 'SOINS_INTENSIFS',
+      chambreLit: 'Lit SI-02 (Transféré)',
+      medecinTraitant: 'Dr. Jeanne KASONGO',
+      diagnosticPrincipal: 'Syndrome coronarien aigu (Infarctus) — Évacuation vers plateau de coronarographie',
+      totalUSD: 290,
+      totalCDF: 812000,
+      payeUSD: 290,
+      statutPaiement: 'SOLDE',
+      transfertDetails: {
+        etablissementCible: 'Centre Médical Diamant / HJ Hospital',
+        motifTransfert: 'Plateau technique d’angioplastie & coronarographie d’urgence',
+        dateHeure: '28/10/2026 - 11:30',
+        ambulanceAssignee: 'Ambulance Médicalisée SAMU #02'
+      },
+      actesLivres: ['Électrocardiogramme 12 dérivations', 'Stabilisation hémodynamique', 'Fiche d’évacuation médicale']
+    },
+    {
+      id: 'hop-5',
+      numeroDossier: '#HOP-2026-00408',
+      patientNom: 'KABAMBA',
+      patientPrenom: 'Léonard',
+      sexe: 'MASCULIN',
+      age: 72,
+      telephone: '+243 81 888 9900',
+      dateAdmission: '27/10/2026 - 22:45',
+      typeAdmission: 'ANCIEN_PATIENT',
+      statutClinique: 'DECEDE',
+      service: 'SOINS_INTENSIFS',
+      chambreLit: 'Lit SI-04 (Transféré Morgue)',
+      medecinTraitant: 'Dr. Christian ILUNGA',
+      diagnosticPrincipal: 'Arrêt cardio-respiratoire réfractaire, antécédents d’insuffisance rénale terminale',
+      totalUSD: 520,
+      totalCDF: 1456000,
+      payeUSD: 520,
+      statutPaiement: 'SOLDE',
+      decesDetails: {
+        dateHeureConstat: '28/10/2026 à 06:45',
+        medecinDeclarant: 'Dr. Christian ILUNGA (Médecin Légiste)',
+        boxMorgueAssignee: 'Box #18 Morgue',
+        transfereMorgue: true
+      },
+      actesLivres: ['Réanimation cardio-pulmonaire avancée', 'Procès-verbal médical de décès', 'Braceletage & Transfert Box #18']
+    },
+    {
+      id: 'hop-6',
+      numeroDossier: '#HOP-2026-00411',
+      patientNom: 'ILUNGA',
+      patientPrenom: 'Grâce',
+      sexe: 'FEMININ',
+      age: 19,
+      telephone: '+243 99 222 3344',
+      dateAdmission: '28/10/2026 - 07:00',
+      typeAdmission: 'NOUVEAU_CAS',
+      statutClinique: 'HOSPITALISE',
+      service: 'CHIRURGIE',
+      chambreLit: 'Pavillon C — Lit #08',
+      medecinTraitant: 'Dr. MWAMBA Guy',
+      diagnosticPrincipal: 'Appendicite aiguë purulente opérée avec succès, surveillance post-opératoire',
+      totalUSD: 620,
+      totalCDF: 1736000,
+      payeUSD: 400,
+      statutPaiement: 'ACOMPTE',
+      actesLivres: ['Appendicectomie cœlioscopique', 'Anesthésie générale', 'Antibioprophylaxie IV']
+    }
+  ]);
+
+  // Prestations et Livraisons de services hospitaliers
+  const [servicesHospitaliers, setServicesHospitaliers] = useState<ServiceHospitalierLivraison[]>([
+    {
+      id: 'liv-1',
+      dateHeure: '28/10 - 09:15',
+      numeroDossier: '#HOP-2026-00412',
+      patientNom: 'BOKETSHU Jean-Marc',
+      departement: 'PHARMACIE',
+      designationActeOuProduit: 'Antibiotique Céftriaxone 1g + Soluté Ringer 500ml',
+      quantite: 4,
+      montantUSD: 45,
+      montantCDF: 126000,
+      praticienResponsable: 'Pharmacien Chef Kalonji',
+      statutLivraison: 'LIVRE'
+    },
+    {
+      id: 'liv-2',
+      dateHeure: '28/10 - 09:45',
+      numeroDossier: '#HOP-2026-00398',
+      patientNom: 'MUKUNA Antoinette',
+      departement: 'LABORATOIRE',
+      designationActeOuProduit: 'Bilan sanguin complet : Ionogramme, Créatinine, Urée & NFS',
+      quantite: 1,
+      montantUSD: 60,
+      montantCDF: 168000,
+      praticienResponsable: 'Biologiste Dr. Lukusa',
+      statutLivraison: 'VALIDE'
+    },
+    {
+      id: 'liv-3',
+      dateHeure: '28/10 - 10:20',
+      numeroDossier: '#HOP-2026-00410',
+      patientNom: 'KALOMBO David',
+      departement: 'IMAGERIE',
+      designationActeOuProduit: 'Radiographie pulmonaire numérique & ECG d’urgence',
+      quantite: 1,
+      montantUSD: 50,
+      montantCDF: 140000,
+      praticienResponsable: 'Manipulateur Radio Nsenga',
+      statutLivraison: 'LIVRE'
+    },
+    {
+      id: 'liv-4',
+      dateHeure: '28/10 - 11:00',
+      numeroDossier: '#HOP-2026-00411',
+      patientNom: 'ILUNGA Grâce',
+      departement: 'BLOC',
+      designationActeOuProduit: 'Intervention chirurgicale sous cœlioscopie (Appendicectomie)',
+      quantite: 1,
+      montantUSD: 350,
+      montantCDF: 980000,
+      praticienResponsable: 'Dr. MWAMBA Guy (Chirurgien)',
+      statutLivraison: 'VALIDE'
+    },
+    {
+      id: 'liv-5',
+      dateHeure: '28/10 - 11:40',
+      numeroDossier: '#HOP-2026-00412',
+      patientNom: 'BOKETSHU Jean-Marc',
+      departement: 'SOINS_INFIRMIERS',
+      designationActeOuProduit: 'Pack pansements aseptiques & surveillance monitorée 24h',
+      quantite: 1,
+      montantUSD: 30,
+      montantCDF: 84000,
+      praticienResponsable: 'Major Infirmier Tshilolo',
+      statutLivraison: 'LIVRE'
     }
   ]);
 
   // Sous-onglet de travail actif dans le dashboard
   const [activeTabMorgue, setActiveTabMorgue] = useState<'REGISTRE' | 'CONTROLES_SORTIE' | 'CHAMBRES'>('REGISTRE');
   const [activeTabFunerarium, setActiveTabFunerarium] = useState<'REGISTRE' | 'PLANNING_SALONS' | 'LOGISTIQUE'>('REGISTRE');
+  const [activeTabHopital, setActiveTabHopital] = useState<
+    'ADMISSIONS_JOUR' | 'PATIENTS_HOSPITALISES' | 'SORTIES' | 'TRANSFERTS' | 'DECES' | 'SERVICES_LIVRAISON' | 'CAISSE'
+  >('ADMISSIONS_JOUR');
+
+  // Modal Admission Hôpital
+  const [isHopitalAdmissionModalOpen, setIsHopitalAdmissionModalOpen] = useState(false);
+  const [hopNom, setHopNom] = useState('');
+  const [hopPrenom, setHopPrenom] = useState('');
+  const [hopSexe, setHopSexe] = useState<'MASCULIN' | 'FEMININ'>('MASCULIN');
+  const [hopAge, setHopAge] = useState(32);
+  const [hopTel, setHopTel] = useState('+243 8');
+  const [hopTypeAdmission, setHopTypeAdmission] = useState<'NOUVEAU_CAS' | 'ANCIEN_PATIENT'>('NOUVEAU_CAS');
+  const [hopService, setHopService] = useState<'URGENCES' | 'MEDECINE_INTERNE' | 'CHIRURGIE' | 'MATERNITE' | 'PEDIATRIE' | 'SOINS_INTENSIFS'>('URGENCES');
+  const [hopChambreLit, setHopChambreLit] = useState('Lit U-05 (Triage)');
+  const [hopMedecin, setHopMedecin] = useState('Dr. Jeanne KASONGO');
+  const [hopDiagnostic, setHopDiagnostic] = useState('Syndrome fébrile aigu, suspicion paludisme grave');
+  const [hopAvanceUSD, setHopAvanceUSD] = useState(120);
+
+  // Modal Constat Décès & Passerelle Morgue
+  const [isHopitalDecesModalOpen, setIsHopitalDecesModalOpen] = useState(false);
+  const [selectedPatientDeces, setSelectedPatientDeces] = useState<PatientHopital | null>(null);
+  const [decesHeure, setDecesHeure] = useState('11:45');
+  const [decesMedecin, setDecesMedecin] = useState('Dr. Christian ILUNGA (Médecin Légiste)');
+  const [decesBoxMorgue, setDecesBoxMorgue] = useState('Box #18 Morgue');
+
+  // Modal Livraison Prestation / Acte Hospitalier
+  const [isHopitalActeModalOpen, setIsHopitalActeModalOpen] = useState(false);
+  const [acteDossier, setActeDossier] = useState('');
+  const [acteDepartement, setActeDepartement] = useState<'PHARMACIE' | 'LABORATOIRE' | 'IMAGERIE' | 'BLOC' | 'SOINS_INFIRMIERS'>('PHARMACIE');
+  const [acteDesignation, setActeDesignation] = useState('Antibiotique Céftriaxone 1g + Soluté 500ml');
+  const [actePrixUSD, setActePrixUSD] = useState(45);
+  const [actePraticien, setActePraticien] = useState('Pharmacien Kalonji');
 
   // =========================================================================
   // 2. MODALES OPÉRATIONNELLES FONCTIONNELLES
@@ -432,6 +755,119 @@ export const DashboardPage: React.FC = () => {
     alert('Soins et actes de conservation mis à jour.');
   };
 
+  // Validation Admission Hôpital
+  const handleValiderAdmissionHopital = (e: React.FormEvent) => {
+    e.preventDefault();
+    const nouveauNum = `#HOP-2026-00${Math.floor(413 + Math.random() * 50)}`;
+    const nouveauPatient: PatientHopital = {
+      id: `hop-${Date.now()}`,
+      numeroDossier: nouveauNum,
+      patientNom: hopNom.toUpperCase(),
+      patientPrenom: hopPrenom,
+      sexe: hopSexe,
+      age: hopAge,
+      telephone: hopTel,
+      dateAdmission: `${new Date().toLocaleDateString('fr-FR')} - ${new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`,
+      typeAdmission: hopTypeAdmission,
+      statutClinique: hopService === 'URGENCES' ? 'ADMIS_URGENCES' : 'HOSPITALISE',
+      service: hopService,
+      chambreLit: hopChambreLit,
+      medecinTraitant: hopMedecin,
+      diagnosticPrincipal: hopDiagnostic,
+      totalUSD: hopAvanceUSD,
+      totalCDF: hopAvanceUSD * 2800,
+      payeUSD: hopAvanceUSD,
+      statutPaiement: 'SOLDE',
+      actesLivres: [`Admission initiale ${hopService}`, 'Consultation médicale & constantes vitales']
+    };
+
+    setRegistreHopital([nouveauPatient, ...registreHopital]);
+    setIsHopitalAdmissionModalOpen(false);
+    setHopNom('');
+    setHopPrenom('');
+    alert(`Admission du patient ${nouveauPatient.patientNom} ${nouveauPatient.patientPrenom} enregistrée avec succès (${nouveauNum}).`);
+  };
+
+  // Validation Constat Décès & Passerelle Immédiate Morgue (60 Box)
+  const handleValiderDecesHopital = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedPatientDeces) return;
+
+    // 1. Mettre à jour le statut du patient à l'hôpital
+    setRegistreHopital((prev) =>
+      prev.map((p) =>
+        p.id === selectedPatientDeces.id
+          ? {
+              ...p,
+              statutClinique: 'DECEDE' as const,
+              chambreLit: `${p.chambreLit} (Transféré Morgue)`,
+              decesDetails: {
+                dateHeureConstat: `${new Date().toLocaleDateString('fr-FR')} à ${decesHeure}`,
+                medecinDeclarant: decesMedecin,
+                boxMorgueAssignee: decesBoxMorgue,
+                transfereMorgue: true
+              }
+            }
+          : p
+      )
+    );
+
+    // 2. Créer automatiquement l'entrée dans le registre de la Morgue (Passerelle directe vers les 60 box)
+    const nouveauMorgueId = `mrg-${Date.now()}`;
+    const nouveauDossierMorgue = `#NG-2026-00${Math.floor(2585 + Math.random() * 50)}`;
+    const nouveauCorps: DefuntMorgue = {
+      id: nouveauMorgueId,
+      numeroDossier: nouveauDossierMorgue,
+      defuntNom: selectedPatientDeces.patientNom,
+      defuntPrenom: selectedPatientDeces.patientPrenom,
+      statutIdentification: 'IDENTIFIE_OFFICIEL',
+      provenance: `Hôpital Nomargueri — Service ${selectedPatientDeces.service}`,
+      dateAdmission: `${new Date().toLocaleDateString('fr-FR')} - ${decesHeure}`,
+      dureeSejourJours: 0,
+      chambre: 'Chambre Froide F1 (Standard)',
+      casier: decesBoxMorgue,
+      temperature: '+2.8°C',
+      soinsAppliques: 'Transfert intra-hospitalier suite à constat médical de décès',
+      totalUSD: 250,
+      payeUSD: 0,
+      situationFinanciere: 'ACOMPTE',
+      verrouDocuments: true, // Certificat de décès légal déjà établi
+      verrouAyantDroit: false,
+      verrouMedicoLegal: true,
+      verrouFinance: false,
+      statutSortie: 'EN_CONSERVATION'
+    };
+
+    setRegistreMorgue([nouveauCorps, ...registreMorgue]);
+    setIsHopitalDecesModalOpen(false);
+    setSelectedPatientDeces(null);
+    alert(
+      `Constat de décès validé. Passerelle Morgue activée : Le corps de ${selectedPatientDeces.patientNom} a été admis en ${decesBoxMorgue} sous le dossier morgue ${nouveauDossierMorgue}.`
+    );
+  };
+
+  // Validation Livraison Prestation / Acte Hospitalier
+  const handleValiderLivraisonActe = (e: React.FormEvent) => {
+    e.preventDefault();
+    const nouvelleLivraison: ServiceHospitalierLivraison = {
+      id: `liv-${Date.now()}`,
+      dateHeure: `${new Date().toLocaleDateString('fr-FR').slice(0, 5)} - ${new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`,
+      numeroDossier: acteDossier || '#HOP-2026-00412',
+      patientNom: 'Patient Pris en Charge',
+      departement: acteDepartement,
+      designationActeOuProduit: acteDesignation,
+      quantite: 1,
+      montantUSD: actePrixUSD,
+      montantCDF: actePrixUSD * 2800,
+      praticienResponsable: actePraticien,
+      statutLivraison: 'LIVRE'
+    };
+
+    setServicesHospitaliers([nouvelleLivraison, ...servicesHospitaliers]);
+    setIsHopitalActeModalOpen(false);
+    alert(`Livraison de service (${acteDepartement} - ${acteDesignation}) enregistrée avec succès.`);
+  };
+
   return (
     <div className="space-y-6">
       {/* ========================================================================= */}
@@ -443,6 +879,10 @@ export const DashboardPage: React.FC = () => {
             ? isDark
               ? 'bg-[#0B1736] border-blue-900/80 text-blue-100'
               : 'bg-blue-50 border-blue-200 text-blue-950 shadow-xs'
+            : currentPole === 'HOPITAL'
+            ? isDark
+              ? 'bg-[#180E29] border-purple-900/80 text-purple-100'
+              : 'bg-purple-50 border-purple-200 text-purple-950 shadow-xs'
             : isDark
             ? 'bg-[#0A231C] border-emerald-900/80 text-emerald-100'
             : 'bg-emerald-50 border-emerald-200 text-emerald-950 shadow-xs'
@@ -455,10 +895,16 @@ export const DashboardPage: React.FC = () => {
                 className={`text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded ${
                   currentPole === 'MORGUE'
                     ? 'bg-blue-600 text-white'
+                    : currentPole === 'HOPITAL'
+                    ? 'bg-purple-600 text-white'
                     : 'bg-emerald-700 text-white'
                 }`}
               >
-                {currentPole === 'MORGUE' ? 'PARCOURS MORGUE (ÉTAPE 1 À 6)' : 'PARCOURS FUNÉRAIRE (ÉTAPE 1 À 9)'}
+                {currentPole === 'MORGUE'
+                  ? 'PARCOURS MORGUE (ÉTAPE 1 À 6)'
+                  : currentPole === 'HOPITAL'
+                  ? 'PARCOURS HOSPITALIER CLINIQUE & SOINS'
+                  : 'PARCOURS FUNÉRAIRE (ÉTAPE 1 À 9)'}
               </span>
               <span className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                 • Dossier Unique Partagé NG-2026-XXXX
@@ -468,18 +914,22 @@ export const DashboardPage: React.FC = () => {
             <h1 className={`text-xl sm:text-2xl font-black tracking-tight ${isDark ? 'text-white' : 'text-slate-900'}`}>
               {currentPole === 'MORGUE'
                 ? 'Pôle Morgue — De l’admission du corps à sa sortie'
+                : currentPole === 'HOPITAL'
+                ? 'Pôle Hôpital — Prise en charge, Soins, Admissions, Décès & Sorties'
                 : 'Pôle Funérarium — De la commande de prestations à la clôture'}
             </h1>
 
             <p className={`text-xs leading-relaxed ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>
               {currentPole === 'MORGUE'
-                ? 'Pourquoi ce tableau de bord ? Garantir la conservation thermique ininterrompue (+2°C à +4°C), tracer les soins de thanatopraxie et interdire formellement toute levée du corps sans les 4 verrous stricts : identité certifiée, mandataire mandaté, visa médico-légal et solde financier complet.'
-                : 'Pourquoi ce tableau de bord ? Coordonner les veillées, salons, convois corbillard et fournitures funéraires sans aucune ressaisie : les réservations et devis s’adossent directement sur le Dossier Unique déjà ouvert à la morgue, avec un suivi séparé USD et CDF.'}
+                ? 'Pourquoi ce tableau de bord ? Garantir la conservation thermique ininterrompue (+2°C à +4°C) dans nos 60 box frigorifiques, tracer les soins de thanatopraxie et interdire formellement toute levée du corps sans les 4 verrous stricts : identité certifiée, mandataire mandaté, visa médico-légal et solde financier complet.'
+                : currentPole === 'HOPITAL'
+                ? 'Pourquoi ce tableau de bord ? Administrer en continu les flux cliniques : triage des admissions du jour, gestion des lits hospitalisés, transferts sanitaires, livraisons de services (pharmacie, laboratoire, imagerie, bloc) et constats de décès avec passerelle immédiate vers les 60 box de la Morgue.'
+                : 'Pourquoi ce tableau de bord ? Coordonner les réservations de chapiteaux climatisés, gradins modulaires d’honneur, espaces verts paysagers, convois corbillard et fournitures de pompes funèbres sans aucune ressaisie : les devis s’adossent directement sur le Dossier Unique déjà ouvert à la morgue, avec un suivi séparé USD et CDF.'}
             </p>
           </div>
 
           {/* Boutons d'Action Principaux */}
-          <div className="flex items-center gap-2.5 shrink-0">
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
             {currentPole === 'MORGUE' ? (
               <button
                 onClick={() => {
@@ -491,6 +941,23 @@ export const DashboardPage: React.FC = () => {
                 <Plus className="w-4 h-4" />
                 <span>+ Nouvelle Admission Morgue (6 étapes)</span>
               </button>
+            ) : currentPole === 'HOPITAL' ? (
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setIsHopitalAdmissionModalOpen(true)}
+                  className="py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-lg shadow-purple-600/30 transition-all flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>+ Nouvelle Admission Patient</span>
+                </button>
+                <button
+                  onClick={() => setIsHopitalActeModalOpen(true)}
+                  className="py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-purple-200 border border-purple-800/80 font-bold text-xs transition-all flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>+ Délivrer Service / Acte</span>
+                </button>
+              </div>
             ) : (
               <button
                 onClick={() => {
@@ -532,23 +999,23 @@ export const DashboardPage: React.FC = () => {
             </span>
           </div>
 
-          {/* KPI 2 : Places disponibles & Taux d'occupation */}
+          {/* KPI 2 : Places disponibles & Taux d'occupation (60 BOX RÉELS) */}
           <div
             className={`border rounded-2xl p-5 space-y-1 transition-colors ${
               isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
             }`}
           >
             <span className={`text-[11px] font-semibold uppercase tracking-wider block ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-              Places Disponibles / Casiers
+              Capacité Froid • 60 Box Frigorifiques
             </span>
             <div className="flex items-baseline gap-2">
               <span className={`text-2xl sm:text-3xl font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                14 libres
+                26 libres
               </span>
-              <span className="text-xs text-slate-400 font-mono">sur 32 casiers</span>
+              <span className="text-xs text-slate-400 font-mono">sur 60 box</span>
             </div>
             <span className={`text-xs block pt-1 border-t ${isDark ? 'border-slate-800/80 text-sky-400' : 'border-slate-100 text-sky-600'}`}>
-              Taux d'occupation global : 56%
+              34 box occupés • Taux d'occupation : 56,7%
             </span>
           </div>
 
@@ -592,76 +1059,157 @@ export const DashboardPage: React.FC = () => {
             </span>
           </div>
         </div>
-      ) : (
+      ) : currentPole === 'HOPITAL' ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* KPI 1 Funéraire : Salons réservés */}
+          {/* KPI 1 Hôpital : Admissions du Jour / Nouveaux cas */}
           <div
             className={`border rounded-2xl p-5 space-y-1 transition-colors ${
               isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
             }`}
           >
             <span className={`text-[11px] font-semibold uppercase tracking-wider block ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-              Salons de Veillée Réservés
+              Admissions du Jour • Nouveaux Cas
             </span>
             <div className="flex items-baseline gap-2">
               <span className={`text-2xl sm:text-3xl font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                6 salons
+                14 admis
               </span>
-              <span className="text-xs text-slate-400 font-mono">sur 8 disponibles</span>
+              <span className="text-xs text-slate-400 font-mono">aujourd'hui</span>
             </div>
-            <span className={`text-xs block pt-1 border-t ${isDark ? 'border-slate-800/80 text-emerald-400' : 'border-slate-100 text-emerald-600'}`}>
-              2 salons libres ce soir
+            <span className={`text-xs block pt-1 border-t ${isDark ? 'border-slate-800/80 text-purple-400' : 'border-slate-100 text-purple-600'}`}>
+              12 aux Urgences/Triage • 2 programmés
             </span>
           </div>
 
-          {/* KPI 2 Funéraire : Funérailles du jour */}
+          {/* KPI 2 Hôpital : Patients Hospitalisés / Lits */}
           <div
             className={`border rounded-2xl p-5 space-y-1 transition-colors ${
               isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
             }`}
           >
             <span className={`text-[11px] font-semibold uppercase tracking-wider block ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-              Funérailles du Jour
+              Patients Hospitalisés • Lits & Pavillons
             </span>
             <div className="flex items-baseline gap-2">
               <span className={`text-2xl sm:text-3xl font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                2 cérémonies
+                48 lits
               </span>
-              <span className="text-xs text-slate-400 font-mono">en cours</span>
-            </div>
-            <span className={`text-xs block pt-1 border-t ${isDark ? 'border-slate-800/80 text-slate-400' : 'border-slate-100 text-slate-500'}`}>
-              Grand Salon A (18h) & Intimiste B (14h)
-            </span>
-          </div>
-
-          {/* KPI 3 Funéraire : Dossiers à préparer */}
-          <div
-            className={`border rounded-2xl p-5 space-y-1 transition-colors ${
-              isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-            }`}
-          >
-            <span className={`text-[11px] font-semibold uppercase tracking-wider block ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-              Dossiers à Préparer
-            </span>
-            <div className="flex items-baseline gap-2">
-              <span className={`text-2xl sm:text-3xl font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>
-                5 dossiers
-              </span>
-              <span className="text-xs text-slate-400 font-mono">en coordination</span>
+              <span className="text-xs text-slate-400 font-mono">sur 75 disponibles</span>
             </div>
             <span className={`text-xs block pt-1 border-t ${isDark ? 'border-slate-800/80 text-sky-400' : 'border-slate-100 text-sky-600'}`}>
-              Cercueils & fleuristerie commandés
+              27 lits libres • Taux d'occupation : 64%
             </span>
           </div>
 
-          {/* KPI 4 Funéraire : Convois corbillard disponibles */}
+          {/* KPI 3 Hôpital : Sorties & Guérisons */}
           <div
             className={`border rounded-2xl p-5 space-y-1 transition-colors ${
               isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
             }`}
           >
             <span className={`text-[11px] font-semibold uppercase tracking-wider block ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-              Convois Corbillard Planifiés
+              Sorties & Guérisons Validées
+            </span>
+            <div className="flex items-baseline gap-2">
+              <span className={`text-2xl sm:text-3xl font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                9 décharges
+              </span>
+              <span className="text-xs text-slate-400 font-mono">médicales</span>
+            </div>
+            <span className={`text-xs block pt-1 border-t ${isDark ? 'border-slate-800/80 text-emerald-400' : 'border-slate-100 text-emerald-600'}`}>
+              6 guérisons complètes • 3 ordonnances délivrées
+            </span>
+          </div>
+
+          {/* KPI 4 Hôpital : Transferts & Constats Décès */}
+          <div
+            className={`border rounded-2xl p-5 space-y-1 transition-colors ${
+              isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+            }`}
+          >
+            <span className={`text-[11px] font-semibold uppercase tracking-wider block ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+              Transferts & Décès (Passerelle Morgue)
+            </span>
+            <div className="flex items-baseline gap-2">
+              <span className={`text-2xl sm:text-3xl font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                2 transf. • 1 décès
+              </span>
+            </div>
+            <span className={`text-xs block pt-1 border-t ${isDark ? 'border-slate-800/80 text-amber-400' : 'border-slate-100 text-amber-600'}`}>
+              Décès orienté vers Box #18 Morgue (Traçabilité)
+            </span>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* KPI 1 Funéraire : Chapiteaux & Espaces Verts */}
+          <div
+            className={`border rounded-2xl p-5 space-y-1 transition-colors ${
+              isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+            }`}
+          >
+            <span className={`text-[11px] font-semibold uppercase tracking-wider block ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+              Chapiteaux & Espaces Verts
+            </span>
+            <div className="flex items-baseline gap-2">
+              <span className={`text-2xl sm:text-3xl font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                4 réservés
+              </span>
+              <span className="text-xs text-slate-400 font-mono">sur 6 zones</span>
+            </div>
+            <span className={`text-xs block pt-1 border-t ${isDark ? 'border-slate-800/80 text-emerald-400' : 'border-slate-100 text-emerald-600'}`}>
+              2 Chapiteaux climatisés + Jardins paysagers
+            </span>
+          </div>
+
+          {/* KPI 2 Funéraire : Gradins Modulaires d’Honneur */}
+          <div
+            className={`border rounded-2xl p-5 space-y-1 transition-colors ${
+              isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+            }`}
+          >
+            <span className={`text-[11px] font-semibold uppercase tracking-wider block ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+              Gradins Modulaires d’Honneur
+            </span>
+            <div className="flex items-baseline gap-2">
+              <span className={`text-2xl sm:text-3xl font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                3 gradins
+              </span>
+              <span className="text-xs text-slate-400 font-mono">déployés</span>
+            </div>
+            <span className={`text-xs block pt-1 border-t ${isDark ? 'border-slate-800/80 text-slate-400' : 'border-slate-100 text-slate-500'}`}>
+              Capacité d'accueil : 360 places assises d'honneur
+            </span>
+          </div>
+
+          {/* KPI 3 Funéraire : Pompes Funèbres & Cercueils */}
+          <div
+            className={`border rounded-2xl p-5 space-y-1 transition-colors ${
+              isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+            }`}
+          >
+            <span className={`text-[11px] font-semibold uppercase tracking-wider block ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+              Pompes Funèbres & Fournitures
+            </span>
+            <div className="flex items-baseline gap-2">
+              <span className={`text-2xl sm:text-3xl font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                5 commandes
+              </span>
+              <span className="text-xs text-slate-400 font-mono">en préparation</span>
+            </div>
+            <span className={`text-xs block pt-1 border-t ${isDark ? 'border-slate-800/80 text-sky-400' : 'border-slate-100 text-sky-600'}`}>
+              Cercueils chêne/acajou, fleuristerie & registres
+            </span>
+          </div>
+
+          {/* KPI 4 Funéraire : Convois Corbillard Planifiés */}
+          <div
+            className={`border rounded-2xl p-5 space-y-1 transition-colors ${
+              isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+            }`}
+          >
+            <span className={`text-[11px] font-semibold uppercase tracking-wider block ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+              Transport & Convois Corbillard
             </span>
             <div className="flex items-baseline gap-2">
               <span className={`text-2xl sm:text-3xl font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>
@@ -744,6 +1292,100 @@ export const DashboardPage: React.FC = () => {
               }`}
             >
               2. Préparation & Contrôles avant Sortie (Les 4 Verrous)
+            </button>
+          </>
+        ) : currentPole === 'HOPITAL' ? (
+          <>
+            <button
+              onClick={() => setActiveTabHopital('ADMISSIONS_JOUR')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 ${
+                activeTabHopital === 'ADMISSIONS_JOUR'
+                  ? 'bg-purple-600 text-white shadow-sm'
+                  : isDark
+                  ? 'bg-slate-900/60 text-slate-300 hover:bg-slate-800'
+                  : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+              }`}
+            >
+              <UserCheck className="w-3.5 h-3.5" />
+              <span>1. Admissions du Jour ({registreHopital.filter(p => p.typeAdmission === 'NOUVEAU_CAS').length})</span>
+            </button>
+            <button
+              onClick={() => setActiveTabHopital('PATIENTS_HOSPITALISES')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 ${
+                activeTabHopital === 'PATIENTS_HOSPITALISES'
+                  ? 'bg-purple-600 text-white shadow-sm'
+                  : isDark
+                  ? 'bg-slate-900/60 text-slate-300 hover:bg-slate-800'
+                  : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+              }`}
+            >
+              <Bed className="w-3.5 h-3.5" />
+              <span>2. Anciens Patients ({registreHopital.filter(p => p.statutClinique === 'HOSPITALISE').length})</span>
+            </button>
+            <button
+              onClick={() => setActiveTabHopital('SORTIES')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 ${
+                activeTabHopital === 'SORTIES'
+                  ? 'bg-purple-600 text-white shadow-sm'
+                  : isDark
+                  ? 'bg-slate-900/60 text-slate-300 hover:bg-slate-800'
+                  : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+              }`}
+            >
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>3. Sorties & Guérisons ({registreHopital.filter(p => p.statutClinique === 'SORTIE_GUERI').length})</span>
+            </button>
+            <button
+              onClick={() => setActiveTabHopital('TRANSFERTS')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 ${
+                activeTabHopital === 'TRANSFERTS'
+                  ? 'bg-purple-600 text-white shadow-sm'
+                  : isDark
+                  ? 'bg-slate-900/60 text-slate-300 hover:bg-slate-800'
+                  : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+              }`}
+            >
+              <Send className="w-3.5 h-3.5" />
+              <span>4. Transferts ({registreHopital.filter(p => p.statutClinique === 'TRANSFERE').length})</span>
+            </button>
+            <button
+              onClick={() => setActiveTabHopital('DECES')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 ${
+                activeTabHopital === 'DECES'
+                  ? 'bg-purple-600 text-white shadow-sm'
+                  : isDark
+                  ? 'bg-slate-900/60 text-slate-300 hover:bg-slate-800'
+                  : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+              }`}
+            >
+              <HeartCrack className="w-3.5 h-3.5 text-amber-300" />
+              <span>5. Décès & Morgue ({registreHopital.filter(p => p.statutClinique === 'DECEDE').length})</span>
+            </button>
+            <button
+              onClick={() => setActiveTabHopital('SERVICES_LIVRAISON')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 ${
+                activeTabHopital === 'SERVICES_LIVRAISON'
+                  ? 'bg-purple-600 text-white shadow-sm'
+                  : isDark
+                  ? 'bg-slate-900/60 text-slate-300 hover:bg-slate-800'
+                  : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+              }`}
+            >
+              <Pill className="w-3.5 h-3.5" />
+              <span>6. Livraison Services ({servicesHospitaliers.length})</span>
+            </button>
+            <button
+              onClick={() => setActiveTabHopital('CAISSE')}
+              className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 ${
+                activeTabHopital === 'CAISSE'
+                  ? 'bg-purple-600 text-white shadow-sm'
+                  : isDark
+                  ? 'bg-slate-900/60 text-slate-300 hover:bg-slate-800'
+                  : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+              }`}
+            >
+              <DollarSign className="w-3.5 h-3.5 text-emerald-300" />
+              <span>7. Entrées Caisse</span>
             </button>
           </>
         ) : (
@@ -1077,6 +1719,642 @@ export const DashboardPage: React.FC = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 5.B VUES OPÉRATIONNELLES DU PÔLE HÔPITAL (7 MODULES PARTICULIERS)          */}
+      {/* ========================================================================= */}
+
+      {/* SOUS-MODULE 1 HÔPITAL : Admissions de la Journée (Nouveaux Cas) */}
+      {currentPole === 'HOPITAL' && activeTabHopital === 'ADMISSIONS_JOUR' && (
+        <div
+          className={`border rounded-2xl overflow-hidden shadow-sm transition-colors ${
+            isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200'
+          }`}
+        >
+          <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+            <div>
+              <h3 className="font-bold text-sm text-white flex items-center gap-2">
+                <UserCheck className="w-4 h-4 text-purple-400" />
+                <span>Admissions du Jour • Triage des Nouveaux Cas</span>
+              </h3>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Accueil et enregistrement d'urgence, constantes vitales et orientation pavillonnaire immédiate.
+              </p>
+            </div>
+            <button
+              onClick={() => setIsHopitalAdmissionModalOpen(true)}
+              className="px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center gap-1.5 shadow"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>+ Enregistrer Nouveau Patient</span>
+            </button>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead
+                className={`font-semibold border-b ${
+                  isDark ? 'bg-[#0B132B] text-slate-400 border-slate-800' : 'bg-slate-50 text-slate-600 border-slate-200'
+                }`}
+              >
+                <tr>
+                  <th className="py-3 px-4">N° Dossier Patient</th>
+                  <th className="py-3 px-4">Nom & Prénom</th>
+                  <th className="py-3 px-4">Âge & Sexe</th>
+                  <th className="py-3 px-4">Date / Heure</th>
+                  <th className="py-3 px-4">Service & Emplacement</th>
+                  <th className="py-3 px-4">Diagnostic Initial</th>
+                  <th className="py-3 px-4">Médecin Référent</th>
+                  <th className="py-3 px-4">Finance</th>
+                  <th className="py-3 px-4 text-right">Actions Cliniques</th>
+                </tr>
+              </thead>
+              <tbody className={`divide-y ${isDark ? 'divide-slate-800/80 text-slate-300' : 'divide-slate-200 text-slate-700'}`}>
+                {registreHopital
+                  .filter((p) => p.typeAdmission === 'NOUVEAU_CAS')
+                  .map((p) => (
+                    <tr key={p.id} className={`transition-colors ${isDark ? 'hover:bg-slate-800/40' : 'hover:bg-slate-50'}`}>
+                      <td className="py-3 px-4 font-mono font-bold text-purple-400">{p.numeroDossier}</td>
+                      <td className="py-3 px-4">
+                        <span className={`font-bold block ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                          {p.patientNom} {p.patientPrenom}
+                        </span>
+                        <span className="text-[10px] text-slate-400">{p.telephone}</span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span>{p.age} ans</span>
+                        <span className="block text-[10px] text-slate-400">({p.sexe === 'MASCULIN' ? 'M' : 'F'})</span>
+                      </td>
+                      <td className="py-3 px-4">{p.dateAdmission}</td>
+                      <td className="py-3 px-4">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-950 text-purple-300 border border-purple-800">
+                          {p.service}
+                        </span>
+                        <span className="block text-[11px] text-slate-300 mt-0.5">{p.chambreLit}</span>
+                      </td>
+                      <td className="py-3 px-4 max-w-xs truncate text-[11px]">{p.diagnosticPrincipal}</td>
+                      <td className="py-3 px-4 font-medium text-slate-200">{p.medecinTraitant}</td>
+                      <td className="py-3 px-4 font-mono">
+                        <span className="text-emerald-400 font-bold">${p.payeUSD}</span> / ${p.totalUSD}
+                      </td>
+                      <td className="py-3 px-4 text-right space-x-1.5 whitespace-nowrap">
+                        <button
+                          onClick={() => {
+                            setActeDossier(p.numeroDossier);
+                            setIsHopitalActeModalOpen(true);
+                          }}
+                          className="px-2.5 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-[11px] font-semibold"
+                        >
+                          + Prescrire
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedPatientDeces(p);
+                            setIsHopitalDecesModalOpen(true);
+                          }}
+                          className="px-2 py-1 bg-red-950 hover:bg-red-900 text-red-300 border border-red-800 rounded-lg text-[11px]"
+                          title="Constater décès et transférer vers l'un des 60 box de la Morgue"
+                        >
+                          Décès
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* SOUS-MODULE 2 HÔPITAL : Anciens Patients Hospitalisés (Lits & Pavillons) */}
+      {currentPole === 'HOPITAL' && activeTabHopital === 'PATIENTS_HOSPITALISES' && (
+        <div
+          className={`border rounded-2xl overflow-hidden shadow-sm transition-colors ${
+            isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200'
+          }`}
+        >
+          <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+            <div>
+              <h3 className="font-bold text-sm text-white flex items-center gap-2">
+                <Bed className="w-4 h-4 text-sky-400" />
+                <span>Patients Hospitalisés • Gestion des Lits & Suivi des Séjours</span>
+              </h3>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Surveillance clinique continue, administration des soins quotidiens et état d'avancement des thérapeutiques.
+              </p>
+            </div>
+            <span className="text-xs font-mono font-bold px-3 py-1 bg-sky-950 text-sky-300 border border-sky-800 rounded-xl">
+              48 lits occupés / 75 lits
+            </span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead
+                className={`font-semibold border-b ${
+                  isDark ? 'bg-[#0B132B] text-slate-400 border-slate-800' : 'bg-slate-50 text-slate-600 border-slate-200'
+                }`}
+              >
+                <tr>
+                  <th className="py-3 px-4">Dossier</th>
+                  <th className="py-3 px-4">Patient Hospitalisé</th>
+                  <th className="py-3 px-4">Pavillon & Lit</th>
+                  <th className="py-3 px-4">Date d'Entrée</th>
+                  <th className="py-3 px-4">Diagnostic & Surveillance</th>
+                  <th className="py-3 px-4">Actes & Traitements Réalisés</th>
+                  <th className="py-3 px-4">Situation Compte</th>
+                  <th className="py-3 px-4 text-right">Actions Patient</th>
+                </tr>
+              </thead>
+              <tbody className={`divide-y ${isDark ? 'divide-slate-800/80 text-slate-300' : 'divide-slate-200 text-slate-700'}`}>
+                {registreHopital
+                  .filter((p) => p.statutClinique === 'HOSPITALISE' || p.statutClinique === 'ADMIS_URGENCES')
+                  .map((p) => (
+                    <tr key={p.id} className={`transition-colors ${isDark ? 'hover:bg-slate-800/40' : 'hover:bg-slate-50'}`}>
+                      <td className="py-3 px-4 font-mono font-bold text-purple-400">{p.numeroDossier}</td>
+                      <td className="py-3 px-4">
+                        <span className={`font-bold block ${isDark ? 'text-white' : 'text-slate-900'}`}>
+                          {p.patientNom} {p.patientPrenom}
+                        </span>
+                        <span className="text-[10px] text-slate-400">{p.medecinTraitant}</span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="font-semibold text-sky-300">{p.chambreLit}</span>
+                        <span className="block text-[10px] text-slate-400 font-mono">Service {p.service}</span>
+                      </td>
+                      <td className="py-3 px-4">{p.dateAdmission}</td>
+                      <td className="py-3 px-4 max-w-xs text-[11px] leading-relaxed">{p.diagnosticPrincipal}</td>
+                      <td className="py-3 px-4">
+                        <div className="space-y-0.5 text-[10px]">
+                          {p.actesLivres.map((act, i) => (
+                            <div key={i} className="text-slate-300 flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
+                              <span>{act}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 font-mono">
+                        <span
+                          className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                            p.statutPaiement === 'SOLDE'
+                              ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                              : 'bg-amber-950 text-amber-300 border border-amber-800'
+                          }`}
+                        >
+                          ${p.payeUSD} / ${p.totalUSD} ({p.statutPaiement})
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-right space-x-1.5 whitespace-nowrap">
+                        <button
+                          onClick={() => {
+                            setRegistreHopital((prev) =>
+                              prev.map((item) =>
+                                item.id === p.id ? { ...item, statutClinique: 'SORTIE_GUERI' } : item
+                              )
+                            );
+                            alert(`Sortie médicale validée pour le patient ${p.patientNom}.`);
+                          }}
+                          className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[11px] font-semibold"
+                        >
+                          Valider Sortie
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedPatientDeces(p);
+                            setIsHopitalDecesModalOpen(true);
+                          }}
+                          className="px-2 py-1 bg-red-950 hover:bg-red-900 text-red-300 border border-red-800 rounded-lg text-[11px]"
+                          title="Constater décès et passerelle vers les 60 box de la Morgue"
+                        >
+                          Constat Décès
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* SOUS-MODULE 3 HÔPITAL : Sorties & Guérisons */}
+      {currentPole === 'HOPITAL' && activeTabHopital === 'SORTIES' && (
+        <div
+          className={`border rounded-2xl overflow-hidden shadow-sm transition-colors ${
+            isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200'
+          }`}
+        >
+          <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+            <div>
+              <h3 className="font-bold text-sm text-white flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <span>Sorties Validées • Guérisons & Décharges Médicales</span>
+              </h3>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Clôture du dossier médical, délivrance d'ordonnances post-hospitalisation et visa de sortie caisse.
+              </p>
+            </div>
+            <span className="text-xs text-emerald-400 font-mono font-bold px-3 py-1 bg-emerald-950 border border-emerald-800 rounded-xl">
+              ✓ 9 sorties aujourd'hui
+            </span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead
+                className={`font-semibold border-b ${
+                  isDark ? 'bg-[#0B132B] text-slate-400 border-slate-800' : 'bg-slate-50 text-slate-600 border-slate-200'
+                }`}
+              >
+                <tr>
+                  <th className="py-3 px-4">Dossier</th>
+                  <th className="py-3 px-4">Patient</th>
+                  <th className="py-3 px-4">Service Libéré</th>
+                  <th className="py-3 px-4">Diagnostic Traité</th>
+                  <th className="py-3 px-4">Médecin Signataire</th>
+                  <th className="py-3 px-4">Statut Facturation</th>
+                  <th className="py-3 px-4">Documents Remis</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className={`divide-y ${isDark ? 'divide-slate-800/80 text-slate-300' : 'divide-slate-200 text-slate-700'}`}>
+                {registreHopital
+                  .filter((p) => p.statutClinique === 'SORTIE_GUERI')
+                  .map((p) => (
+                    <tr key={p.id} className={`transition-colors ${isDark ? 'hover:bg-slate-800/40' : 'hover:bg-slate-50'}`}>
+                      <td className="py-3 px-4 font-mono font-bold text-emerald-400">{p.numeroDossier}</td>
+                      <td className="py-3 px-4 font-bold text-white">{p.patientNom} {p.patientPrenom}</td>
+                      <td className="py-3 px-4">
+                        <span className="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-300">
+                          {p.service}
+                        </span>
+                        <span className="block text-[10px] text-emerald-400 mt-0.5">Lit libéré</span>
+                      </td>
+                      <td className="py-3 px-4 max-w-xs truncate text-[11px]">{p.diagnosticPrincipal}</td>
+                      <td className="py-3 px-4 text-slate-300">{p.medecinTraitant}</td>
+                      <td className="py-3 px-4 font-mono">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
+                          Soldé 100% (${p.totalUSD})
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-[10px] text-slate-300">
+                        ✓ Ordonnance • Billet de sortie • Carnet santé
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <button
+                          onClick={() => alert(`Impression du bulletin de sortie médicale pour le dossier ${p.numeroDossier}.`)}
+                          className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-[11px] font-semibold"
+                        >
+                          Imprimer Billet
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* SOUS-MODULE 4 HÔPITAL : Transferts Sanitaires */}
+      {currentPole === 'HOPITAL' && activeTabHopital === 'TRANSFERTS' && (
+        <div
+          className={`border rounded-2xl overflow-hidden shadow-sm transition-colors ${
+            isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200'
+          }`}
+        >
+          <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+            <div>
+              <h3 className="font-bold text-sm text-white flex items-center gap-2">
+                <Send className="w-4 h-4 text-sky-400" />
+                <span>Transferts Sanitaires • Évacuations Médicalisées Externes</span>
+              </h3>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Régulation SAMU, établissements partenaires spécialisés et liaison avec les centres de référence.
+              </p>
+            </div>
+            <span className="text-xs text-sky-400 font-mono font-bold px-3 py-1 bg-sky-950 border border-sky-800 rounded-xl">
+              2 transferts régulés
+            </span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead
+                className={`font-semibold border-b ${
+                  isDark ? 'bg-[#0B132B] text-slate-400 border-slate-800' : 'bg-slate-50 text-slate-600 border-slate-200'
+                }`}
+              >
+                <tr>
+                  <th className="py-3 px-4">Dossier</th>
+                  <th className="py-3 px-4">Patient</th>
+                  <th className="py-3 px-4">Établissement Référent Cible</th>
+                  <th className="py-3 px-4">Motif Médical du Transfert</th>
+                  <th className="py-3 px-4">Ambulance & Équipage</th>
+                  <th className="py-3 px-4">Médecin Régulateur</th>
+                  <th className="py-3 px-4 text-right">Statut Évacuation</th>
+                </tr>
+              </thead>
+              <tbody className={`divide-y ${isDark ? 'divide-slate-800/80 text-slate-300' : 'divide-slate-200 text-slate-700'}`}>
+                {registreHopital
+                  .filter((p) => p.statutClinique === 'TRANSFERE')
+                  .map((p) => (
+                    <tr key={p.id} className={`transition-colors ${isDark ? 'hover:bg-slate-800/40' : 'hover:bg-slate-50'}`}>
+                      <td className="py-3 px-4 font-mono font-bold text-sky-400">{p.numeroDossier}</td>
+                      <td className="py-3 px-4 font-bold text-white">{p.patientNom} {p.patientPrenom}</td>
+                      <td className="py-3 px-4">
+                        <span className="font-bold text-sky-300">{p.transfertDetails?.etablissementCible}</span>
+                      </td>
+                      <td className="py-3 px-4 max-w-xs text-[11px]">{p.transfertDetails?.motifTransfert}</td>
+                      <td className="py-3 px-4 font-mono text-[11px] text-slate-300">{p.transfertDetails?.ambulanceAssignee}</td>
+                      <td className="py-3 px-4 text-slate-300">{p.medecinTraitant}</td>
+                      <td className="py-3 px-4 text-right">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-950 text-sky-300 border border-sky-800">
+                          Transfert Effectué
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* SOUS-MODULE 5 HÔPITAL : Constat de Décès & Passerelle Directe vers les 60 Box de la Morgue */}
+      {currentPole === 'HOPITAL' && activeTabHopital === 'DECES' && (
+        <div
+          className={`border rounded-2xl overflow-hidden shadow-sm transition-colors ${
+            isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200'
+          }`}
+        >
+          <div className="p-4 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-red-950 text-red-300 border border-red-800">
+                  PASSERELLE SOUVERAINE HÔPITAL ➔ MORGUE
+                </span>
+                <span className="text-xs text-slate-400">• Capacité : 60 Box Frigorifiques</span>
+              </div>
+              <h3 className="font-bold text-sm text-white mt-1 flex items-center gap-2">
+                <HeartCrack className="w-4 h-4 text-red-400" />
+                <span>Constats Médicaux de Décès & Attribution Immédiate de Box</span>
+              </h3>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Tout décès constaté en milieu hospitalier génère automatiquement une entrée dans le registre de conservation froide de la morgue.
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                const premierHospitalise = registreHopital.find((p) => p.statutClinique === 'HOSPITALISE');
+                if (premierHospitalise) {
+                  setSelectedPatientDeces(premierHospitalise);
+                  setIsHopitalDecesModalOpen(true);
+                } else {
+                  alert('Aucun patient hospitalisé actif à transférer.');
+                }
+              }}
+              className="px-3.5 py-2 rounded-xl bg-red-700 hover:bg-red-600 text-white font-bold text-xs flex items-center gap-1.5 shadow"
+            >
+              <HeartCrack className="w-3.5 h-3.5" />
+              <span>+ Constater Décès & Affecter Box Morgue</span>
+            </button>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead
+                className={`font-semibold border-b ${
+                  isDark ? 'bg-[#0B132B] text-slate-400 border-slate-800' : 'bg-slate-50 text-slate-600 border-slate-200'
+                }`}
+              >
+                <tr>
+                  <th className="py-3 px-4">Dossier Hôpital</th>
+                  <th className="py-3 px-4">Défunt</th>
+                  <th className="py-3 px-4">Service d'Origine</th>
+                  <th className="py-3 px-4">Date & Heure Constat</th>
+                  <th className="py-3 px-4">Médecin Déclarant</th>
+                  <th className="py-3 px-4">Box Morgue Assignée (sur 60 box)</th>
+                  <th className="py-3 px-4">Statut Passerelle</th>
+                  <th className="py-3 px-4 text-right">Traçabilité</th>
+                </tr>
+              </thead>
+              <tbody className={`divide-y ${isDark ? 'divide-slate-800/80 text-slate-300' : 'divide-slate-200 text-slate-700'}`}>
+                {registreHopital
+                  .filter((p) => p.statutClinique === 'DECEDE')
+                  .map((p) => (
+                    <tr key={p.id} className={`transition-colors ${isDark ? 'hover:bg-slate-800/40' : 'hover:bg-slate-50'}`}>
+                      <td className="py-3 px-4 font-mono font-bold text-red-400">{p.numeroDossier}</td>
+                      <td className="py-3 px-4 font-bold text-white">{p.patientNom} {p.patientPrenom}</td>
+                      <td className="py-3 px-4">{p.service}</td>
+                      <td className="py-3 px-4 font-mono">{p.decesDetails?.dateHeureConstat}</td>
+                      <td className="py-3 px-4 text-slate-300">{p.decesDetails?.medecinDeclarant}</td>
+                      <td className="py-3 px-4">
+                        <span className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-blue-950 text-sky-300 border border-blue-800">
+                          {p.decesDetails?.boxMorgueAssignee || 'Box #18 Morgue'}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
+                          ✓ Transféré en chambre froide
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-right">
+                        <button
+                          onClick={() => alert(`Dossier morgue lié synchronisé avec le Box ${p.decesDetails?.boxMorgueAssignee}.`)}
+                          className="px-2.5 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-[11px] font-semibold"
+                        >
+                          Voir Box Morgue
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* SOUS-MODULE 6 HÔPITAL : Livraison de Services (Pharmacie, Labo, Imagerie, Bloc) */}
+      {currentPole === 'HOPITAL' && activeTabHopital === 'SERVICES_LIVRAISON' && (
+        <div
+          className={`border rounded-2xl overflow-hidden shadow-sm transition-colors ${
+            isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200'
+          }`}
+        >
+          <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+            <div>
+              <h3 className="font-bold text-sm text-white flex items-center gap-2">
+                <Pill className="w-4 h-4 text-purple-400" />
+                <span>Livraison de Services Médicaux & Prestations Techniques</span>
+              </h3>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Délivrance pharmacie centrale, analyses laboratoire, radiologie/imagerie, interventions de bloc opératoire et soins infirmiers.
+              </p>
+            </div>
+            <button
+              onClick={() => setIsHopitalActeModalOpen(true)}
+              className="px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center gap-1.5 shadow"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>+ Délivrer Service / Acte</span>
+            </button>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead
+                className={`font-semibold border-b ${
+                  isDark ? 'bg-[#0B132B] text-slate-400 border-slate-800' : 'bg-slate-50 text-slate-600 border-slate-200'
+                }`}
+              >
+                <tr>
+                  <th className="py-3 px-4">Date / Heure</th>
+                  <th className="py-3 px-4">N° Dossier</th>
+                  <th className="py-3 px-4">Patient</th>
+                  <th className="py-3 px-4">Département Technique</th>
+                  <th className="py-3 px-4">Désignation de la Prestation</th>
+                  <th className="py-3 px-4">Quantité</th>
+                  <th className="py-3 px-4">Tarification (USD & CDF)</th>
+                  <th className="py-3 px-4">Praticien / Responsable</th>
+                  <th className="py-3 px-4 text-right">Statut</th>
+                </tr>
+              </thead>
+              <tbody className={`divide-y ${isDark ? 'divide-slate-800/80 text-slate-300' : 'divide-slate-200 text-slate-700'}`}>
+                {servicesHospitaliers.map((liv) => (
+                  <tr key={liv.id} className={`transition-colors ${isDark ? 'hover:bg-slate-800/40' : 'hover:bg-slate-50'}`}>
+                    <td className="py-3 px-4 font-mono">{liv.dateHeure}</td>
+                    <td className="py-3 px-4 font-mono font-bold text-purple-400">{liv.numeroDossier}</td>
+                    <td className="py-3 px-4 font-bold text-white">{liv.patientNom}</td>
+                    <td className="py-3 px-4">
+                      <span
+                        className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                          liv.departement === 'PHARMACIE'
+                            ? 'bg-purple-950 text-purple-300 border border-purple-800'
+                            : liv.departement === 'LABORATOIRE'
+                            ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                            : liv.departement === 'IMAGERIE'
+                            ? 'bg-sky-950 text-sky-300 border border-sky-800'
+                            : liv.departement === 'BLOC'
+                            ? 'bg-amber-950 text-amber-300 border border-amber-800'
+                            : 'bg-slate-800 text-slate-300'
+                        }`}
+                      >
+                        {liv.departement}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 font-medium text-slate-200">{liv.designationActeOuProduit}</td>
+                    <td className="py-3 px-4 font-mono">x{liv.quantite}</td>
+                    <td className="py-3 px-4 font-mono">
+                      <strong className="block text-white">${liv.montantUSD} USD</strong>
+                      <span className="text-[10px] text-slate-400">{liv.montantCDF.toLocaleString('fr-FR')} CDF</span>
+                    </td>
+                    <td className="py-3 px-4 text-slate-300">{liv.praticienResponsable}</td>
+                    <td className="py-3 px-4 text-right">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
+                        ✓ {liv.statutLivraison}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* SOUS-MODULE 7 HÔPITAL : Entrées Caisse Médicale */}
+      {currentPole === 'HOPITAL' && activeTabHopital === 'CAISSE' && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className={`p-4 rounded-xl border ${isDark ? 'bg-[#0B132B] border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+              <span className="text-[11px] font-semibold text-slate-400 uppercase">Consultations & Urgences</span>
+              <div className="text-xl font-bold font-mono text-white mt-1">$2 840 USD</div>
+              <span className="text-[10px] text-slate-400">7 952 000 CDF</span>
+            </div>
+            <div className={`p-4 rounded-xl border ${isDark ? 'bg-[#0B132B] border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+              <span className="text-[11px] font-semibold text-slate-400 uppercase">Hospitalisations & Lits</span>
+              <div className="text-xl font-bold font-mono text-white mt-1">$6 420 USD</div>
+              <span className="text-[10px] text-slate-400">17 976 000 CDF</span>
+            </div>
+            <div className={`p-4 rounded-xl border ${isDark ? 'bg-[#0B132B] border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+              <span className="text-[11px] font-semibold text-slate-400 uppercase">Pharmacie & Laboratoire</span>
+              <div className="text-xl font-bold font-mono text-white mt-1">$4 150 USD</div>
+              <span className="text-[10px] text-slate-400">11 620 000 CDF</span>
+            </div>
+            <div className={`p-4 rounded-xl border ${isDark ? 'bg-[#0B132B] border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+              <span className="text-[11px] font-semibold text-slate-400 uppercase">Bloc & Imagerie</span>
+              <div className="text-xl font-bold font-mono text-white mt-1">$5 040 USD</div>
+              <span className="text-[10px] text-slate-400">14 112 000 CDF</span>
+            </div>
+          </div>
+
+          <div
+            className={`border rounded-2xl p-5 transition-colors ${
+              isDark ? 'bg-[#0F172A] border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+            }`}
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+              <div>
+                <h4 className="font-bold text-white text-sm">Registre des Encaissements Hospitaliers</h4>
+                <p className="text-xs text-slate-400">Suivi strict étanche en devises sans conversion sauvage.</p>
+              </div>
+              <button
+                onClick={() => navigate('/backoffice/payments')}
+                className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold"
+              >
+                Ouvrir Module Complet Caisse
+              </button>
+            </div>
+
+            <div className="pt-3 overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="text-slate-400 border-b border-slate-800">
+                    <th className="py-2">Réf Reçu</th>
+                    <th className="py-2">Dossier</th>
+                    <th className="py-2">Patient</th>
+                    <th className="py-2">Motif d'Encaissement</th>
+                    <th className="py-2 font-mono">Montant USD</th>
+                    <th className="py-2 font-mono">Montant CDF</th>
+                    <th className="py-2 text-right">Mode</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60">
+                  <tr className="hover:bg-slate-800/30">
+                    <td className="py-2.5 font-mono text-emerald-400">#RC-HOP-8821</td>
+                    <td className="py-2.5 font-mono">#HOP-2026-00412</td>
+                    <td className="py-2.5 font-semibold text-white">BOKETSHU Jean-Marc</td>
+                    <td className="py-2.5">Forfait admission urgences & artésunate</td>
+                    <td className="py-2.5 font-mono text-emerald-400 font-bold">$180 USD</td>
+                    <td className="py-2.5 font-mono text-slate-300">504 000 CDF</td>
+                    <td className="py-2.5 text-right font-semibold text-slate-300">Espèces Caisse</td>
+                  </tr>
+                  <tr className="hover:bg-slate-800/30">
+                    <td className="py-2.5 font-mono text-emerald-400">#RC-HOP-8820</td>
+                    <td className="py-2.5 font-mono">#HOP-2026-00398</td>
+                    <td className="py-2.5 font-semibold text-white">MUKUNA Antoinette</td>
+                    <td className="py-2.5">Acompte hospitalisation 4j pavillon</td>
+                    <td className="py-2.5 font-mono text-emerald-400 font-bold">$300 USD</td>
+                    <td className="py-2.5 font-mono text-slate-300">840 000 CDF</td>
+                    <td className="py-2.5 text-right font-semibold text-slate-300">Mobile Money (M-Pesa)</td>
+                  </tr>
+                  <tr className="hover:bg-slate-800/30">
+                    <td className="py-2.5 font-mono text-emerald-400">#RC-HOP-8819</td>
+                    <td className="py-2.5 font-mono">#HOP-2026-00405</td>
+                    <td className="py-2.5 font-semibold text-white">TSHIELA Clarisse</td>
+                    <td className="py-2.5">Solde accouchement et séjour maternité</td>
+                    <td className="py-2.5 font-mono text-emerald-400 font-bold">$350 USD</td>
+                    <td className="py-2.5 font-mono text-slate-300">980 000 CDF</td>
+                    <td className="py-2.5 text-right font-semibold text-slate-300">Carte Bancaire</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       )}
@@ -1705,6 +2983,370 @@ export const DashboardPage: React.FC = () => {
               <button onClick={() => setSelectedSoinsDefunt(null)} className="px-4 py-1.5 border rounded-xl text-xs">Annuler</button>
               <button onClick={handleSauvegarderSoins} className="px-4 py-1.5 bg-blue-600 rounded-xl text-xs font-bold">Sauvegarder</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 10. MODALES OPÉRATIONNELLES DU PÔLE HÔPITAL                               */}
+      {/* ========================================================================= */}
+
+      {/* Modal Hôpital 1 : Nouvelle Admission Patient */}
+      {isHopitalAdmissionModalOpen && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="relative bg-[#1A102E] border border-purple-900 rounded-3xl max-w-2xl w-full p-6 sm:p-8 text-white shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-purple-950 pb-3">
+              <div>
+                <span className="text-[10px] font-mono uppercase font-bold text-purple-400">
+                  ACCUEIL & ENREGISTREMENT CLINIQUE • HÔPITAL NOMARGUERI
+                </span>
+                <h3 className="text-lg font-bold text-white">
+                  Nouvelle Admission Patient (Urgences & Hospitalisation)
+                </h3>
+              </div>
+              <button onClick={() => setIsHopitalAdmissionModalOpen(false)} className="text-slate-400 hover:text-white">✕</button>
+            </div>
+
+            <form onSubmit={handleValiderAdmissionHopital} className="space-y-4 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 mb-1 font-medium">Nom de famille *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ex: TSHIBANDA"
+                    value={hopNom}
+                    onChange={(e) => setHopNom(e.target.value)}
+                    className="w-full p-2.5 bg-[#0E061B] border border-slate-700 rounded-xl text-white uppercase"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 mb-1 font-medium">Prénom *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ex: Micheline"
+                    value={hopPrenom}
+                    onChange={(e) => setHopPrenom(e.target.value)}
+                    className="w-full p-2.5 bg-[#0E061B] border border-slate-700 rounded-xl text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 mb-1 font-medium">Sexe *</label>
+                  <select
+                    value={hopSexe}
+                    onChange={(e) => setHopSexe(e.target.value as any)}
+                    className="w-full p-2.5 bg-[#0E061B] border border-slate-700 rounded-xl text-white font-bold"
+                  >
+                    <option value="MASCULIN">Masculin</option>
+                    <option value="FEMININ">Féminin</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-slate-300 mb-1 font-medium">Âge (années) *</label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="125"
+                    value={hopAge}
+                    onChange={(e) => setHopAge(Number(e.target.value))}
+                    className="w-full p-2.5 bg-[#0E061B] border border-slate-700 rounded-xl text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 mb-1 font-medium">Téléphone de contact *</label>
+                  <input
+                    type="text"
+                    required
+                    value={hopTel}
+                    onChange={(e) => setHopTel(e.target.value)}
+                    className="w-full p-2.5 bg-[#0E061B] border border-slate-700 rounded-xl text-white font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 mb-1 font-medium">Type d'Admission *</label>
+                  <select
+                    value={hopTypeAdmission}
+                    onChange={(e) => setHopTypeAdmission(e.target.value as any)}
+                    className="w-full p-2.5 bg-[#0E061B] border border-slate-700 rounded-xl text-purple-300 font-bold"
+                  >
+                    <option value="NOUVEAU_CAS">Nouveau Cas (Admission du Jour)</option>
+                    <option value="ANCIEN_PATIENT">Ancien Patient (Hospitalisation / Réadmission)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-slate-300 mb-1 font-medium">Service de Prise en Charge *</label>
+                  <select
+                    value={hopService}
+                    onChange={(e) => setHopService(e.target.value as any)}
+                    className="w-full p-2.5 bg-[#0E061B] border border-slate-700 rounded-xl text-white font-bold"
+                  >
+                    <option value="URGENCES">Urgences & Triage 24/7</option>
+                    <option value="MEDECINE_INTERNE">Médecine Interne</option>
+                    <option value="CHIRURGIE">Chirurgie & Bloc</option>
+                    <option value="MATERNITE">Maternité & Gynécologie</option>
+                    <option value="PEDIATRIE">Pédiatrie</option>
+                    <option value="SOINS_INTENSIFS">Soins Intensifs & Réanimation</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-slate-300 mb-1 font-medium">Lit / Chambre assignée</label>
+                  <input
+                    type="text"
+                    value={hopChambreLit}
+                    onChange={(e) => setHopChambreLit(e.target.value)}
+                    className="w-full p-2.5 bg-[#0E061B] border border-slate-700 rounded-xl text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 mb-1 font-medium">Médecin Traitant Référent</label>
+                  <input
+                    type="text"
+                    value={hopMedecin}
+                    onChange={(e) => setHopMedecin(e.target.value)}
+                    className="w-full p-2.5 bg-[#0E061B] border border-slate-700 rounded-xl text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 mb-1 font-medium">Caution / Acompte d'admission (USD)</label>
+                  <input
+                    type="number"
+                    value={hopAvanceUSD}
+                    onChange={(e) => setHopAvanceUSD(Number(e.target.value))}
+                    className="w-full p-2.5 bg-[#0E061B] border border-slate-700 rounded-xl text-emerald-400 font-mono font-bold"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-slate-300 mb-1 font-medium">Diagnostic Principal / Motif de Consultation *</label>
+                <textarea
+                  rows={2}
+                  required
+                  value={hopDiagnostic}
+                  onChange={(e) => setHopDiagnostic(e.target.value)}
+                  className="w-full p-2.5 bg-[#0E061B] border border-slate-700 rounded-xl text-white text-xs"
+                />
+              </div>
+
+              <div className="flex justify-between items-center pt-3 border-t border-purple-950">
+                <button
+                  type="button"
+                  onClick={() => setIsHopitalAdmissionModalOpen(false)}
+                  className="px-4 py-2 border border-slate-700 rounded-xl text-slate-300 text-xs"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-purple-600 hover:bg-purple-500 rounded-xl font-bold text-white shadow-lg text-xs"
+                >
+                  ✓ Valider l'Admission Médicale
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Hôpital 2 : Constat Décès Médical & Passerelle vers les 60 Box de la Morgue */}
+      {isHopitalDecesModalOpen && selectedPatientDeces && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="relative bg-[#200A15] border border-red-900 rounded-3xl max-w-xl w-full p-6 text-white shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-red-950 pb-3">
+              <div>
+                <span className="text-[10px] font-mono uppercase font-bold text-red-400">
+                  PROCÉDURE MÉDICO-LÉGALE DE CONSTAT DE DÉCÈS
+                </span>
+                <h3 className="text-lg font-bold text-white">
+                  Constat de Décès & Passerelle Vers les 60 Box de la Morgue
+                </h3>
+              </div>
+              <button onClick={() => setIsHopitalDecesModalOpen(false)} className="text-slate-400 hover:text-white">✕</button>
+            </div>
+
+            <div className="p-3 bg-red-950/40 border border-red-800/80 rounded-xl text-xs space-y-1">
+              <div><strong>Patient concerné :</strong> {selectedPatientDeces.patientNom} {selectedPatientDeces.patientPrenom}</div>
+              <div><strong>Dossier hospitalier :</strong> <span className="font-mono">{selectedPatientDeces.numeroDossier}</span></div>
+              <div><strong>Service actuel :</strong> {selectedPatientDeces.service} • {selectedPatientDeces.chambreLit}</div>
+              <div><strong>Diagnostic :</strong> {selectedPatientDeces.diagnosticPrincipal}</div>
+            </div>
+
+            <form onSubmit={handleValiderDecesHopital} className="space-y-4 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 mb-1 font-medium">Heure du Constat de Décès *</label>
+                  <input
+                    type="time"
+                    required
+                    value={decesHeure}
+                    onChange={(e) => setDecesHeure(e.target.value)}
+                    className="w-full p-2.5 bg-[#12040B] border border-red-900/80 rounded-xl text-white font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 mb-1 font-medium">Médecin Légiste / Déclarant *</label>
+                  <input
+                    type="text"
+                    required
+                    value={decesMedecin}
+                    onChange={(e) => setDecesMedecin(e.target.value)}
+                    className="w-full p-2.5 bg-[#12040B] border border-red-900/80 rounded-xl text-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-slate-300 mb-1 font-medium">
+                  Affectation Emplacement Frigorifique (sur nos 60 Box Morgue) *
+                </label>
+                <select
+                  value={decesBoxMorgue}
+                  onChange={(e) => setDecesBoxMorgue(e.target.value)}
+                  className="w-full p-2.5 bg-[#12040B] border border-red-900/80 rounded-xl text-sky-400 font-mono font-bold"
+                >
+                  <option value="Box #18 Morgue">Box #18 Morgue (Chambre F1 - Disponible)</option>
+                  <option value="Box #02 Morgue">Box #02 Morgue (Chambre F1 - Disponible)</option>
+                  <option value="Box #05 Morgue">Box #05 Morgue (Chambre F1 - Disponible)</option>
+                  <option value="Box #09 Morgue">Box #09 Morgue (Chambre F1 - Disponible)</option>
+                  <option value="Box #21 Morgue">Box #21 Morgue (Chambre F2 - Thanatopraxie)</option>
+                  <option value="Box #27 Morgue">Box #27 Morgue (Chambre F2 - Thanatopraxie)</option>
+                  <option value="Box #35 Morgue">Box #35 Morgue (Chambre F2 - Disponible)</option>
+                  <option value="Box #42 Morgue">Box #42 Morgue (Chambre F3 - Longue durée)</option>
+                  <option value="Box #50 Morgue">Box #50 Morgue (Chambre F3 - Disponible)</option>
+                  <option value="Box #58 Morgue">Box #58 Morgue (Chambre F3 - Disponible)</option>
+                  <option value="Box #60 Morgue">Box #60 Morgue (Chambre F3 - Disponible)</option>
+                </select>
+                <span className="text-[10px] text-slate-400 mt-1 block">
+                  Capacité garantie : 60 box frigorifiques thermo-régulés (+2°C / +4°C).
+                </span>
+              </div>
+
+              <div className="p-3 rounded-xl bg-blue-950/40 border border-blue-900 text-[11px] text-sky-200">
+                ℹ️ <strong>Passerelle automatique :</strong> Le patient sera immédiatement transféré dans le registre de la morgue sous un dossier #NG-2026-XXXX avec conservation en continu et verrou de sortie activé jusqu'aux 4 visas légaux et financiers.
+              </div>
+
+              <div className="flex justify-between items-center pt-3 border-t border-red-950">
+                <button
+                  type="button"
+                  onClick={() => setIsHopitalDecesModalOpen(false)}
+                  className="px-4 py-2 border border-slate-700 rounded-xl text-slate-300 text-xs"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-red-700 hover:bg-red-600 rounded-xl font-bold text-white shadow-lg text-xs"
+                >
+                  ✓ Confirmer Constat & Transférer à la Morgue
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Hôpital 3 : Livraison Prestation / Acte Hospitalier */}
+      {isHopitalActeModalOpen && (
+        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="relative bg-[#1A102E] border border-purple-900 rounded-3xl max-w-lg w-full p-6 text-white shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-purple-950 pb-3">
+              <div>
+                <span className="text-[10px] font-mono uppercase font-bold text-purple-400">
+                  LIVRAISON DE PRESTATION MÉDICALE
+                </span>
+                <h3 className="text-lg font-bold text-white">
+                  Délivrer Médicament, Examen ou Soin
+                </h3>
+              </div>
+              <button onClick={() => setIsHopitalActeModalOpen(false)} className="text-slate-400 hover:text-white">✕</button>
+            </div>
+
+            <form onSubmit={handleValiderLivraisonActe} className="space-y-4 text-xs">
+              <div>
+                <label className="block text-slate-300 mb-1 font-medium">N° Dossier Patient Bénéficiaire *</label>
+                <select
+                  value={acteDossier}
+                  onChange={(e) => setActeDossier(e.target.value)}
+                  className="w-full p-2.5 bg-[#0E061B] border border-slate-700 rounded-xl text-purple-300 font-mono font-bold"
+                >
+                  {registreHopital.map((p) => (
+                    <option key={p.id} value={p.numeroDossier}>
+                      {p.numeroDossier} — {p.patientNom} {p.patientPrenom} ({p.service})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-slate-300 mb-1 font-medium">Département Technique Fournisseur *</label>
+                <select
+                  value={acteDepartement}
+                  onChange={(e) => setActeDepartement(e.target.value as any)}
+                  className="w-full p-2.5 bg-[#0E061B] border border-slate-700 rounded-xl text-white font-bold"
+                >
+                  <option value="PHARMACIE">Pharmacie Centrale (Produits & Médicaments)</option>
+                  <option value="LABORATOIRE">Laboratoire Biomédical (Analyses & Prélèvements)</option>
+                  <option value="IMAGERIE">Imagerie Médicale & Radiologie / Échographie</option>
+                  <option value="BLOC">Bloc Opératoire & Actes Chirurgicaux</option>
+                  <option value="SOINS_INFIRMIERS">Soins Infirmiers & Pansements Hospitaliers</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-slate-300 mb-1 font-medium">Désignation de la Prestation / Produit *</label>
+                <input
+                  type="text"
+                  required
+                  value={acteDesignation}
+                  onChange={(e) => setActeDesignation(e.target.value)}
+                  className="w-full p-2.5 bg-[#0E061B] border border-slate-700 rounded-xl text-white"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 mb-1 font-medium">Montant Facturé (USD) *</label>
+                  <input
+                    type="number"
+                    min="0"
+                    required
+                    value={actePrixUSD}
+                    onChange={(e) => setActePrixUSD(Number(e.target.value))}
+                    className="w-full p-2.5 bg-[#0E061B] border border-slate-700 rounded-xl text-emerald-400 font-mono font-bold"
+                  />
+                  <span className="text-[10px] text-slate-400 mt-1 block">
+                    {(actePrixUSD * 2800).toLocaleString('fr-FR')} CDF
+                  </span>
+                </div>
+                <div>
+                  <label className="block text-slate-300 mb-1 font-medium">Praticien Responsable *</label>
+                  <input
+                    type="text"
+                    required
+                    value={actePraticien}
+                    onChange={(e) => setActePraticien(e.target.value)}
+                    className="w-full p-2.5 bg-[#0E061B] border border-slate-700 rounded-xl text-white"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center pt-3 border-t border-purple-950">
+                <button
+                  type="button"
+                  onClick={() => setIsHopitalActeModalOpen(false)}
+                  className="px-4 py-2 border border-slate-700 rounded-xl text-slate-300 text-xs"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-purple-600 hover:bg-purple-500 rounded-xl font-bold text-white shadow-lg text-xs"
+                >
+                  ✓ Valider la Livraison du Service
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

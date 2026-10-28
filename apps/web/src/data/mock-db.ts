@@ -78,84 +78,86 @@ export const UTILISATEURS_MOCK: Utilisateur[] = [
 ];
 
 export const CATALOGUE_SERVICES_MOCK: ArticleCatalogue[] = [
-  // 0. SERVICE DE BASE OBLIGATOIRE : OUVERTURE DE DOSSIER & ADMISSION
+  // ==========================================
+  // 1. PÔLE HÔPITAL (SOINS CLINIQUES, URGENCES & DIAGNOSTIC)
+  // ==========================================
+  {
+    id: 'art-hosp-01',
+    code: 'SRV-HOSP-01',
+    titre: 'Consultation d’urgence & Triage médical 24/7',
+    description: 'Prise en charge médicale immédiate, évaluation des constantes vitales, examen clinique d’urgence et orientation personnalisée.',
+    categorie: 'SOINS_MEDICAUX',
+    prixUnitaire: 40,
+    devise: 'USD',
+    estStockable: false,
+    uniteFacturation: 'FORFAIT'
+  },
+  {
+    id: 'art-hosp-02',
+    code: 'SRV-HOSP-02',
+    titre: 'Hospitalisation médicale & Surveillance continue (Lit / Pavillon)',
+    description: 'Séjour en pavillon de soins ou chambre individuelle surveillée, soins infirmiers réguliers, monitoring et visite médicale quotidienne.',
+    categorie: 'SOINS_MEDICAUX',
+    prixUnitaire: 65,
+    devise: 'USD',
+    estStockable: false,
+    uniteFacturation: 'JOUR'
+  },
+  {
+    id: 'art-hosp-03',
+    code: 'SRV-HOSP-03',
+    titre: 'Bilan biologique complet & Laboratoire d’analyses médicales',
+    description: 'Numération formule sanguine (NFS), biochimie clinique, ionogramme complet, sérologies et examens microbiologiques d’urgence.',
+    categorie: 'SOINS_MEDICAUX',
+    prixUnitaire: 55,
+    devise: 'USD',
+    estStockable: false,
+    uniteFacturation: 'FORFAIT'
+  },
+  {
+    id: 'art-hosp-04',
+    code: 'SRV-HOSP-04',
+    titre: 'Imagerie médicale numérique & Échographie Doppler',
+    description: 'Explorations radiologiques numériques haute définition, échographie abdominale/pelvienne Doppler et interprétation radiologique rapide.',
+    categorie: 'SOINS_MEDICAUX',
+    prixUnitaire: 75,
+    devise: 'USD',
+    estStockable: false,
+    uniteFacturation: 'FORFAIT'
+  },
+  {
+    id: 'art-hosp-05',
+    code: 'SRV-HOSP-05',
+    titre: 'Pharmacie clinique & Dispensation de traitements d’urgence',
+    description: 'Fourniture de protocoles injectables d’urgence, perfusions solutés, antibiotiques et antalgiques hospitaliers.',
+    categorie: 'SOINS_MEDICAUX',
+    prixUnitaire: 35,
+    devise: 'USD',
+    estStockable: false,
+    uniteFacturation: 'FORFAIT'
+  },
+  {
+    id: 'art-hosp-06',
+    code: 'SRV-HOSP-06',
+    titre: 'Intervention chirurgicale & Soins intensifs spécialisés',
+    description: 'Prise en charge au bloc opératoire aseptique, anesthésie réanimation et surveillance post-opératoire continue.',
+    categorie: 'SOINS_MEDICAUX',
+    prixUnitaire: 350,
+    devise: 'USD',
+    estStockable: false,
+    uniteFacturation: 'FORFAIT'
+  },
+
+  // ==========================================
+  // 2. PÔLE MORGUE (60 BOX FRIGORIFIQUES & CONSERVATION DIGNE)
+  // ==========================================
   {
     id: 'art-adm-00',
     code: 'SRV-ADM-00',
-    titre: 'Frais d’admission & Ouverture de dossier funéraire',
-    description: 'Enregistrement légal initial, constitution du dossier administratif, bracelet biométrique et attribution du QR Code sécurisé.',
+    titre: 'Frais d’admission, Bracelet Biométrique & Ouverture de Dossier',
+    description: 'Enregistrement légal initial, constitution du dossier administratif, bracelet biométrique inviolable et attribution du QR Code sécurisé.',
     categorie: 'ADMISSION',
     prixUnitaire: 50,
-    devise: 'USD',
-    estStockable: false,
-    uniteFacturation: 'FORFAIT'
-  },
-
-  // 1. GESTION ET PERSONNALISATION DU RECUEILLEMENT (FUNÉRARIUM)
-  {
-    id: 'art-rec-01',
-    code: 'SRV-REC-01',
-    titre: 'Réservation de salon funéraire (Petit salon intimiste)',
-    description: 'Espace chaleureux climatisé pour l’intimité familiale, équipé pour 15 à 20 personnes avec calendrier de réservation.',
-    categorie: 'CEREMONIE',
-    prixUnitaire: 120,
-    devise: 'USD',
-    estStockable: false,
-    uniteFacturation: 'FORFAIT'
-  },
-  {
-    id: 'art-rec-02',
-    code: 'SRV-REC-02',
-    titre: 'Grand salon de veillée & Hommage solennel',
-    description: 'Grand espace climatisé pour les veillées importantes et délégations (jusqu’à 80 personnes), sonorisation et projection.',
-    categorie: 'CEREMONIE',
-    prixUnitaire: 250,
-    devise: 'USD',
-    estStockable: false,
-    uniteFacturation: 'FORFAIT'
-  },
-  {
-    id: 'art-rec-03',
-    code: 'SRV-TRAIT-01',
-    titre: 'Conciergerie & Collation traiteur veillée',
-    description: 'Service continu de boissons chaudes (café, thé), eau minérale et collations pour les proches assistant à la veillée.',
-    categorie: 'CEREMONIE',
-    prixUnitaire: 90,
-    devise: 'USD',
-    estStockable: false,
-    uniteFacturation: 'FORFAIT'
-  },
-  {
-    id: 'art-rec-04',
-    code: 'SRV-MEM-01',
-    titre: 'Mémorial numérique & Livre d’or en ligne',
-    description: 'Espace privé en ligne lié au défunt pour charger photos/musiques projetées au salon et recueillir les condoléances des proches éloignés.',
-    categorie: 'CEREMONIE',
-    prixUnitaire: 50,
-    devise: 'USD',
-    estStockable: false,
-    uniteFacturation: 'FORFAIT'
-  },
-
-  // 2. SOINS DU CORPS ET ESTHÉTIQUE (À LA CARTE)
-  {
-    id: 'art-soin-01',
-    code: 'SRV-SOIN-01',
-    titre: 'Toilette rituelle, habillage & coiffure de présentation',
-    description: 'Lavage rituel/religieux, habillage sur mesure avec planification du dépôt des vêtements par la famille, maquillage et coiffure digne.',
-    categorie: 'TOILETTE_ET_SOINS',
-    prixUnitaire: 110,
-    devise: 'USD',
-    estStockable: false,
-    uniteFacturation: 'FORFAIT'
-  },
-  {
-    id: 'art-soin-02',
-    code: 'SRV-EMB-01',
-    titre: 'Soins de conservation avancés (Thanatopraxie)',
-    description: 'Traitement conservatoire de pointe fortement recommandé pour corps venant de morgue externe et présentation à visage découvert.',
-    categorie: 'TOILETTE_ET_SOINS',
-    prixUnitaire: 320,
     devise: 'USD',
     estStockable: false,
     uniteFacturation: 'FORFAIT'
@@ -163,21 +165,111 @@ export const CATALOGUE_SERVICES_MOCK: ArticleCatalogue[] = [
   {
     id: 'art-soin-03',
     code: 'SRV-CNS-01',
-    titre: 'Conservation en case frigorifique régulée',
-    description: 'Séjour en froid positif standard contrôlé (+2°C à +4°C) avec monitoring continu et traçabilité inviolable.',
+    titre: 'Conservation en box frigorifique régulé (Capacité : 60 box)',
+    description: 'Séjour en froid régulé (+2°C à +4°C) au sein de nos 60 box surveillés 24/7 par capteurs thermiques avec traçabilité inaltérable.',
     categorie: 'CONSERVATION',
     prixUnitaire: 25,
     devise: 'USD',
     estStockable: false,
     uniteFacturation: 'JOUR'
   },
+  {
+    id: 'art-soin-02',
+    code: 'SRV-EMB-01',
+    titre: 'Soins de conservation avancés (Thanatopraxie certifiée)',
+    description: 'Traitement conservatoire et thanatopraxie médico-légale pour une présentation digne, respectueuse et sereine des défunts.',
+    categorie: 'TOILETTE_ET_SOINS',
+    prixUnitaire: 320,
+    devise: 'USD',
+    estStockable: false,
+    uniteFacturation: 'FORFAIT'
+  },
+  {
+    id: 'art-soin-01',
+    code: 'SRV-SOIN-01',
+    titre: 'Toilette rituelle, habillage d’honneur & coiffure de présentation',
+    description: 'Toilette complète selon les convictions spirituelles de la famille, habillage soigné, maquillage réparateur et coiffure digne.',
+    categorie: 'TOILETTE_ET_SOINS',
+    prixUnitaire: 110,
+    devise: 'USD',
+    estStockable: false,
+    uniteFacturation: 'FORFAIT'
+  },
 
-  // 3. BOUTIQUE D'ARTICLES FUNÉRAIRES (E-COMMERCE INTÉGRÉ)
+  // ==========================================
+  // 3. PÔLE FUNÉRARIUM (CHAPITEAUX, GRADINS, ESPACES VERTS, CONVOIS & POMPES FUNÈBRES)
+  // ==========================================
+  {
+    id: 'art-fun-chap-01',
+    code: 'SRV-CHAP-01',
+    titre: 'Chapiteau d’honneur VIP (250 places assises)',
+    description: 'Location et montage d’un chapiteau d’apparat spacieux, équipé de ventilation/climatisation, sonorisation haute fidélité et estrade d’hommage.',
+    categorie: 'CEREMONIE',
+    prixUnitaire: 350,
+    devise: 'USD',
+    estStockable: false,
+    uniteFacturation: 'FORFAIT'
+  },
+  {
+    id: 'art-fun-grad-01',
+    code: 'SRV-GRAD-01',
+    titre: 'Gradins modulaires d’honneur (120 places)',
+    description: 'Gradins étagés et sécurisés pour les délégations officielles, familles et chorales, assurant une visibilité optimale lors de la veillée.',
+    categorie: 'CEREMONIE',
+    prixUnitaire: 180,
+    devise: 'USD',
+    estStockable: false,
+    uniteFacturation: 'FORFAIT'
+  },
+  {
+    id: 'art-fun-vert-01',
+    code: 'SRV-VERT-01',
+    titre: 'Espaces verts paysagers & Jardins de recueillement',
+    description: 'Privatisation d’un espace floral paysager arboré pour l’accueil chaleureux des familles, collations et prières en plein air.',
+    categorie: 'CEREMONIE',
+    prixUnitaire: 140,
+    devise: 'USD',
+    estStockable: false,
+    uniteFacturation: 'FORFAIT'
+  },
+  {
+    id: 'art-fun-trsp-01',
+    code: 'SRV-CORB-01',
+    titre: 'Transport & Corbillard de prestige avec convoi sécurisé',
+    description: 'Corbillard moderne grand confort avec chauffeur en tenue d’apparat, escorte de sécurité et accompagnement vers lieu de culte et cimetière.',
+    categorie: 'TRANSPORT',
+    prixUnitaire: 220,
+    devise: 'USD',
+    estStockable: false,
+    uniteFacturation: 'FORFAIT'
+  },
+  {
+    id: 'art-fun-trsp-02',
+    code: 'SRV-TRP-02',
+    titre: 'Transfert sécurisé inter-hospitalier ou morgue externe',
+    description: 'Rapatriement sécurisé du défunt depuis le domicile ou un centre médical tiers avec géolocalisation et récépissé numérique.',
+    categorie: 'TRANSPORT',
+    prixUnitaire: 130,
+    devise: 'USD',
+    estStockable: false,
+    uniteFacturation: 'FORFAIT'
+  },
+  {
+    id: 'art-fun-pomp-01',
+    code: 'SRV-POMP-01',
+    titre: 'Organisation complète de Pompes Funèbres & Maîtrise de cérémonie',
+    description: 'Prise en charge intégrale du protocole cérémonial, maîtres de cérémonie, coordination des prises de parole et livre d’or mémorial.',
+    categorie: 'CEREMONIE',
+    prixUnitaire: 280,
+    devise: 'USD',
+    estStockable: false,
+    uniteFacturation: 'FORFAIT'
+  },
   {
     id: 'art-cer-01',
     code: 'PRD-CER-01',
-    titre: 'Cercueil Prestige modèle Acajou sculpté',
-    description: 'Modèle bois noble massif capitonné velours avec poignées dorées, croix chrétienne ou symbole personnalisé.',
+    titre: 'Cercueil Prestige modèle Acajou sculpté (Pompes funèbres)',
+    description: 'Bois noble massif sculpté, capiton velours soyeux, poignées dorées renforcées et croix ou emblème solennel.',
     categorie: 'FOURNITURE_FUNERAIRE',
     prixUnitaire: 650,
     devise: 'USD',
@@ -188,8 +280,8 @@ export const CATALOGUE_SERVICES_MOCK: ArticleCatalogue[] = [
   {
     id: 'art-cer-02',
     code: 'PRD-CER-02',
-    titre: 'Cercueil Tradition modèle Chêne verni',
-    description: 'Cercueil sobre et digne en bois traité verni avec capiton blanc soyeux et garnitures renforcées.',
+    titre: 'Cercueil Tradition modèle Chêne verni (Pompes funèbres)',
+    description: 'Bois traité verni de qualité supérieure, capiton satiné blanc et finitions dorées nobles.',
     categorie: 'FOURNITURE_FUNERAIRE',
     prixUnitaire: 320,
     devise: 'USD',
@@ -200,8 +292,8 @@ export const CATALOGUE_SERVICES_MOCK: ArticleCatalogue[] = [
   {
     id: 'art-flr-01',
     code: 'PRD-FLR-01',
-    titre: 'Couronne florale naturelle & Gerbe d’honneur',
-    description: 'Composition florale d’honneur avec fleurs fraîches et ruban personnalisé au nom de la famille.',
+    titre: 'Couronne florale naturelle & Gerbe d’honneur d’allée',
+    description: 'Composition d’apparat en fleurs fraîches naturelles avec ruban personnalisé au nom de la famille ou de la corporation.',
     categorie: 'FOURNITURE_FUNERAIRE',
     prixUnitaire: 80,
     devise: 'USD',
@@ -209,72 +301,12 @@ export const CATALOGUE_SERVICES_MOCK: ArticleCatalogue[] = [
     uniteFacturation: 'FORFAIT'
   },
   {
-    id: 'art-plq-01',
-    code: 'PRD-PLQ-01',
-    titre: 'Plaque commémorative gravée personnalisée',
-    description: 'Gravure marbrée ou métallique avec texte d’hommage personnalisé, portrait et dates de mémoire.',
-    categorie: 'FOURNITURE_FUNERAIRE',
-    prixUnitaire: 60,
-    devise: 'USD',
-    estStockable: true,
-    stockDisponible: 20,
-    uniteFacturation: 'UNITE'
-  },
-
-  // 4. SUIVI LOGISTIQUE ET AXE TRANSPORT
-  {
-    id: 'art-transp-01',
-    code: 'SRV-TRP-01',
-    titre: 'Transfert sécurisé depuis morgue externe / hôpital',
-    description: 'Prise en charge du corps au lieu de départ spécifié par le représentant avec acheminement sécurisé vers notre funérarium.',
-    categorie: 'TRANSPORT',
-    prixUnitaire: 120,
-    devise: 'USD',
-    estStockable: false,
-    uniteFacturation: 'FORFAIT'
-  },
-  {
-    id: 'art-transp-02',
-    code: 'SRV-TRP-02',
-    titre: 'Convoi funéraire d’honneur & Corbillard grand confort',
-    description: 'Véhicule d’honneur climatisé pour convoi du funérarium vers le lieu de culte et cimetière.',
-    categorie: 'TRANSPORT',
-    prixUnitaire: 180,
-    devise: 'USD',
-    estStockable: false,
-    uniteFacturation: 'FORFAIT'
-  },
-  {
-    id: 'art-transp-03',
-    code: 'SRV-GEO-01',
-    titre: 'Géolocalisation & Notifications SMS en temps réel',
-    description: 'Alertes en direct envoyées au représentant : "Le corps a quitté la morgue X" puis "Le corps est arrivé au funérarium".',
-    categorie: 'TRANSPORT',
-    prixUnitaire: 30,
-    devise: 'USD',
-    estStockable: false,
-    uniteFacturation: 'FORFAIT'
-  },
-
-  // 5. ASSISTANCE ADMINISTRATIVE ET JURIDIQUE
-  {
     id: 'art-adm-01',
     code: 'SRV-ADM-01',
-    titre: 'Générateur de formalités & Démarches légales',
-    description: 'Aide à la déclaration de décès, demandes d’autorisations de transport, permis d’inhumer ou crémation auprès des autorités.',
+    titre: 'Assistance administrative & Permis d’inhumer officiel',
+    description: 'Démarches légales auprès de la maison communale, certificat de décès certifié et autorisations officielles de mise en bière.',
     categorie: 'ADMINISTRATIF',
     prixUnitaire: 50,
-    devise: 'USD',
-    estStockable: false,
-    uniteFacturation: 'FORFAIT'
-  },
-  {
-    id: 'art-adm-02',
-    code: 'SRV-COF-01',
-    titre: 'Coffre-fort numérique & Numérisation des actes',
-    description: 'Espace sécurisé pour télécharger les documents officiels délivrés par l’établissement et téléverser les pièces d’identité nécessaires.',
-    categorie: 'ADMINISTRATIF',
-    prixUnitaire: 40,
     devise: 'USD',
     estStockable: false,
     uniteFacturation: 'FORFAIT'
@@ -282,18 +314,19 @@ export const CATALOGUE_SERVICES_MOCK: ArticleCatalogue[] = [
 ];
 
 export const CASES_EMPLACEMENTS_MOCK: CaseEmplacement[] = [
-  // Chambre A : Capacité 12 cases
-  { id: 'case-a01', chambreId: 'ch-a', chambreNom: 'Chambre A — Standard', numeroCase: 'Case A-01', statut: 'OCCUPEE', temperatureActuelle: 3.2, dossierActuelId: 'dos-2' },
-  { id: 'case-a02', chambreId: 'ch-a', chambreNom: 'Chambre A — Standard', numeroCase: 'Case A-02', statut: 'DISPONIBLE', temperatureActuelle: 3.0 },
-  { id: 'case-a03', chambreId: 'ch-a', chambreNom: 'Chambre A — Standard', numeroCase: 'Case A-03', statut: 'DISPONIBLE', temperatureActuelle: 2.9 },
-  { id: 'case-a04', chambreId: 'ch-a', chambreNom: 'Chambre A — Standard', numeroCase: 'Case A-04', statut: 'OCCUPEE', temperatureActuelle: 3.1 },
-  { id: 'case-a05', chambreId: 'ch-a', chambreNom: 'Chambre A — Standard', numeroCase: 'Case A-05', statut: 'MAINTENANCE', temperatureActuelle: 7.5 },
-  // Chambre B : Capacité 16 cases
-  { id: 'case-b14', chambreId: 'ch-b', chambreNom: 'Chambre B — Conservation Longue', numeroCase: 'Case B-14', statut: 'OCCUPEE', temperatureActuelle: -1.2, dossierActuelId: 'dos-1' },
-  { id: 'case-b15', chambreId: 'ch-b', chambreNom: 'Chambre B — Conservation Longue', numeroCase: 'Case B-15', statut: 'DISPONIBLE', temperatureActuelle: -1.0 },
-  { id: 'case-b16', chambreId: 'ch-b', chambreNom: 'Chambre B — Conservation Longue', numeroCase: 'Case B-16', statut: 'DISPONIBLE', temperatureActuelle: -1.4 },
-  // Chambre C : Médico-Légale
-  { id: 'case-c01', chambreId: 'ch-c', chambreNom: 'Chambre C — Médico-Légale', numeroCase: 'Case C-01', statut: 'DISPONIBLE', temperatureActuelle: 2.1 }
+  // Capacité nominale du site : 60 box frigorifiques surveillés
+  // Chambre A : Capacité 20 box (standard +2°C à +4°C)
+  { id: 'case-a01', chambreId: 'ch-a', chambreNom: 'Chambre A — Standard (Box 1 à 20)', numeroCase: 'Box #01', statut: 'OCCUPEE', temperatureActuelle: 3.2, dossierActuelId: 'dos-2' },
+  { id: 'case-a02', chambreId: 'ch-a', chambreNom: 'Chambre A — Standard (Box 1 à 20)', numeroCase: 'Box #02', statut: 'DISPONIBLE', temperatureActuelle: 3.0 },
+  { id: 'case-a03', chambreId: 'ch-a', chambreNom: 'Chambre A — Standard (Box 1 à 20)', numeroCase: 'Box #03', statut: 'DISPONIBLE', temperatureActuelle: 2.9 },
+  { id: 'case-a04', chambreId: 'ch-a', chambreNom: 'Chambre A — Standard (Box 1 à 20)', numeroCase: 'Box #04', statut: 'OCCUPEE', temperatureActuelle: 3.1 },
+  { id: 'case-a05', chambreId: 'ch-a', chambreNom: 'Chambre A — Standard (Box 1 à 20)', numeroCase: 'Box #05', statut: 'MAINTENANCE', temperatureActuelle: 7.5 },
+  // Chambre B : Capacité 24 box (conservation longue & grand froid)
+  { id: 'case-b14', chambreId: 'ch-b', chambreNom: 'Chambre B — Grand Froid (Box 21 à 44)', numeroCase: 'Box #18', statut: 'OCCUPEE', temperatureActuelle: -1.2, dossierActuelId: 'dos-1' },
+  { id: 'case-b15', chambreId: 'ch-b', chambreNom: 'Chambre B — Grand Froid (Box 21 à 44)', numeroCase: 'Box #19', statut: 'DISPONIBLE', temperatureActuelle: -1.0 },
+  { id: 'case-b16', chambreId: 'ch-b', chambreNom: 'Chambre B — Grand Froid (Box 21 à 44)', numeroCase: 'Box #20', statut: 'DISPONIBLE', temperatureActuelle: -1.4 },
+  // Chambre C : Capacité 16 box (médico-légale & réquisition) -> Total : 60 box
+  { id: 'case-c01', chambreId: 'ch-c', chambreNom: 'Chambre C — Médico-Légale (Box 45 à 60)', numeroCase: 'Box #45', statut: 'DISPONIBLE', temperatureActuelle: 2.1 }
 ];
 
 export const DOSSIERS_MOCK: DossierVivant[] = [

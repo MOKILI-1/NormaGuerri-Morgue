@@ -125,7 +125,8 @@ export type CategorieService =
   | 'TRANSPORT'
   | 'CEREMONIE'
   | 'FOURNITURE_FUNERAIRE' // ex: Cercueils, urnes
-  | 'ADMINISTRATIF';
+  | 'ADMINISTRATIF'
+  | 'SOINS_MEDICAUX';
 
 export interface ArticleCatalogue {
   id: string;

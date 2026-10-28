@@ -29,7 +29,9 @@ import {
   HelpCircle,
   Copy,
   Download,
-  Mail
+  Mail,
+  Activity,
+  Stethoscope
 } from 'lucide-react';
 import { DossierVivant, Sexe, ArticleCatalogue } from '@nomarguerrie/shared-types';
 
@@ -234,41 +236,41 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
     }
   };
 
-  // Les 5 grands pôles de services demandés
+  // Les grands pôles de prestations de l'établissement (Hôpital, Morgue 60 Box, Funérarium réel)
   const polesModules = [
     {
       id: 1,
-      titre: '1. Recueillement & Funérarium',
-      desc: 'Salons intimistes & grands salons, conciergerie traiteur et mémorial numérique.',
+      titre: '1. Pôle Hôpital & Soins 24/7',
+      desc: 'Urgences médicales, lits d’hospitalisation, pharmacie clinique, laboratoire d’analyses et imagerie numérique.',
+      categorieShared: 'SOINS_MEDICAUX',
+      icon: Stethoscope
+    },
+    {
+      id: 2,
+      titre: '2. Pôle Morgue (60 Box Frigorifiques)',
+      desc: '60 box frigorifiques régulés (+2°C à -2°C), surveillance thermique continue, toilette rituelle et thanatopraxie certifiée.',
+      categorieShared: 'CONSERVATION',
+      icon: ShieldCheck
+    },
+    {
+      id: 3,
+      titre: '3. Chapiteaux, Gradins & Espaces Verts',
+      desc: 'Chapiteau VIP 250 places sonorisé, gradins modulaires 120 places pour délégations et jardins paysagers de recueillement.',
       categorieShared: 'CEREMONIE',
       icon: Building
     },
     {
-      id: 2,
-      titre: '2. Soins du Corps & Esthétique',
-      desc: 'Toilette rituelle, habillage, maquillage et soins de thanatopraxie pour présentation digne.',
-      categorieShared: 'TOILETTE_ET_SOINS',
-      icon: HeartHandshake
-    },
-    {
-      id: 3,
-      titre: '3. Boutique d’Articles Funéraires',
-      desc: 'Cercueils nobles en bois ou écologiques, couronnes florales et plaques commémoratives.',
-      categorieShared: 'FOURNITURE_FUNERAIRE',
-      icon: Flower2
-    },
-    {
       id: 4,
-      titre: '4. Suivi Logistique & Axe Transport',
-      desc: 'Commande de corbillard, transfert depuis morgue externe et géolocalisation en direct.',
+      titre: '4. Transport, Corbillards & Convois',
+      desc: 'Flotte de corbillards d’apparat, convoi officiel sécurisé et transferts sanitaires inter-hospitaliers avec géolocalisation.',
       categorieShared: 'TRANSPORT',
       icon: Truck
     },
     {
       id: 5,
-      titre: '5. Assistance Administrative & Juridique',
-      desc: 'Déclaration de décès, autorisations officielles et coffre-fort numérique sécurisé.',
-      categorieShared: 'ADMINISTRATIF',
+      titre: '5. Pompes Funèbres & Assistance Légale',
+      desc: 'Organisation d’obsèques protocolaires, cercueils d’honneur (Acajou, Chêne), permis d’inhumer et formalités officielles.',
+      categorieShared: 'FOURNITURE_FUNERAIRE',
       icon: Lock
     }
   ];
@@ -276,21 +278,21 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
   // Filtres catalogue public
   const categoriesList = [
     { key: 'TOUS', label: 'Toutes les prestations', count: catalogue.length },
-    { key: 'CEREMONIE', label: 'Recueillement & Salons', count: catalogue.filter((c) => c.categorie === 'CEREMONIE').length },
-    { key: 'TOILETTE_ET_SOINS', label: 'Soins & Thanatopraxie', count: catalogue.filter((c) => c.categorie === 'TOILETTE_ET_SOINS' || c.categorie === 'CONSERVATION').length },
-    { key: 'FOURNITURE_FUNERAIRE', label: 'Boutique & Articles', count: catalogue.filter((c) => c.categorie === 'FOURNITURE_FUNERAIRE').length },
-    { key: 'TRANSPORT', label: 'Axe Transport & Convoi', count: catalogue.filter((c) => c.categorie === 'TRANSPORT').length },
-    { key: 'ADMINISTRATIF', label: 'Assistance Administrative', count: catalogue.filter((c) => c.categorie === 'ADMINISTRATIF' || c.categorie === 'ADMISSION').length }
+    { key: 'SOINS_MEDICAUX', label: 'Hôpital & Soins 24/7', count: catalogue.filter((c) => c.categorie === 'SOINS_MEDICAUX').length },
+    { key: 'CONSERVATION', label: 'Morgue (60 Box)', count: catalogue.filter((c) => c.categorie === 'CONSERVATION' || c.categorie === 'TOILETTE_ET_SOINS').length },
+    { key: 'CEREMONIE', label: 'Chapiteaux, Gradins & Espaces Verts', count: catalogue.filter((c) => c.categorie === 'CEREMONIE').length },
+    { key: 'TRANSPORT', label: 'Transport & Corbillard', count: catalogue.filter((c) => c.categorie === 'TRANSPORT').length },
+    { key: 'FOURNITURE_FUNERAIRE', label: 'Pompes Funèbres & Articles', count: catalogue.filter((c) => c.categorie === 'FOURNITURE_FUNERAIRE' || c.categorie === 'ADMINISTRATIF' || c.categorie === 'ADMISSION').length }
   ];
 
   const filteredCatalogue = catalogue.filter((art) => {
     let matchCat = false;
     if (selectedCategorie === 'TOUS') matchCat = true;
+    else if (selectedCategorie === 'SOINS_MEDICAUX') matchCat = art.categorie === 'SOINS_MEDICAUX';
+    else if (selectedCategorie === 'CONSERVATION') matchCat = art.categorie === 'CONSERVATION' || art.categorie === 'TOILETTE_ET_SOINS';
     else if (selectedCategorie === 'CEREMONIE') matchCat = art.categorie === 'CEREMONIE';
-    else if (selectedCategorie === 'TOILETTE_ET_SOINS') matchCat = art.categorie === 'TOILETTE_ET_SOINS' || art.categorie === 'CONSERVATION';
-    else if (selectedCategorie === 'FOURNITURE_FUNERAIRE') matchCat = art.categorie === 'FOURNITURE_FUNERAIRE';
     else if (selectedCategorie === 'TRANSPORT') matchCat = art.categorie === 'TRANSPORT';
-    else if (selectedCategorie === 'ADMINISTRATIF') matchCat = art.categorie === 'ADMINISTRATIF' || art.categorie === 'ADMISSION';
+    else if (selectedCategorie === 'FOURNITURE_FUNERAIRE') matchCat = art.categorie === 'FOURNITURE_FUNERAIRE' || art.categorie === 'ADMINISTRATIF' || art.categorie === 'ADMISSION';
 
     const matchTxt =
       art.titre.toLowerCase().includes(rechercheCatalogue.toLowerCase()) ||
@@ -319,7 +321,7 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
                 HOSPITAL NOMARGUERI
               </span>
               <p className="text-[9px] sm:text-[10px] text-sky-300/80 tracking-wide uppercase font-medium mt-0.5 sm:mt-1 truncate">
-                Morgue & Parcours Funéraire
+                Hôpital, Morgue (60 Box) & Funérarium
               </p>
             </div>
           </div>
@@ -331,7 +333,7 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
               className="flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-slate-900/80 hover:bg-slate-800 text-slate-200 border border-blue-900/80 transition-colors shadow-sm text-[11px] sm:text-xs"
             >
               <Search className="w-3.5 h-3.5 text-sky-400 shrink-0" />
-              <span>Trouver un défunt</span>
+              <span>Trouver un dossier</span>
             </button>
           </div>
         </div>
@@ -348,12 +350,12 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
               <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.15]">
                 Hospital Nomargueri.<br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 via-blue-400 to-indigo-300">
-                  Dignité • Sérénité • Traçabilité
+                  Médecine • Sérénité • Traçabilité
                 </span>
               </h1>
 
               <p className="text-xs sm:text-base text-slate-300 leading-relaxed max-w-2xl font-normal">
-                Prise en charge intégrale et personnalisée du parcours funéraire : réservation de salons de recueillement, soins de thanatopraxie, logistique de transport sécurisée et assistance aux formalités officielles.
+                Prise en charge intégrale hospitalière et funéraire : soins d’urgence 24/7, hospitalisation surveillée, 60 box frigorifiques régulés (+2°C à -2°C), funérarium d’excellence (Chapiteaux 250p, Gradins 120p, Espaces verts paysagers, Corbillards d’honneur & Pompes funèbres) et assistance certifiée par QR Code.
               </p>
             </div>
 
@@ -365,13 +367,13 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
                 </div>
 
                 <div className="space-y-3">
-                  {/* CTA 1 : Déclarer un décès */}
+                  {/* CTA 1 : Déclarer un décès ou admission */}
                   <button
                     onClick={() => handleOpenWizard()}
                     className="w-full py-3.5 px-5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-xl shadow-blue-600/30 transition-all flex items-center justify-center gap-2"
                   >
                     <Plus className="w-4 h-4" />
-                    <span>Déclarer un décès</span>
+                    <span>Déclarer un décès / Demande d'admission</span>
                   </button>
 
                   {/* CTA 2 : Suivre un dossier */}
@@ -388,7 +390,7 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
                     href="#catalogue"
                     className="w-full py-3 px-5 bg-blue-950/60 hover:bg-blue-900/60 text-sky-300 hover:text-white border border-blue-800/60 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5"
                   >
-                    <span>Nos services</span>
+                    <span>Découvrir nos prestations</span>
                     <ArrowRight className="w-3.5 h-3.5 text-sky-400" />
                   </a>
                 </div>
@@ -398,19 +400,84 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
         </div>
       </section>
 
-      {/* SECTION 2 — CATALOGUE DES PRESTATIONS ARTICULÉ AUTOUR DES 5 PÔLES */}
-      <section id="catalogue" className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      {/* SECTION INTERMÉDIAIRE — LES 3 GRANDS PÔLES OPÉRATIONNELS DU COMPLEXE */}
+      <section className="py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Pôle 1 : Hôpital & Soins 24/7 */}
+          <div className="bg-gradient-to-br from-[#0A1D45] to-[#061430] border border-indigo-500/30 rounded-2xl p-6 shadow-xl space-y-4 hover:border-indigo-500/60 transition-all">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-indigo-600/20 border border-indigo-400/40 flex items-center justify-center text-indigo-400">
+                <Stethoscope className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest block">PÔLE MÉDICAL</span>
+                <h3 className="text-base font-extrabold text-white">Hôpital & Urgences 24/7</h3>
+              </div>
+            </div>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Triage d’urgence, consultations spécialisées, 75 lits d'hospitalisation surveillée, pharmacie clinique, laboratoire d'analyses médicales et imagerie haute définition.
+            </p>
+            <div className="pt-2 border-t border-indigo-950/60 flex items-center justify-between text-[11px] text-indigo-300 font-semibold">
+              <span>Capacité : 75 lits de soins</span>
+              <span className="px-2 py-0.5 rounded-full bg-indigo-900/60 text-indigo-200 border border-indigo-700/60">Actif 24h/24</span>
+            </div>
+          </div>
+
+          {/* Pôle 2 : Morgue Souveraine (60 Box) */}
+          <div className="bg-gradient-to-br from-[#0A1D45] to-[#061430] border border-sky-500/30 rounded-2xl p-6 shadow-xl space-y-4 hover:border-sky-500/60 transition-all">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-sky-600/20 border border-sky-400/40 flex items-center justify-center text-sky-400">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-[10px] font-bold text-sky-400 uppercase tracking-widest block">CONSERVATION DIGNE</span>
+                <h3 className="text-base font-extrabold text-white">Morgue (60 Box Réfrigérés)</h3>
+              </div>
+            </div>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              60 box frigorifiques thermo-régulés (+2°C à -2°C) avec monitoring continu, traçabilité inviolable par QR Code et soins de thanatopraxie pour hommage digne.
+            </p>
+            <div className="pt-2 border-t border-sky-950/60 flex items-center justify-between text-[11px] text-sky-300 font-semibold">
+              <span>Capacité : 60 box régulés</span>
+              <span className="px-2 py-0.5 rounded-full bg-sky-900/60 text-sky-200 border border-sky-700/60">Traçabilité QR</span>
+            </div>
+          </div>
+
+          {/* Pôle 3 : Funérarium & Cérémonies */}
+          <div className="bg-gradient-to-br from-[#0A1D45] to-[#061430] border border-blue-500/30 rounded-2xl p-6 shadow-xl space-y-4 hover:border-blue-500/60 transition-all">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-400/40 flex items-center justify-center text-blue-400">
+                <Building className="w-5 h-5" />
+              </div>
+              <div>
+                <span className="text-[10px] font-bold text-blue-400 uppercase tracking-widest block">HOMMAGE & SÉRÉNITÉ</span>
+                <h3 className="text-base font-extrabold text-white">Funérarium & Cérémonies</h3>
+              </div>
+            </div>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Chapiteaux d’honneur 250 places, gradins modulaires 120 places, espaces verts paysagers de recueillement, convois de corbillards et pompes funèbres protocolaires.
+            </p>
+            <div className="pt-2 border-t border-blue-950/60 flex items-center justify-between text-[11px] text-blue-300 font-semibold">
+              <span>Chapiteaux & Gradins</span>
+              <span className="px-2 py-0.5 rounded-full bg-blue-900/60 text-blue-200 border border-blue-700/60">5 Domaines Réels</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 2 — CATALOGUE DES PRESTATIONS ARTICULÉ AUTOUR DES SERVICES DE L'ÉTABLISSEMENT */}
+      <section id="catalogue" className="py-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="bg-[#091A3E] border border-blue-900/60 rounded-3xl p-6 sm:p-10 shadow-2xl space-y-8">
           {/* Header du catalogue */}
           <div className="space-y-2">
             <span className="text-xs font-bold text-sky-400 uppercase tracking-widest block">
-              OFFRE DE SERVICES COMPLÈTE • HOSPITAL NOMARGUERI
+              OFFRE DE SERVICES INTÉGRALE • HOSPITAL NOMARGUERI
             </span>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
-              Catalogue des prestations et soins funéraires
+              Catalogue des prestations médicales, conservation & funéraires
             </h2>
             <p className="text-xs sm:text-sm text-slate-400">
-              Choisissez parmi nos services de recueillement, soins du corps, articles funéraires, transport sécurisé et assistance administrative.
+              Découvrez l'ensemble de nos services : soins hospitaliers d'urgence, 60 box frigorifiques de conservation régulée, chapiteaux d'honneur, gradins, espaces verts paysagers, convois de corbillards et pompes funèbres.
             </p>
           </div>
 
@@ -419,7 +486,7 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
             <Search className="w-4 h-4 absolute left-4 top-3.5 text-slate-400" />
             <input
               type="text"
-              placeholder="Rechercher un salon, un soin de thanatopraxie, un corbillard, un cercueil, des démarches..."
+              placeholder="Rechercher une consultation, un lit, un examen, un box de morgue, un chapiteau, un gradin, un corbillard, des pompes funèbres..."
               value={rechercheCatalogue}
               onChange={(e) => setRechercheCatalogue(e.target.value)}
               className="w-full pl-11 pr-4 py-3 bg-[#061126] border border-blue-900/80 rounded-2xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500"
@@ -759,11 +826,11 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
                 <div className="flex flex-wrap gap-1.5 border-b border-blue-950 pb-2.5">
                   {[
                     { key: 'TOUS', label: 'Tous les services', count: catalogue.length },
-                    { key: 'CEREMONIE', label: '1. Recueillement & Salons', count: catalogue.filter(c => c.categorie === 'CEREMONIE').length },
-                    { key: 'TOILETTE_ET_SOINS', label: '2. Soins & Thanatopraxie', count: catalogue.filter(c => c.categorie === 'TOILETTE_ET_SOINS' || c.categorie === 'CONSERVATION').length },
-                    { key: 'FOURNITURE_FUNERAIRE', label: '3. Boutique d’Articles & Cercueils', count: catalogue.filter(c => c.categorie === 'FOURNITURE_FUNERAIRE').length },
-                    { key: 'TRANSPORT', label: '4. Suivi Logistique & Transport', count: catalogue.filter(c => c.categorie === 'TRANSPORT').length },
-                    { key: 'ADMINISTRATIF', label: '5. Assistance Administrative', count: catalogue.filter(c => c.categorie === 'ADMINISTRATIF' || c.categorie === 'ADMISSION').length }
+                    { key: 'SOINS_MEDICAUX', label: '1. Hôpital & Soins 24/7', count: catalogue.filter(c => c.categorie === 'SOINS_MEDICAUX').length },
+                    { key: 'CONSERVATION', label: '2. Morgue (60 Box)', count: catalogue.filter(c => c.categorie === 'CONSERVATION' || c.categorie === 'TOILETTE_ET_SOINS').length },
+                    { key: 'CEREMONIE', label: '3. Chapiteaux, Gradins & Espaces Verts', count: catalogue.filter(c => c.categorie === 'CEREMONIE').length },
+                    { key: 'TRANSPORT', label: '4. Transport & Corbillards', count: catalogue.filter(c => c.categorie === 'TRANSPORT').length },
+                    { key: 'FOURNITURE_FUNERAIRE', label: '5. Pompes Funèbres & Articles', count: catalogue.filter(c => c.categorie === 'FOURNITURE_FUNERAIRE' || c.categorie === 'ADMINISTRATIF' || c.categorie === 'ADMISSION').length }
                   ].map((tab) => {
                     const isActive = wizardCategoryTab === tab.key;
                     return (
@@ -791,11 +858,11 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
                   {catalogue
                     .filter((art) => {
                       if (wizardCategoryTab === 'TOUS') return true;
+                      if (wizardCategoryTab === 'SOINS_MEDICAUX') return art.categorie === 'SOINS_MEDICAUX';
+                      if (wizardCategoryTab === 'CONSERVATION') return art.categorie === 'CONSERVATION' || art.categorie === 'TOILETTE_ET_SOINS';
                       if (wizardCategoryTab === 'CEREMONIE') return art.categorie === 'CEREMONIE';
-                      if (wizardCategoryTab === 'TOILETTE_ET_SOINS') return art.categorie === 'TOILETTE_ET_SOINS' || art.categorie === 'CONSERVATION';
-                      if (wizardCategoryTab === 'FOURNITURE_FUNERAIRE') return art.categorie === 'FOURNITURE_FUNERAIRE';
                       if (wizardCategoryTab === 'TRANSPORT') return art.categorie === 'TRANSPORT';
-                      if (wizardCategoryTab === 'ADMINISTRATIF') return art.categorie === 'ADMINISTRATIF' || art.categorie === 'ADMISSION';
+                      if (wizardCategoryTab === 'FOURNITURE_FUNERAIRE') return art.categorie === 'FOURNITURE_FUNERAIRE' || art.categorie === 'ADMINISTRATIF' || art.categorie === 'ADMISSION';
                       return true;
                     })
                     .map((art) => {
@@ -815,15 +882,19 @@ Présentez ce numéro ou le QR Code au médecin ou à l'accueil pour retrouver i
                             <div className="flex items-center justify-between gap-2 mb-2">
                               <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-slate-900 text-sky-300 border border-blue-900">
                                 {art.id === 'art-adm-00' || art.categorie === 'ADMISSION'
-                                  ? 'Ouverture de Dossier (Base)'
+                                  ? 'Admission & Dossier'
+                                  : art.categorie === 'SOINS_MEDICAUX'
+                                  ? 'Hôpital & Soins 24/7'
+                                  : art.categorie === 'CONSERVATION'
+                                  ? 'Morgue (60 Box)'
                                   : art.categorie === 'CEREMONIE'
-                                  ? 'Recueillement & Salon'
-                                  : art.categorie === 'TOILETTE_ET_SOINS' || art.categorie === 'CONSERVATION'
-                                  ? 'Soins du Corps'
+                                  ? 'Chapiteaux & Cérémonies'
+                                  : art.categorie === 'TOILETTE_ET_SOINS'
+                                  ? 'Thanatopraxie & Soins'
                                   : art.categorie === 'FOURNITURE_FUNERAIRE'
-                                  ? 'Boutique Funéraire'
+                                  ? 'Pompes Funèbres'
                                   : art.categorie === 'TRANSPORT'
-                                  ? 'Axe Transport'
+                                  ? 'Transport & Corbillard'
                                   : 'Assistance Administrative'}
                               </span>
 

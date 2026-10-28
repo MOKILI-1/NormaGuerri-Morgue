@@ -18,8 +18,8 @@ export const PoleSelectPage: React.FC = () => {
   const navigate = useNavigate();
 
   // État local de la modale de connexion overlay
-  const [email, setEmail] = useState('eric.mutombo@nomargueri.cd');
-  const [password, setPassword] = useState('Morgue2026!');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -28,21 +28,9 @@ export const PoleSelectPage: React.FC = () => {
   const handleChoosePolePath = (pole: PoleMetier) => {
     setAuthError(null);
     setTargetPole(pole);
-
-    // Pré-sélectionner un compte pertinent et son mot de passe pour fluidifier le test
-    if (pole === 'MORGUE') {
-      const acc = managedAccounts.find((a) => a.polesAutorises === 'MORGUE') || managedAccounts[0];
-      setEmail(acc.email);
-      setPassword(acc.motDePasse || 'Morgue2026!');
-    } else if (pole === 'FUNERARIUM') {
-      const acc = managedAccounts.find((a) => a.polesAutorises === 'FUNERARIUM') || managedAccounts[1];
-      setEmail(acc.email);
-      setPassword(acc.motDePasse || 'Funer2026!');
-    } else {
-      const acc = managedAccounts.find((a) => a.role === 'DIRECTION' || a.niveauAccreditation === 5) || managedAccounts[2];
-      setEmail(acc.email);
-      setPassword(acc.motDePasse || 'Admin2026!');
-    }
+    setEmail('');
+    setPassword('');
+    setShowPassword(false);
   };
 
   // Fermeture de l'overlay login
@@ -196,37 +184,104 @@ export const PoleSelectPage: React.FC = () => {
             </p>
           </div>
 
-          {/* LES 2 GRANDES CASES : MORGUE & FUNÉRARIUM */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* LES 3 GRANDES CASES : HÔPITAL, MORGUE & FUNÉRARIUM */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* ===================================================================== */}
-            {/* CASE 1 : MORGUE                                                       */}
+            {/* CASE 1 : HÔPITAL                                                      */}
+            {/* ===================================================================== */}
+            <div
+              onClick={() => handleChoosePolePath('HOPITAL')}
+              className={`rounded-2xl p-6 sm:p-7 cursor-pointer transition-all duration-200 flex flex-col justify-between space-y-5 shadow-sm border group ${
+                isDark
+                  ? 'bg-[#0F172A] border-slate-800 hover:border-indigo-500/80 hover:bg-[#15173B]'
+                  : 'bg-white border-slate-200 hover:border-indigo-500/80 hover:bg-indigo-50/50 shadow-md'
+              }`}
+            >
+              <div className="space-y-3.5">
+                <div className="flex items-center justify-between">
+                  <span className={`text-[11px] font-medium uppercase tracking-wider ${isDark ? 'text-indigo-400' : 'text-indigo-600'}`}>
+                    Pôle Hospitalier & Clinique
+                  </span>
+                </div>
+
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-bold tracking-tight uppercase group-hover:text-indigo-500 transition-colors">
+                    Hôpital
+                  </h2>
+                  <p className={`text-xs font-medium mt-1 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                    Admissions, hospitalisation, médecine & actes
+                  </p>
+                </div>
+
+                <p className={`text-xs leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                  Prise en charge médicale complète : gestion des admissions du jour, anciens patients hospitalisés, sorties & guérisons, transferts sanitaires, constats de décès et caisse des prestations.
+                </p>
+
+                {/* Liste structurée */}
+                <div className={`pt-2 border-t space-y-2 text-xs ${isDark ? 'border-slate-800/80 text-slate-300' : 'border-slate-100 text-slate-700'}`}>
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                    <span>Admissions du jour & Nouveaux cas</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                    <span>Suivi des patients & Hospitalisation</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                    <span>Sorties médicales, Guérisons & Décharges</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                    <span>Transferts, Évacuations & Constats de décès</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                    <span>Entrées caisse & Livraison de services (Labo/Pharmacie)</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className={`pt-4 border-t ${isDark ? 'border-slate-800/80' : 'border-slate-100'}`}>
+                <button
+                  type="button"
+                  className="w-full py-2.5 rounded-xl bg-indigo-600 group-hover:bg-indigo-500 text-white font-medium text-xs transition-colors flex items-center justify-center gap-2"
+                >
+                  <span>Accéder à l'Hôpital</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* ===================================================================== */}
+            {/* CASE 2 : MORGUE                                                       */}
             {/* ===================================================================== */}
             <div
               onClick={() => handleChoosePolePath('MORGUE')}
-              className={`rounded-2xl p-7 sm:p-8 cursor-pointer transition-all duration-200 flex flex-col justify-between space-y-6 shadow-sm border group ${
+              className={`rounded-2xl p-6 sm:p-7 cursor-pointer transition-all duration-200 flex flex-col justify-between space-y-5 shadow-sm border group ${
                 isDark
                   ? 'bg-[#0F172A] border-slate-800 hover:border-blue-500/80 hover:bg-[#111C36]'
                   : 'bg-white border-slate-200 hover:border-blue-500/80 hover:bg-blue-50/50 shadow-md'
               }`}
             >
-              <div className="space-y-4">
+              <div className="space-y-3.5">
                 <div className="flex items-center justify-between">
-                  <span className={`text-[11px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                    Pôle Hospitalier
+                  <span className={`text-[11px] font-medium uppercase tracking-wider ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
+                    Pôle Conservation & Médico-Légal
                   </span>
                 </div>
 
                 <div>
-                  <h2 className="text-2xl font-bold tracking-tight uppercase group-hover:text-blue-500 transition-colors">
+                  <h2 className="text-xl sm:text-2xl font-bold tracking-tight uppercase group-hover:text-blue-500 transition-colors">
                     Morgue
                   </h2>
                   <p className={`text-xs font-medium mt-1 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
-                    Gestion des corps et conservation frigorifique
+                    60 Box frigorifiques, thanatopraxie & levée
                   </p>
                 </div>
 
                 <p className={`text-xs leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                  Prise en charge intégrale dès l'admission : affectation en casier frigorifique, surveillance thermique continue (+2°C à +4°C), soins de thanatopraxie, bracelet d'identification QR Code et levée du corps.
+                  Prise en charge intégrale dès l'admission : affectation en box frigorifique (capacité 60 box), surveillance thermique continue (+2°C à +4°C), soins de thanatopraxie, bracelet QR Code et levée du corps.
                 </p>
 
                 {/* Liste structurée */}
@@ -237,7 +292,7 @@ export const PoleSelectPage: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                    <span>Chambres froides & Capacité des casiers</span>
+                    <span>60 Box frigorifiques (+2°C à +4°C)</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
@@ -262,53 +317,57 @@ export const PoleSelectPage: React.FC = () => {
             </div>
 
             {/* ===================================================================== */}
-            {/* CASE 2 : FUNÉRARIUM                                                   */}
+            {/* CASE 3 : FUNÉRARIUM                                                   */}
             {/* ===================================================================== */}
             <div
               onClick={() => handleChoosePolePath('FUNERARIUM')}
-              className={`rounded-2xl p-7 sm:p-8 cursor-pointer transition-all duration-200 flex flex-col justify-between space-y-6 shadow-sm border group ${
+              className={`rounded-2xl p-6 sm:p-7 cursor-pointer transition-all duration-200 flex flex-col justify-between space-y-5 shadow-sm border group ${
                 isDark
                   ? 'bg-[#0F172A] border-slate-800 hover:border-emerald-500/80 hover:bg-[#0F2220]'
                   : 'bg-white border-slate-200 hover:border-emerald-500/80 hover:bg-emerald-50/50 shadow-md'
               }`}
             >
-              <div className="space-y-4">
+              <div className="space-y-3.5">
                 <div className="flex items-center justify-between">
-                  <span className={`text-[11px] font-medium uppercase tracking-wider ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
-                    Pôle Cérémonial
+                  <span className={`text-[11px] font-medium uppercase tracking-wider ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                    Pôle Cérémonial & Logistique
                   </span>
                 </div>
 
                 <div>
-                  <h2 className="text-2xl font-bold tracking-tight uppercase group-hover:text-emerald-500 transition-colors">
+                  <h2 className="text-xl sm:text-2xl font-bold tracking-tight uppercase group-hover:text-emerald-500 transition-colors">
                     Funérarium
                   </h2>
                   <p className={`text-xs font-medium mt-1 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
-                    Prestations, veillées et accompagnement des proches
+                    Chapiteaux, gradins, espaces verts, convois & pompes funèbres
                   </p>
                 </div>
 
                 <p className={`text-xs leading-relaxed ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
-                  Coordination du recueillement : réservation de salons funéraires avec calendrier en direct, conciergerie et traiteur, mémorial numérique, boutique d'articles funéraires et transport corbillard.
+                  Organisation complète des obsèques : chapiteaux étanches et climatisés, gradins modulaires, espaces verts paysagers de recueillement, convoi corbillard d'honneur et pompes funèbres.
                 </p>
 
-                {/* Liste structurée */}
+                {/* Liste structurée avec les 5 vrais domaines */}
                 <div className={`pt-2 border-t space-y-2 text-xs ${isDark ? 'border-slate-800/80 text-slate-300' : 'border-slate-100 text-slate-700'}`}>
                   <div className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                    <span>Salons de recueillement & Veillées</span>
+                    <span>Chapiteaux climatisés & Salons de veillée</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                    <span>Conciergerie, traiteur & mémorial en ligne</span>
+                    <span>Gradins modulaires d'honneur</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                    <span>Boutique d'articles, cercueils & fleurs</span>
+                    <span>Espaces verts paysagers & Recueillement</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                    <span>Logistique corbillard & géolocalisation</span>
+                    <span>Transport, convois & Flotte corbillards</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    <span>Service complet de pompes funèbres & cercueils</span>
                   </div>
                 </div>
               </div>
@@ -361,22 +420,32 @@ export const PoleSelectPage: React.FC = () => {
                 <span className={`text-[10px] font-mono font-bold uppercase tracking-wider block ${
                   targetPole === 'SUPER_ADMIN'
                     ? 'text-amber-400'
+                    : targetPole === 'HOPITAL'
+                    ? 'text-indigo-400'
                     : targetPole === 'MORGUE'
                     ? 'text-blue-500'
                     : 'text-emerald-500'
                 }`}>
                   {targetPole === 'SUPER_ADMIN'
                     ? 'Espace Super Admin • Direction Générale'
+                    : targetPole === 'HOPITAL'
+                    ? 'Pôle Hôpital • Soins & Admissions'
                     : targetPole === 'MORGUE'
-                    ? 'Pôle Morgue & Conservation'
+                    ? 'Pôle Morgue & Conservation (60 Box)'
                     : 'Pôle Funérarium & Cérémonies'}
                 </span>
                 <h2 className="text-lg font-bold tracking-tight uppercase">
-                  {targetPole === 'SUPER_ADMIN' ? 'Connexion Super Admin' : 'Connexion Session Sécurisée'}
+                  {targetPole === 'SUPER_ADMIN'
+                    ? 'Connexion Super Admin'
+                    : targetPole === 'HOPITAL'
+                    ? 'Connexion Pôle Hôpital'
+                    : 'Connexion Session Sécurisée'}
                 </h2>
                 <p className={`text-xs mt-0.5 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                   {targetPole === 'SUPER_ADMIN'
                     ? 'Accès réservé exclusivement aux membres accrédités de la Direction Générale.'
+                    : targetPole === 'HOPITAL'
+                    ? 'Accès réservé au personnel soignant, admissions, médecins et caisse hospitalière.'
                     : 'Seul le personnel accrédité de ce pôle ou le Super Admin est autorisé.'}
                 </p>
               </div>
@@ -434,6 +503,7 @@ export const PoleSelectPage: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  placeholder="••••••••"
                   className={`w-full px-3.5 py-2.5 rounded-xl text-xs placeholder-slate-500 focus:outline-none focus:ring-1 transition-colors border ${
                     isDark
                       ? 'bg-[#0B132B] border-slate-700 text-white focus:border-sky-500 focus:ring-sky-500'
@@ -448,6 +518,8 @@ export const PoleSelectPage: React.FC = () => {
                 className={`w-full py-2.5 rounded-xl font-semibold text-xs tracking-wide transition-colors shadow-sm disabled:opacity-50 ${
                   targetPole === 'SUPER_ADMIN'
                     ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold'
+                    : targetPole === 'HOPITAL'
+                    ? 'bg-indigo-600 hover:bg-indigo-500 text-white font-bold'
                     : targetPole === 'MORGUE'
                     ? 'bg-blue-600 hover:bg-blue-500 text-white'
                     : 'bg-emerald-700 hover:bg-emerald-600 text-white'
@@ -457,58 +529,12 @@ export const PoleSelectPage: React.FC = () => {
                   ? 'Vérification des accréditations...'
                   : targetPole === 'SUPER_ADMIN'
                   ? 'Accéder au Dashboard Super Admin'
-                  : 'Accéder à l\'espace sécurisé'}
+                  : targetPole === 'HOPITAL'
+                  ? 'Accéder au Pôle Hôpital'
+                  : targetPole === 'MORGUE'
+                  ? 'Accéder à la Morgue'
+                  : 'Accéder au Funérarium'}
               </button>
-
-              {/* Sélecteur rapide d'identifiants configurés pour faciliter les tests */}
-              <div className={`p-3 rounded-2xl border text-[11px] space-y-2 ${
-                isDark ? 'bg-slate-900/60 border-slate-800' : 'bg-slate-50 border-slate-200'
-              }`}>
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-slate-400 uppercase tracking-wider text-[10px]">
-                    Comptes & Accès configurés :
-                  </span>
-                  <span className="text-[10px] text-slate-500">Cliquer pour tester</span>
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {managedAccounts.map((acc) => {
-                    const isForThisPole =
-                      targetPole === 'SUPER_ADMIN'
-                        ? acc.role === 'DIRECTION' || acc.niveauAccreditation === 5
-                        : acc.polesAutorises === 'LES_DEUX' ||
-                          acc.polesAutorises === targetPole ||
-                          acc.role === 'DIRECTION' ||
-                          acc.niveauAccreditation === 5;
-
-                    return (
-                      <button
-                        key={acc.id}
-                        type="button"
-                        onClick={() => {
-                          setEmail(acc.email);
-                          setPassword(acc.motDePasse || '');
-                          setAuthError(null);
-                        }}
-                        className={`px-2 py-1 rounded-lg text-[10px] font-medium border transition-colors flex items-center gap-1 ${
-                          email.toLowerCase() === acc.email.toLowerCase()
-                            ? 'bg-blue-600 text-white border-blue-500 shadow-sm'
-                            : isForThisPole
-                            ? isDark
-                              ? 'bg-slate-800 text-slate-300 hover:text-white border-slate-700'
-                              : 'bg-white text-slate-700 hover:text-slate-900 border-slate-300'
-                            : isDark
-                            ? 'bg-red-950/30 text-red-300/80 hover:text-red-200 border-red-900/40'
-                            : 'bg-red-50 text-red-700/80 hover:text-red-900 border-red-200'
-                        }`}
-                        title={`${acc.prenom} ${acc.nom} (${acc.role}) - Pôles: ${acc.polesAutorises || 'LES_DEUX'}`}
-                      >
-                        <span className="font-semibold">{acc.prenom} {acc.nom}</span>
-                        <span className="opacity-60 text-[9px]">({acc.polesAutorises === 'LES_DEUX' ? '2 Pôles' : acc.polesAutorises === 'MORGUE' ? 'Morgue' : 'Funérarium'})</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
             </form>
 
             <div className="text-center pt-2">

@@ -200,12 +200,14 @@ export const Shell: React.FC = () => {
               className={`text-[11px] sm:text-xs font-semibold px-2 py-0.5 rounded ${
                 isSuperAdminPage
                   ? 'bg-amber-500 text-slate-950 font-bold'
+                  : currentPole === 'HOPITAL'
+                  ? 'bg-indigo-600 text-white'
                   : currentPole === 'MORGUE'
                   ? 'bg-blue-600 text-white'
                   : 'bg-emerald-700 text-white'
               }`}
             >
-              {isSuperAdminPage ? 'Super Admin' : currentPole === 'MORGUE' ? 'Morgue' : 'Funérarium'}
+              {isSuperAdminPage ? 'Super Admin' : currentPole === 'HOPITAL' ? 'Hôpital' : currentPole === 'MORGUE' ? 'Morgue' : 'Funérarium'}
             </span>
             <button
               onClick={handleSwitchPole}
@@ -308,6 +310,10 @@ export const Shell: React.FC = () => {
                   ? isDark
                     ? 'bg-amber-950/40 border-amber-800/70 text-amber-200'
                     : 'bg-amber-50 border-amber-200 text-amber-900'
+                  : currentPole === 'HOPITAL'
+                  ? isDark
+                    ? 'bg-indigo-950/40 border-indigo-900/60 text-indigo-200'
+                    : 'bg-indigo-50 border-indigo-200 text-indigo-900'
                   : currentPole === 'MORGUE'
                   ? isDark
                     ? 'bg-blue-950/40 border-blue-900/60 text-blue-200'
@@ -320,15 +326,17 @@ export const Shell: React.FC = () => {
               <div className="flex items-center justify-between text-[10px] uppercase font-semibold tracking-wider">
                 <span>Espace en cours</span>
                 <span className="font-mono font-bold">
-                  {isSuperAdminPage ? 'SUPER ADMIN' : currentPole}
+                  {isSuperAdminPage ? 'SUPER ADMIN' : currentPole === 'HOPITAL' ? 'HÔPITAL' : currentPole}
                 </span>
               </div>
               <p className={`text-[11px] mt-1 ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
                 {isSuperAdminPage
                   ? 'Supervision transverse & RBAC'
+                  : currentPole === 'HOPITAL'
+                  ? 'Admissions, lits, soins & caisse'
                   : currentPole === 'MORGUE'
-                  ? 'Corps, chambres froides & soins'
-                  : 'Salons de veillée & prestations'}
+                  ? '60 box, chambres froides & soins'
+                  : 'Chapiteaux, gradins & convois'}
               </p>
             </div>
 
@@ -354,6 +362,8 @@ export const Shell: React.FC = () => {
                       isActive
                         ? isSuperAdminPage
                           ? 'bg-amber-500 text-slate-950 font-bold shadow-md'
+                          : currentPole === 'HOPITAL'
+                          ? 'bg-indigo-600 text-white shadow-sm'
                           : currentPole === 'MORGUE'
                           ? 'bg-blue-600 text-white shadow-sm'
                           : 'bg-emerald-700 text-white shadow-sm'
@@ -468,6 +478,10 @@ export const Shell: React.FC = () => {
                   ? isDark
                     ? 'bg-amber-950/40 border-amber-800/70 text-amber-200'
                     : 'bg-amber-50 border-amber-200 text-amber-900'
+                  : currentPole === 'HOPITAL'
+                  ? isDark
+                    ? 'bg-indigo-950/40 border-indigo-900/60 text-indigo-200'
+                    : 'bg-indigo-50 border-indigo-200 text-indigo-900'
                   : currentPole === 'MORGUE'
                   ? isDark
                     ? 'bg-blue-950/40 border-blue-900/60 text-blue-200'
@@ -480,7 +494,7 @@ export const Shell: React.FC = () => {
               <div className="flex items-center justify-between text-[10px] uppercase font-semibold">
                 <span>Pôle en cours</span>
                 <span className="font-mono font-bold">
-                  {isSuperAdminPage ? 'SUPER ADMIN' : currentPole}
+                  {isSuperAdminPage ? 'SUPER ADMIN' : currentPole === 'HOPITAL' ? 'HÔPITAL' : currentPole}
                 </span>
               </div>
               <button
@@ -518,6 +532,8 @@ export const Shell: React.FC = () => {
                       isActive
                         ? isSuperAdminPage
                           ? 'bg-amber-500 text-slate-950 font-bold shadow-md'
+                          : currentPole === 'HOPITAL'
+                          ? 'bg-indigo-600 text-white shadow-sm'
                           : currentPole === 'MORGUE'
                           ? 'bg-blue-600 text-white shadow-sm'
                           : 'bg-emerald-700 text-white shadow-sm'

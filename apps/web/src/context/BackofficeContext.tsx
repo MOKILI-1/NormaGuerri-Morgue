@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { RoleUtilisateur, Utilisateur, NiveauAccreditation } from '@nomarguerrie/shared-types';
 
-export type PoleMetier = 'MORGUE' | 'FUNERARIUM' | 'SUPER_ADMIN';
+export type PoleMetier = 'MORGUE' | 'FUNERARIUM' | 'HOPITAL' | 'SUPER_ADMIN';
 export type AppTheme = 'dark' | 'light';
 
 export interface CaisseSession {
@@ -16,16 +16,19 @@ export interface CaisseSession {
   statut: 'OUVERTE' | 'CLOTUREE';
 }
 
+export type DirectionRattachee = 'DIRECTION_MORGUE' | 'DIRECTION_FUNERARIUM' | 'DIRECTION_HOPITAL' | 'CAISSE_CENTRALE' | 'DIRECTION_GENERALE';
+export type PolesAutorises = 'MORGUE' | 'FUNERARIUM' | 'HOPITAL' | 'LES_DEUX' | 'TOUS';
+
 export interface UserSession extends Utilisateur {
   actorId: string;
-  directionRattachee: 'DIRECTION_MORGUE' | 'DIRECTION_FUNERARIUM' | 'CAISSE_CENTRALE' | 'DIRECTION_GENERALE';
-  polesAutorises?: 'MORGUE' | 'FUNERARIUM' | 'LES_DEUX';
+  directionRattachee: DirectionRattachee;
+  polesAutorises?: PolesAutorises;
   motDePasse?: string;
 }
 
 export interface ManagedAccount extends UserSession {
   motDePasse: string;
-  polesAutorises: 'MORGUE' | 'FUNERARIUM' | 'LES_DEUX';
+  polesAutorises: PolesAutorises;
 }
 
 interface BackofficeContextType {
@@ -155,6 +158,21 @@ export const DEFAULT_ACCOUNTS: ManagedAccount[] = [
     actorId: 'ACT-LOG-006',
     directionRattachee: 'DIRECTION_FUNERARIUM',
     polesAutorises: 'FUNERARIUM'
+  },
+  {
+    id: 'usr-7',
+    nom: 'KASONGO',
+    prenom: 'Jeanne (Dr)',
+    email: 'hopital.agent@nomargueri.cd',
+    motDePasse: 'Hopital2026!',
+    role: 'RESPONSABLE_EXPLOITATION',
+    niveauAccreditation: 4,
+    estActif: true,
+    telephone: '+243820000007',
+    creeLe: '2026-02-15T08:00:00Z',
+    actorId: 'ACT-HOP-007',
+    directionRattachee: 'DIRECTION_HOPITAL',
+    polesAutorises: 'HOPITAL'
   }
 ];
 
@@ -203,7 +221,7 @@ export const BackofficeProvider: React.FC<{ children: ReactNode }> = ({ children
   const [currentPole, setCurrentPoleState] = useState<PoleMetier>(() => {
     try {
       const saved = sessionStorage.getItem('nomarguerrie_bo_pole');
-      return (saved === 'FUNERARIUM' ? 'FUNERARIUM' : saved === 'SUPER_ADMIN' ? 'SUPER_ADMIN' : 'MORGUE') as PoleMetier;
+      return (saved === 'FUNERARIUM' ? 'FUNERARIUM' : saved === 'HOPITAL' ? 'HOPITAL' : saved === 'SUPER_ADMIN' ? 'SUPER_ADMIN' : 'MORGUE') as PoleMetier;
     } catch {
       return 'MORGUE';
     }
@@ -223,7 +241,15 @@ export const BackofficeProvider: React.FC<{ children: ReactNode }> = ({ children
     try {
       const saved = localStorage.getItem('nomarguerrie_managed_accounts');
       if (saved) {
-        return JSON.parse(saved);
+        const parsed: ManagedAccount[] = JSON.parse(saved);
+        // Assurer que les comptes indispensables par défaut (comme le nouveau compte Pôle Hôpital) sont présents
+        const missing = DEFAULT_ACCOUNTS.filter((def) => !parsed.some((p) => p.email.toLowerCase() === def.email.toLowerCase()));
+        if (missing.length > 0) {
+          const merged = [...parsed, ...missing];
+          localStorage.setItem('nomarguerrie_managed_accounts', JSON.stringify(merged));
+          return merged;
+        }
+        return parsed;
       }
       return DEFAULT_ACCOUNTS;
     } catch {
@@ -292,15 +318,38 @@ export const BackofficeProvider: React.FC<{ children: ReactNode }> = ({ children
       };
     }
 
-    // 2. Accès configuré aux 2 Pôles (Morgue ET Funérarium) ou Caisse Centrale
-    if (user.polesAutorises === 'LES_DEUX' || user.directionRattachee === 'CAISSE_CENTRALE') {
+    // 2. Accès universel tous pôles ou Caisse Centrale
+    if (user.polesAutorises === 'TOUS' || user.directionRattachee === 'CAISSE_CENTRALE') {
       setCurrentUser(user);
       setCurrentPole(pole);
       sessionStorage.setItem('nomarguerrie_bo_user', JSON.stringify(user));
       return { success: true };
     }
 
-    // 3. Contrôle Pôle Morgue
+    // Accès combiné Morgue & Funérarium (historique)
+    if (user.polesAutorises === 'LES_DEUX' && (pole === 'MORGUE' || pole === 'FUNERARIUM')) {
+      setCurrentUser(user);
+      setCurrentPole(pole);
+      sessionStorage.setItem('nomarguerrie_bo_user', JSON.stringify(user));
+      return { success: true };
+    }
+
+    // 3. Contrôle Pôle Hôpital
+    if (pole === 'HOPITAL') {
+      if (user.polesAutorises === 'HOPITAL' || user.directionRattachee === 'DIRECTION_HOPITAL') {
+        setCurrentUser(user);
+        setCurrentPole(pole);
+        sessionStorage.setItem('nomarguerrie_bo_user', JSON.stringify(user));
+        return { success: true };
+      } else {
+        return {
+          success: false,
+          error: `Accès non autorisé : Votre compte (${user.prenom} ${user.nom}) n'est pas accrédité pour le Pôle Hôpital.`
+        };
+      }
+    }
+
+    // 4. Contrôle Pôle Morgue
     if (pole === 'MORGUE') {
       if (user.polesAutorises === 'MORGUE' || user.directionRattachee === 'DIRECTION_MORGUE') {
         setCurrentUser(user);
@@ -310,12 +359,12 @@ export const BackofficeProvider: React.FC<{ children: ReactNode }> = ({ children
       } else {
         return {
           success: false,
-          error: `Accès non autorisé : Votre compte (${user.prenom} ${user.nom}) est configuré pour le Pôle Funérarium uniquement. L'accès au Pôle Morgue vous est refusé.`
+          error: `Accès non autorisé : Votre compte (${user.prenom} ${user.nom}) n'est pas accrédité pour le Pôle Morgue.`
         };
       }
     }
 
-    // 4. Contrôle Pôle Funérarium
+    // 5. Contrôle Pôle Funérarium
     if (pole === 'FUNERARIUM') {
       if (user.polesAutorises === 'FUNERARIUM' || user.directionRattachee === 'DIRECTION_FUNERARIUM') {
         setCurrentUser(user);
@@ -325,7 +374,7 @@ export const BackofficeProvider: React.FC<{ children: ReactNode }> = ({ children
       } else {
         return {
           success: false,
-          error: `Accès non autorisé : Votre compte (${user.prenom} ${user.nom}) est configuré pour le Pôle Morgue uniquement. L'accès au Pôle Funérarium vous est refusé.`
+          error: `Accès non autorisé : Votre compte (${user.prenom} ${user.nom}) n'est pas accrédité pour le Pôle Funérarium.`
         };
       }
     }
